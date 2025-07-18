@@ -1,0 +1,105 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmbrick"
+version = "0.1.0"
+description = "A modular LLM application development framework"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "LLMBrick Team", email = "team@llmbrick.dev"}
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
+    "pydantic>=2.5.0",
+    "pyyaml>=6.0.1",
+    "aiofiles>=23.2.1",
+    "openai>=1.3.0",
+    "anthropic>=0.7.0",
+    "websockets>=12.0",
+    "grpcio>=1.59.0",
+    "grpcio-tools>=1.59.0",
+    "sse-starlette>=1.6.5",
+    "speechrecognition>=3.10.0",
+    "pyaudio>=0.2.11",
+    "chromadb>=0.4.15",
+    "sentence-transformers>=2.2.2",
+    "httpx>=0.25.0",
+    "python-multipart>=0.0.6",
+    "python-dotenv>=1.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.1.0",
+    "pytest-mock>=3.11.0",
+    "black>=23.9.0",
+    "isort>=5.12.0",
+    "flake8>=6.1.0",
+    "mypy>=1.6.0",
+    "mkdocs>=1.5.0",
+    "mkdocs-material>=9.4.0",
+    "pre-commit>=3.5.0",
+    "twine>=4.0.0",
+    "build>=1.0.0",
+]
+
+[project.scripts]
+llmbrick = "llmbrick.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/llmbrick/llmbrick"
+Documentation = "https://llmbrick.readthedocs.io"
+Repository = "https://github.com/llmbrick/llmbrick"
+Issues = "https://github.com/llmbrick/llmbrick/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["llmbrick*"]
+
+[tool.black]
+line-length = 88
+target-version = ['py38']
+include = '\.pyi?$'
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 88
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short --strict-markers"
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "e2e: End-to-end tests",
+]
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
