@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package protocols.grpc.intentionguard;
+
+
+import "protocols/grpc/common/common.proto";
+
+// Intention/Guard Brick 相關訊息
+message IntentionRequest {
+  string text = 1;
+}
+
+message IntentionResult {
+  string intent_category = 1;   // 例: "chat", "command", "question", "attack", ...
+  float confidence = 2;         // 信度 0~1
+  bool is_attack = 3;           // 是否偵測攻擊行為
+  string action = 4;            // 建議處理措施 "reject", "warn", "pass"
+}
+
+message IntentionResponse {
+  repeated IntentionResult results = 1;
+  ai.common.ErrorDetail error = 2;
+}
+
+service IntentionGuardService {
+  rpc CheckIntention(IntentionRequest) returns (IntentionResponse);
+}

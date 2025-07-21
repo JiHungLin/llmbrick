@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package protocols.grpc.llm;
+
+
+import "protocols/grpc/common/common.proto";
+
+// LLM Brick 相關訊息
+message LLMRequest {
+  string model_id = 1;          // 指定模型
+  string prompt = 2;
+  map<string, string> options = 3; // 溫度、max_tokens等參數
+  repeated string context = 4;      // 上下文 (可選)
+}
+
+message LLMResponse {
+  string text = 1;
+  repeated string tokens = 2;  // 串流時可用
+  bool is_final = 3;           // 是否最後一筆
+  ai.common.ErrorDetail error = 4;
+}
+
+service LLMService {
+  rpc GenerateResponse(LLMRequest) returns (LLMResponse);
+
+  // Server Streaming 實作
+  rpc GenerateResponseStream(LLMRequest) returns (stream LLMResponse);
+}

@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package protocols.grpc.compose_translate;
+
+import "protocols/grpc/common/common.proto";
+import "google/protobuf/struct.proto";
+
+// Compose/Translate Brick 相關訊息
+message Document {
+  string doc_id = 1;
+  string title = 2;
+  string snippet = 3;
+  float score = 4;
+  google.protobuf.Struct metadata = 5;
+}
+
+message ComposeRequest {
+  repeated Document input_documents = 1;
+  string target_format = 2;    // 例: "json", "html", "markdown"
+  string target_language = 3;  // 例: "en", "zh-tw"
+}
+
+message ComposeResponse {
+  google.protobuf.Struct output = 1;   // 格式化資料物件
+  ai.common.ErrorDetail error = 2;
+}
+
+service ComposeTranslateService {
+  rpc ComposeAndTranslate(ComposeRequest) returns (ComposeResponse);
+}

@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package protocols.grpc.rectify;
+
+import "protocols/grpc/common/common.proto";
+
+// Rectify Brick 相關訊息
+message TextRequest {
+  string text = 1;
+  string language = 2;   // 可選，識別語言
+}
+
+message TextResponse {
+  string corrected_text = 1;
+  ai.common.ErrorDetail error = 2;
+}
+
+// Rectify 服務
+service RectifyService {
+  rpc RectifyText(TextRequest) returns (TextResponse);
+}

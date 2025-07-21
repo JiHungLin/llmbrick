@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package protocols.grpc.retrieval;
+
+import "protocols/grpc/common/common.proto";
+import "google/protobuf/struct.proto";
+
+// Retrieval Brick 相關訊息
+message RetrievalRequest {
+  string query = 1;
+  int32 max_results = 2;  // 最多回傳數量
+}
+
+message Document {
+  string doc_id = 1;
+  string title = 2;
+  string snippet = 3;       // 簡短摘錄
+  float score = 4;          // 相似度分數
+  google.protobuf.Struct metadata = 5; // 可擴展欄位
+}
+
+message RetrievalResponse {
+  repeated Document documents = 1;
+  ai.common.ErrorDetail error = 2;
+}
+
+service RetrievalService {
+  rpc RetrieveDocs(RetrievalRequest) returns (RetrievalResponse);
+}
