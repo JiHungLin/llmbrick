@@ -18,7 +18,7 @@ message ServiceInfoResponse {
   string service_name = 1;
   string version = 2;
   repeated ModelInfo models = 3;
-  ai.common.ErrorDetail error = 4;
+  protocols.grpc.common.ErrorDetail error = 4;
 }
 
 service ServiceInfoService {

@@ -21,7 +21,7 @@ message Document {
 
 message RetrievalResponse {
   repeated Document documents = 1;
-  ai.common.ErrorDetail error = 2;
+  protocols.grpc.common.ErrorDetail error = 2;
 }
 
 service RetrievalService {

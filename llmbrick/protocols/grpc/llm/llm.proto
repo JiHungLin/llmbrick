@@ -17,7 +17,7 @@ message LLMResponse {
   string text = 1;
   repeated string tokens = 2;  // 串流時可用
   bool is_final = 3;           // 是否最後一筆
-  ai.common.ErrorDetail error = 4;
+  protocols.grpc.common.ErrorDetail error = 4;
 }
 
 service LLMService {

@@ -2,12 +2,26 @@ syntax = "proto3";
 
 package protocols.grpc.common;
 
-option go_package = "github.com/yourorg/yourrepo/api/common";
-
 import "google/protobuf/struct.proto";
 
 message ErrorDetail {
   int32 code = 1;         // 錯誤碼，0=成功
   string message = 2;      // 人類可讀訊息
   string detail = 3;       // 技術細節 (可選)
+}
+
+message CommonRequest {
+  google.protobuf.Struct data = 1;
+}
+
+message CommonReqponse {
+  google.protobuf.Struct data = 1;
+  protocols.grpc.common.ErrorDetail error = 2;
+}
+
+service CommonService{
+  rpc Unary (CommonRequest) returns (CommonReqponse) {}
+  rpc ServerStreaming (CommonRequest) returns (stream CommonReqponse) {}
+  rpc ClientStreaming (stream CommonRequest) returns (CommonReqponse) {}
+  rpc BidiStreaming (stream CommonRequest) returns (stream CommonReqponse) {}
 }

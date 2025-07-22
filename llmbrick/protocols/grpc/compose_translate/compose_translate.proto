@@ -22,7 +22,7 @@ message ComposeRequest {
 
 message ComposeResponse {
   google.protobuf.Struct output = 1;   // 格式化資料物件
-  ai.common.ErrorDetail error = 2;
+  protocols.grpc.common.ErrorDetail error = 2;
 }
 
 service ComposeTranslateService {

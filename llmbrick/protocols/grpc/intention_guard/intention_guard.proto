@@ -19,7 +19,7 @@ message IntentionResult {
 
 message IntentionResponse {
   repeated IntentionResult results = 1;
-  ai.common.ErrorDetail error = 2;
+  protocols.grpc.common.ErrorDetail error = 2;
 }
 
 service IntentionGuardService {
