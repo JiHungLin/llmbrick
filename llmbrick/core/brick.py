@@ -19,21 +19,28 @@ class GRPCCallType(Enum):
     BIDI_STREAMING = "bidi_streaming"
 
 class BaseBrick(Generic[InputT, OutputT]):
-    def __init__(self):
+    def __init__(self, verbose: bool = True):
         self._unary_handler: Optional[Callable[[InputT], Awaitable[OutputT]]] = None
         self._server_streaming_handler: Optional[Callable[[InputT], AsyncIterator[OutputT]]] = None
         self._client_streaming_handler: Optional[Callable[[AsyncIterator[InputT]], Awaitable[OutputT]]] = None
         self._bidi_streaming_handler: Optional[Callable[[AsyncIterator[InputT]], AsyncIterator[OutputT]]] = None
         self.brick_name: str = self.__class__.__name__
+        self._verbose: bool = verbose
 
     # Decorator for unary
     def unary(self):
         def decorator(func):
-            @functools.wraps(func)
-            @log_function(service_name=f"{self.brick_name}-Unary")
-            async def wrapper(*args, **kwargs):
-                res = await func(*args, **kwargs)
-                return res
+            if self._verbose:
+                @functools.wraps(func)
+                @log_function(service_name=f"{self.brick_name}-Unary")
+                async def wrapper(*args, **kwargs):
+                    res = await func(*args, **kwargs)
+                    return res
+            else:
+                @functools.wraps(func)
+                async def wrapper(*args, **kwargs):
+                    res = await func(*args, **kwargs)
+                    return res
             self._unary_handler = wrapper
             return wrapper
         return decorator
@@ -41,11 +48,17 @@ class BaseBrick(Generic[InputT, OutputT]):
     # Decorator for server streaming
     def server_streaming(self):
         def decorator(func):
-            @functools.wraps(func)
-            @log_function(service_name=f"{self.brick_name}-ServerStreaming")
-            async def wrapper(*args, **kwargs):
-                async for val in func(*args, **kwargs):
-                    yield val
+            if self._verbose:
+                @functools.wraps(func)
+                @log_function(service_name=f"{self.brick_name}-ServerStreaming")
+                async def wrapper(*args, **kwargs):
+                    async for val in func(*args, **kwargs):
+                        yield val
+            else:
+                @functools.wraps(func)
+                async def wrapper(*args, **kwargs):
+                    async for val in func(*args, **kwargs):
+                        yield val
             self._server_streaming_handler = wrapper
             return wrapper
         return decorator
@@ -53,11 +66,17 @@ class BaseBrick(Generic[InputT, OutputT]):
     # Decorator for client streaming
     def client_streaming(self):
         def decorator(func):
-            @functools.wraps(func)
-            @log_function(service_name=f"{self.brick_name}-ClientStreaming")
-            async def wrapper(*args, **kwargs):
-                res = await func(*args, **kwargs)
-                return res
+            if self._verbose:
+                @functools.wraps(func)
+                @log_function(service_name=f"{self.brick_name}-ClientStreaming")
+                async def wrapper(*args, **kwargs):
+                    res = await func(*args, **kwargs)
+                    return res
+            else:
+                @functools.wraps(func)
+                async def wrapper(*args, **kwargs):
+                    res = await func(*args, **kwargs)
+                    return res
             self._client_streaming_handler = wrapper
             return wrapper
         return decorator
@@ -65,11 +84,17 @@ class BaseBrick(Generic[InputT, OutputT]):
     # Decorator for bidi streaming
     def bidi_streaming(self):
         def decorator(func):
-            @functools.wraps(func)
-            @log_function(service_name=f"{self.brick_name}-BidiStreaming")
-            async def wrapper(*args, **kwargs):
-                async for val in func(*args, **kwargs):
-                    yield val
+            if self._verbose:
+                @functools.wraps(func)
+                @log_function(service_name=f"{self.brick_name}-BidiStreaming")
+                async def wrapper(*args, **kwargs):
+                    async for val in func(*args, **kwargs):
+                        yield val
+            else:
+                @functools.wraps(func)
+                async def wrapper(*args, **kwargs):
+                    async for val in func(*args, **kwargs):
+                        yield val
             self._bidi_streaming_handler = wrapper
             return wrapper
         return decorator
