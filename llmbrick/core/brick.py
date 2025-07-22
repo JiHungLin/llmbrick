@@ -103,24 +103,44 @@ class BaseBrick(Generic[InputT, OutputT]):
     async def run_unary(self, input_data: InputT) -> OutputT:
         if not self._unary_handler:
             raise NotImplementedError("Unary handler not registered")
-        return await self._unary_handler(input_data)
+        try:
+            return await self._unary_handler(input_data)
+        except Exception as e:
+            from ..utils.logging import logger
+            logger.error(f"[{self.brick_name}] run_unary exception: {e}", exc_info=True)
+            raise
 
     # Entry: server streaming call
     async def run_server_streaming(self, input_data: InputT) -> AsyncIterator[OutputT]:
         if not self._server_streaming_handler:
             raise NotImplementedError("Server streaming handler not registered")
-        async for val in self._server_streaming_handler(input_data):
-            yield val
+        try:
+            async for val in self._server_streaming_handler(input_data):
+                yield val
+        except Exception as e:
+            from ..utils.logging import logger
+            logger.error(f"[{self.brick_name}] run_server_streaming exception: {e}", exc_info=True)
+            raise
 
     # Entry: client streaming call
     async def run_client_streaming(self, input_stream: AsyncIterator[InputT]) -> OutputT:
         if not self._client_streaming_handler:
             raise NotImplementedError("Client streaming handler not registered")
-        return await self._client_streaming_handler(input_stream)
+        try:
+            return await self._client_streaming_handler(input_stream)
+        except Exception as e:
+            from ..utils.logging import logger
+            logger.error(f"[{self.brick_name}] run_client_streaming exception: {e}", exc_info=True)
+            raise
 
     # Entry: bidirectional streaming call
     async def run_bidi_streaming(self, input_stream: AsyncIterator[InputT]) -> AsyncIterator[OutputT]:
         if not self._bidi_streaming_handler:
             raise NotImplementedError("Bidi streaming handler not registered")
-        async for val in self._bidi_streaming_handler(input_stream):
-            yield val
+        try:
+            async for val in self._bidi_streaming_handler(input_stream):
+                yield val
+        except Exception as e:
+            from ..utils.logging import logger
+            logger.error(f"[{self.brick_name}] run_bidi_streaming exception: {e}", exc_info=True)
+            raise

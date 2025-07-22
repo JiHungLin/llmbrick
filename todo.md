@@ -10,10 +10,10 @@
 - [x] 建立基本的 CI/CD Pipeline (GitHub Actions)
 
 ### 1.2 核心抽象層實作 (`llmbrick/core/`)
-- [ ] **BaseBrick 基類** (`brick.py`)
+- [x] **BaseBrick 基類** (`brick.py`)
   - [x] 定義抽象介面 (`各模式的process`)
-  - [ ] 實作基本的錯誤處理機制
-  - [ ] 加入日誌記錄功能
+  - [x] 實作基本的錯誤處理機制
+  - [x] 加入日誌記錄功能
   - [x] 支援配置注入
 
 - [ ] **Config 配置管理** (`config.py`)
