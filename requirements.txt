@@ -7,17 +7,12 @@ aiofiles>=23.2.1
 
 # LLM providers
 openai>=1.3.0
-anthropic>=0.7.0
 
 # Communication protocols
 websockets>=12.0
 grpcio>=1.59.0
 grpcio-tools>=1.59.0
 sse-starlette>=1.6.5
-
-# Audio processing
-speechrecognition>=3.10.0
-pyaudio>=0.2.11
 
 # Vector database and embeddings
 chromadb>=0.4.15
