@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 from protocols.grpc.common import common_pb2 as protocols_dot_grpc_dot_common_dot_common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1cprotocols/grpc/llm/llm.proto\x12\x12protocols.grpc.llm\x1a\"protocols/grpc/common/common.proto\"\xad\x01\n\nLLMRequest\x12\x10\n\x08model_id\x18\x01 \x01(\t\x12\x0e\n\x06prompt\x18\x02 \x01(\t\x12<\n\x07options\x18\x03 \x03(\x0b\x32+.protocols.grpc.llm.LLMRequest.OptionsEntry\x12\x0f\n\x07\x63ontext\x18\x04 \x03(\t\x1a.\n\x0cOptionsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"p\n\x0bLLMResponse\x12\x0c\n\x04text\x18\x01 \x01(\t\x12\x0e\n\x06tokens\x18\x02 \x03(\t\x12\x10\n\x08is_final\x18\x03 \x01(\x08\x12\x31\n\x05\x65rror\x18\x04 \x01(\x0b\x32\".protocols.grpc.common.ErrorDetail2\xbe\x01\n\nLLMService\x12S\n\x10GenerateResponse\x12\x1e.protocols.grpc.llm.LLMRequest\x1a\x1f.protocols.grpc.llm.LLMResponse\x12[\n\x16GenerateResponseStream\x12\x1e.protocols.grpc.llm.LLMRequest\x1a\x1f.protocols.grpc.llm.LLMResponse0\x01\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1cprotocols/grpc/llm/llm.proto\x12\x12protocols.grpc.llm\x1a\"protocols/grpc/common/common.proto\"\xad\x01\n\nLLMRequest\x12\x10\n\x08model_id\x18\x01 \x01(\t\x12\x0e\n\x06prompt\x18\x02 \x01(\t\x12<\n\x07options\x18\x03 \x03(\x0b\x32+.protocols.grpc.llm.LLMRequest.OptionsEntry\x12\x0f\n\x07\x63ontext\x18\x04 \x03(\t\x1a.\n\x0cOptionsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"p\n\x0bLLMResponse\x12\x0c\n\x04text\x18\x01 \x01(\t\x12\x0e\n\x06tokens\x18\x02 \x03(\t\x12\x10\n\x08is_final\x18\x03 \x01(\x08\x12\x31\n\x05\x65rror\x18\x04 \x01(\x0b\x32\".protocols.grpc.common.ErrorDetail2\xa7\x02\n\nLLMService\x12g\n\x0eGetServiceInfo\x12).protocols.grpc.common.ServiceInfoRequest\x1a*.protocols.grpc.common.ServiceInfoResponse\x12S\n\x10GenerateResponse\x12\x1e.protocols.grpc.llm.LLMRequest\x1a\x1f.protocols.grpc.llm.LLMResponse\x12[\n\x16GenerateResponseStream\x12\x1e.protocols.grpc.llm.LLMRequest\x1a\x1f.protocols.grpc.llm.LLMResponse0\x01\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -41,5 +41,5 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_LLMRESPONSE']._serialized_start=264
   _globals['_LLMRESPONSE']._serialized_end=376
   _globals['_LLMSERVICE']._serialized_start=379
-  _globals['_LLMSERVICE']._serialized_end=569
+  _globals['_LLMSERVICE']._serialized_end=674
 # @@protoc_insertion_point(module_scope)

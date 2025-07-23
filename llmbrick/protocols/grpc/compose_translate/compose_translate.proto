@@ -26,5 +26,6 @@ message ComposeResponse {
 }
 
 service ComposeTranslateService {
+  rpc GetServiceInfo(protocols.grpc.common.ServiceInfoRequest) returns (protocols.grpc.common.ServiceInfoResponse);
   rpc ComposeAndTranslate(ComposeRequest) returns (ComposeResponse);
 }

@@ -21,6 +21,8 @@ message LLMResponse {
 }
 
 service LLMService {
+  rpc GetServiceInfo(protocols.grpc.common.ServiceInfoRequest) returns (protocols.grpc.common.ServiceInfoResponse);
+  
   rpc GenerateResponse(LLMRequest) returns (LLMResponse);
 
   // Server Streaming 實作

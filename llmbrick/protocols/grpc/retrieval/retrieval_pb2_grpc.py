@@ -3,6 +3,7 @@
 import grpc
 import warnings
 
+from protocols.grpc.common import common_pb2 as protocols_dot_grpc_dot_common_dot_common__pb2
 from protocols.grpc.retrieval import retrieval_pb2 as protocols_dot_grpc_dot_retrieval_dot_retrieval__pb2
 
 GRPC_GENERATED_VERSION = '1.73.1'
@@ -34,6 +35,11 @@ class RetrievalServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
+        self.GetServiceInfo = channel.unary_unary(
+                '/protocols.grpc.retrieval.RetrievalService/GetServiceInfo',
+                request_serializer=protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoRequest.SerializeToString,
+                response_deserializer=protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoResponse.FromString,
+                _registered_method=True)
         self.RetrieveDocs = channel.unary_unary(
                 '/protocols.grpc.retrieval.RetrievalService/RetrieveDocs',
                 request_serializer=protocols_dot_grpc_dot_retrieval_dot_retrieval__pb2.RetrievalRequest.SerializeToString,
@@ -44,6 +50,12 @@ class RetrievalServiceStub(object):
 class RetrievalServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
+    def GetServiceInfo(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def RetrieveDocs(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -53,6 +65,11 @@ class RetrievalServiceServicer(object):
 
 def add_RetrievalServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
+            'GetServiceInfo': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetServiceInfo,
+                    request_deserializer=protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoRequest.FromString,
+                    response_serializer=protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoResponse.SerializeToString,
+            ),
             'RetrieveDocs': grpc.unary_unary_rpc_method_handler(
                     servicer.RetrieveDocs,
                     request_deserializer=protocols_dot_grpc_dot_retrieval_dot_retrieval__pb2.RetrievalRequest.FromString,
@@ -68,6 +85,33 @@ def add_RetrievalServiceServicer_to_server(servicer, server):
  # This class is part of an EXPERIMENTAL API.
 class RetrievalService(object):
     """Missing associated documentation comment in .proto file."""
+
+    @staticmethod
+    def GetServiceInfo(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/protocols.grpc.retrieval.RetrievalService/GetServiceInfo',
+            protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoRequest.SerializeToString,
+            protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def RetrieveDocs(request,

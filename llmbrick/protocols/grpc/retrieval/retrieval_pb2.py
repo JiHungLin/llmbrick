@@ -26,7 +26,7 @@ from protocols.grpc.common import common_pb2 as protocols_dot_grpc_dot_common_do
 from google.protobuf import struct_pb2 as google_dot_protobuf_dot_struct__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n(protocols/grpc/retrieval/retrieval.proto\x12\x18protocols.grpc.retrieval\x1a\"protocols/grpc/common/common.proto\x1a\x1cgoogle/protobuf/struct.proto\"6\n\x10RetrievalRequest\x12\r\n\x05query\x18\x01 \x01(\t\x12\x13\n\x0bmax_results\x18\x02 \x01(\x05\"t\n\x08\x44ocument\x12\x0e\n\x06\x64oc_id\x18\x01 \x01(\t\x12\r\n\x05title\x18\x02 \x01(\t\x12\x0f\n\x07snippet\x18\x03 \x01(\t\x12\r\n\x05score\x18\x04 \x01(\x02\x12)\n\x08metadata\x18\x05 \x01(\x0b\x32\x17.google.protobuf.Struct\"}\n\x11RetrievalResponse\x12\x35\n\tdocuments\x18\x01 \x03(\x0b\x32\".protocols.grpc.retrieval.Document\x12\x31\n\x05\x65rror\x18\x02 \x01(\x0b\x32\".protocols.grpc.common.ErrorDetail2{\n\x10RetrievalService\x12g\n\x0cRetrieveDocs\x12*.protocols.grpc.retrieval.RetrievalRequest\x1a+.protocols.grpc.retrieval.RetrievalResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n(protocols/grpc/retrieval/retrieval.proto\x12\x18protocols.grpc.retrieval\x1a\"protocols/grpc/common/common.proto\x1a\x1cgoogle/protobuf/struct.proto\"6\n\x10RetrievalRequest\x12\r\n\x05query\x18\x01 \x01(\t\x12\x13\n\x0bmax_results\x18\x02 \x01(\x05\"t\n\x08\x44ocument\x12\x0e\n\x06\x64oc_id\x18\x01 \x01(\t\x12\r\n\x05title\x18\x02 \x01(\t\x12\x0f\n\x07snippet\x18\x03 \x01(\t\x12\r\n\x05score\x18\x04 \x01(\x02\x12)\n\x08metadata\x18\x05 \x01(\x0b\x32\x17.google.protobuf.Struct\"}\n\x11RetrievalResponse\x12\x35\n\tdocuments\x18\x01 \x03(\x0b\x32\".protocols.grpc.retrieval.Document\x12\x31\n\x05\x65rror\x18\x02 \x01(\x0b\x32\".protocols.grpc.common.ErrorDetail2\xe4\x01\n\x10RetrievalService\x12g\n\x0eGetServiceInfo\x12).protocols.grpc.common.ServiceInfoRequest\x1a*.protocols.grpc.common.ServiceInfoResponse\x12g\n\x0cRetrieveDocs\x12*.protocols.grpc.retrieval.RetrievalRequest\x1a+.protocols.grpc.retrieval.RetrievalResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -39,6 +39,6 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_DOCUMENT']._serialized_end=308
   _globals['_RETRIEVALRESPONSE']._serialized_start=310
   _globals['_RETRIEVALRESPONSE']._serialized_end=435
-  _globals['_RETRIEVALSERVICE']._serialized_start=437
-  _globals['_RETRIEVALSERVICE']._serialized_end=560
+  _globals['_RETRIEVALSERVICE']._serialized_start=438
+  _globals['_RETRIEVALSERVICE']._serialized_end=666
 # @@protoc_insertion_point(module_scope)

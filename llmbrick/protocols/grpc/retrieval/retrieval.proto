@@ -25,5 +25,6 @@ message RetrievalResponse {
 }
 
 service RetrievalService {
+  rpc GetServiceInfo(protocols.grpc.common.ServiceInfoRequest) returns (protocols.grpc.common.ServiceInfoResponse);
   rpc RetrieveDocs(RetrievalRequest) returns (RetrievalResponse);
 }

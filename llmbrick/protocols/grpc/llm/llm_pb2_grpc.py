@@ -3,6 +3,7 @@
 import grpc
 import warnings
 
+from protocols.grpc.common import common_pb2 as protocols_dot_grpc_dot_common_dot_common__pb2
 from protocols.grpc.llm import llm_pb2 as protocols_dot_grpc_dot_llm_dot_llm__pb2
 
 GRPC_GENERATED_VERSION = '1.73.1'
@@ -34,6 +35,11 @@ class LLMServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
+        self.GetServiceInfo = channel.unary_unary(
+                '/protocols.grpc.llm.LLMService/GetServiceInfo',
+                request_serializer=protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoRequest.SerializeToString,
+                response_deserializer=protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoResponse.FromString,
+                _registered_method=True)
         self.GenerateResponse = channel.unary_unary(
                 '/protocols.grpc.llm.LLMService/GenerateResponse',
                 request_serializer=protocols_dot_grpc_dot_llm_dot_llm__pb2.LLMRequest.SerializeToString,
@@ -48,6 +54,12 @@ class LLMServiceStub(object):
 
 class LLMServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
+
+    def GetServiceInfo(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
 
     def GenerateResponse(self, request, context):
         """Missing associated documentation comment in .proto file."""
@@ -65,6 +77,11 @@ class LLMServiceServicer(object):
 
 def add_LLMServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
+            'GetServiceInfo': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetServiceInfo,
+                    request_deserializer=protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoRequest.FromString,
+                    response_serializer=protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoResponse.SerializeToString,
+            ),
             'GenerateResponse': grpc.unary_unary_rpc_method_handler(
                     servicer.GenerateResponse,
                     request_deserializer=protocols_dot_grpc_dot_llm_dot_llm__pb2.LLMRequest.FromString,
@@ -85,6 +102,33 @@ def add_LLMServiceServicer_to_server(servicer, server):
  # This class is part of an EXPERIMENTAL API.
 class LLMService(object):
     """Missing associated documentation comment in .proto file."""
+
+    @staticmethod
+    def GetServiceInfo(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/protocols.grpc.llm.LLMService/GetServiceInfo',
+            protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoRequest.SerializeToString,
+            protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def GenerateResponse(request,

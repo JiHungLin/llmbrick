@@ -17,5 +17,7 @@ message TextResponse {
 
 // Rectify 服務
 service RectifyService {
+  rpc GetServiceInfo(protocols.grpc.common.ServiceInfoRequest) returns (protocols.grpc.common.ServiceInfoResponse);
+
   rpc RectifyText(TextRequest) returns (TextResponse);
 }

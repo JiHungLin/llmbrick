@@ -3,6 +3,7 @@
 import grpc
 import warnings
 
+from protocols.grpc.common import common_pb2 as protocols_dot_grpc_dot_common_dot_common__pb2
 from protocols.grpc.compose_translate import compose_translate_pb2 as protocols_dot_grpc_dot_compose__translate_dot_compose__translate__pb2
 
 GRPC_GENERATED_VERSION = '1.73.1'
@@ -34,6 +35,11 @@ class ComposeTranslateServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
+        self.GetServiceInfo = channel.unary_unary(
+                '/protocols.grpc.compose_translate.ComposeTranslateService/GetServiceInfo',
+                request_serializer=protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoRequest.SerializeToString,
+                response_deserializer=protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoResponse.FromString,
+                _registered_method=True)
         self.ComposeAndTranslate = channel.unary_unary(
                 '/protocols.grpc.compose_translate.ComposeTranslateService/ComposeAndTranslate',
                 request_serializer=protocols_dot_grpc_dot_compose__translate_dot_compose__translate__pb2.ComposeRequest.SerializeToString,
@@ -44,6 +50,12 @@ class ComposeTranslateServiceStub(object):
 class ComposeTranslateServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
+    def GetServiceInfo(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def ComposeAndTranslate(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -53,6 +65,11 @@ class ComposeTranslateServiceServicer(object):
 
 def add_ComposeTranslateServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
+            'GetServiceInfo': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetServiceInfo,
+                    request_deserializer=protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoRequest.FromString,
+                    response_serializer=protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoResponse.SerializeToString,
+            ),
             'ComposeAndTranslate': grpc.unary_unary_rpc_method_handler(
                     servicer.ComposeAndTranslate,
                     request_deserializer=protocols_dot_grpc_dot_compose__translate_dot_compose__translate__pb2.ComposeRequest.FromString,
@@ -68,6 +85,33 @@ def add_ComposeTranslateServiceServicer_to_server(servicer, server):
  # This class is part of an EXPERIMENTAL API.
 class ComposeTranslateService(object):
     """Missing associated documentation comment in .proto file."""
+
+    @staticmethod
+    def GetServiceInfo(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/protocols.grpc.compose_translate.ComposeTranslateService/GetServiceInfo',
+            protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoRequest.SerializeToString,
+            protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def ComposeAndTranslate(request,

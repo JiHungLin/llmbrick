@@ -23,5 +23,6 @@ message IntentionResponse {
 }
 
 service IntentionGuardService {
+  rpc GetServiceInfo(protocols.grpc.common.ServiceInfoRequest) returns (protocols.grpc.common.ServiceInfoResponse);
   rpc CheckIntention(IntentionRequest) returns (IntentionResponse);
 }

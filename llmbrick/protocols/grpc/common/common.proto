@@ -19,7 +19,25 @@ message CommonReqponse {
   protocols.grpc.common.ErrorDetail error = 2;
 }
 
+message ServiceInfoRequest {}
+
+message ModelInfo {
+  string model_id = 1;
+  string version = 2;
+  repeated string supported_languages = 3;
+  bool support_streaming = 4;
+  string description = 5;
+}
+
+message ServiceInfoResponse {
+  string service_name = 1;
+  string version = 2;
+  repeated ModelInfo models = 3;
+  protocols.grpc.common.ErrorDetail error = 4;
+}
+
 service CommonService{
+  rpc GetServiceInfo(ServiceInfoRequest) returns (ServiceInfoResponse);
   rpc Unary (CommonRequest) returns (CommonReqponse) {}
   rpc OutputStreaming (CommonRequest) returns (stream CommonReqponse) {}
   rpc InputStreaming (stream CommonRequest) returns (CommonReqponse) {}
