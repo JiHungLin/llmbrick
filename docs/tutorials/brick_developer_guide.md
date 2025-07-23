@@ -73,3 +73,42 @@ classDiagram
     BaseBrick <|-- MyCustomBrick
     MyCustomBrick : +prefix: str
     MyCustomBrick : +process(input_data: str) str
+```
+
+---
+
+## Brick-to-gRPC 分層包裝開發指引（推薦架構）
+
+### 步驟 1：實作 Brick 子類
+
+```python
+from llmbrick.core.brick import BaseBrick
+
+class LLMBrick(BaseBrick):
+    def __init__(self, default_prompt: str, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.default_prompt = default_prompt
+
+    def run_generateresponse(self, request, context):
+        # 實作 gRPC handler 對應邏輯
+        pass
+
+    def run_generateresponsestream(self, request, context):
+        # 實作 gRPC stream handler
+        yield
+```
+
+### 步驟 2：使用 MainGrpcServer 註冊服務
+
+```python
+from llmbrick.servers.grpc.server import MainGrpcServer
+
+brick = LLMBrick(default_prompt="hi")
+server = GrpcServer(port=50051)
+server.register_service(brick)
+server.start()
+```
+
+- 每個分類有專屬 xxxGrpcWrapper，明確 mapping proto rpc function
+- 通用型 Brick 可用 CommonGrpcWrapper 註冊
+- 擴展新 Service 只需新增對應 wrapper 並在主 server 註冊

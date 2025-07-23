@@ -40,6 +40,9 @@ class GRPCCallType(Enum):
     BIDI_STREAMING = "bidi_streaming"
 
 class BaseBrick(Generic[InputT, OutputT]):
+
+    grpc_service_type = "common"  # 預設為 common
+
     def __init__(self, verbose: bool = True):
         self._unary_handler: Optional[UnaryHandler] = None
         self._output_streaming_handler: Optional[OutputStreamingHandler] = None
