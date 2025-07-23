@@ -21,7 +21,7 @@ message CommonReqponse {
 
 service CommonService{
   rpc Unary (CommonRequest) returns (CommonReqponse) {}
-  rpc ServerStreaming (CommonRequest) returns (stream CommonReqponse) {}
-  rpc ClientStreaming (stream CommonRequest) returns (CommonReqponse) {}
+  rpc OutputStreaming (CommonRequest) returns (stream CommonReqponse) {}
+  rpc InputStreaming (stream CommonRequest) returns (CommonReqponse) {}
   rpc BidiStreaming (stream CommonRequest) returns (stream CommonReqponse) {}
 }

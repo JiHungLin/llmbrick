@@ -39,13 +39,13 @@ class CommonServiceStub(object):
                 request_serializer=protocols_dot_grpc_dot_common_dot_common__pb2.CommonRequest.SerializeToString,
                 response_deserializer=protocols_dot_grpc_dot_common_dot_common__pb2.CommonReqponse.FromString,
                 _registered_method=True)
-        self.ServerStreaming = channel.unary_stream(
-                '/protocols.grpc.common.CommonService/ServerStreaming',
+        self.OutputStreaming = channel.unary_stream(
+                '/protocols.grpc.common.CommonService/OutputStreaming',
                 request_serializer=protocols_dot_grpc_dot_common_dot_common__pb2.CommonRequest.SerializeToString,
                 response_deserializer=protocols_dot_grpc_dot_common_dot_common__pb2.CommonReqponse.FromString,
                 _registered_method=True)
-        self.ClientStreaming = channel.stream_unary(
-                '/protocols.grpc.common.CommonService/ClientStreaming',
+        self.InputStreaming = channel.stream_unary(
+                '/protocols.grpc.common.CommonService/InputStreaming',
                 request_serializer=protocols_dot_grpc_dot_common_dot_common__pb2.CommonRequest.SerializeToString,
                 response_deserializer=protocols_dot_grpc_dot_common_dot_common__pb2.CommonReqponse.FromString,
                 _registered_method=True)
@@ -65,13 +65,13 @@ class CommonServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def ServerStreaming(self, request, context):
+    def OutputStreaming(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def ClientStreaming(self, request_iterator, context):
+    def InputStreaming(self, request_iterator, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -91,13 +91,13 @@ def add_CommonServiceServicer_to_server(servicer, server):
                     request_deserializer=protocols_dot_grpc_dot_common_dot_common__pb2.CommonRequest.FromString,
                     response_serializer=protocols_dot_grpc_dot_common_dot_common__pb2.CommonReqponse.SerializeToString,
             ),
-            'ServerStreaming': grpc.unary_stream_rpc_method_handler(
-                    servicer.ServerStreaming,
+            'OutputStreaming': grpc.unary_stream_rpc_method_handler(
+                    servicer.OutputStreaming,
                     request_deserializer=protocols_dot_grpc_dot_common_dot_common__pb2.CommonRequest.FromString,
                     response_serializer=protocols_dot_grpc_dot_common_dot_common__pb2.CommonReqponse.SerializeToString,
             ),
-            'ClientStreaming': grpc.stream_unary_rpc_method_handler(
-                    servicer.ClientStreaming,
+            'InputStreaming': grpc.stream_unary_rpc_method_handler(
+                    servicer.InputStreaming,
                     request_deserializer=protocols_dot_grpc_dot_common_dot_common__pb2.CommonRequest.FromString,
                     response_serializer=protocols_dot_grpc_dot_common_dot_common__pb2.CommonReqponse.SerializeToString,
             ),
@@ -145,7 +145,7 @@ class CommonService(object):
             _registered_method=True)
 
     @staticmethod
-    def ServerStreaming(request,
+    def OutputStreaming(request,
             target,
             options=(),
             channel_credentials=None,
@@ -158,7 +158,7 @@ class CommonService(object):
         return grpc.experimental.unary_stream(
             request,
             target,
-            '/protocols.grpc.common.CommonService/ServerStreaming',
+            '/protocols.grpc.common.CommonService/OutputStreaming',
             protocols_dot_grpc_dot_common_dot_common__pb2.CommonRequest.SerializeToString,
             protocols_dot_grpc_dot_common_dot_common__pb2.CommonReqponse.FromString,
             options,
@@ -172,7 +172,7 @@ class CommonService(object):
             _registered_method=True)
 
     @staticmethod
-    def ClientStreaming(request_iterator,
+    def InputStreaming(request_iterator,
             target,
             options=(),
             channel_credentials=None,
@@ -185,7 +185,7 @@ class CommonService(object):
         return grpc.experimental.stream_unary(
             request_iterator,
             target,
-            '/protocols.grpc.common.CommonService/ClientStreaming',
+            '/protocols.grpc.common.CommonService/InputStreaming',
             protocols_dot_grpc_dot_common_dot_common__pb2.CommonRequest.SerializeToString,
             protocols_dot_grpc_dot_common_dot_common__pb2.CommonReqponse.FromString,
             options,

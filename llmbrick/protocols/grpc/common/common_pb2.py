@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 from google.protobuf import struct_pb2 as google_dot_protobuf_dot_struct__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\"protocols/grpc/common/common.proto\x12\x15protocols.grpc.common\x1a\x1cgoogle/protobuf/struct.proto\"<\n\x0b\x45rrorDetail\x12\x0c\n\x04\x63ode\x18\x01 \x01(\x05\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x0e\n\x06\x64\x65tail\x18\x03 \x01(\t\"6\n\rCommonRequest\x12%\n\x04\x64\x61ta\x18\x01 \x01(\x0b\x32\x17.google.protobuf.Struct\"j\n\x0e\x43ommonReqponse\x12%\n\x04\x64\x61ta\x18\x01 \x01(\x0b\x32\x17.google.protobuf.Struct\x12\x31\n\x05\x65rror\x18\x02 \x01(\x0b\x32\".protocols.grpc.common.ErrorDetail2\x93\x03\n\rCommonService\x12V\n\x05Unary\x12$.protocols.grpc.common.CommonRequest\x1a%.protocols.grpc.common.CommonReqponse\"\x00\x12\x62\n\x0fServerStreaming\x12$.protocols.grpc.common.CommonRequest\x1a%.protocols.grpc.common.CommonReqponse\"\x00\x30\x01\x12\x62\n\x0f\x43lientStreaming\x12$.protocols.grpc.common.CommonRequest\x1a%.protocols.grpc.common.CommonReqponse\"\x00(\x01\x12\x62\n\rBidiStreaming\x12$.protocols.grpc.common.CommonRequest\x1a%.protocols.grpc.common.CommonReqponse\"\x00(\x01\x30\x01\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\"protocols/grpc/common/common.proto\x12\x15protocols.grpc.common\x1a\x1cgoogle/protobuf/struct.proto\"<\n\x0b\x45rrorDetail\x12\x0c\n\x04\x63ode\x18\x01 \x01(\x05\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x0e\n\x06\x64\x65tail\x18\x03 \x01(\t\"6\n\rCommonRequest\x12%\n\x04\x64\x61ta\x18\x01 \x01(\x0b\x32\x17.google.protobuf.Struct\"j\n\x0e\x43ommonReqponse\x12%\n\x04\x64\x61ta\x18\x01 \x01(\x0b\x32\x17.google.protobuf.Struct\x12\x31\n\x05\x65rror\x18\x02 \x01(\x0b\x32\".protocols.grpc.common.ErrorDetail2\x92\x03\n\rCommonService\x12V\n\x05Unary\x12$.protocols.grpc.common.CommonRequest\x1a%.protocols.grpc.common.CommonReqponse\"\x00\x12\x62\n\x0fOutputStreaming\x12$.protocols.grpc.common.CommonRequest\x1a%.protocols.grpc.common.CommonReqponse\"\x00\x30\x01\x12\x61\n\x0eInputStreaming\x12$.protocols.grpc.common.CommonRequest\x1a%.protocols.grpc.common.CommonReqponse\"\x00(\x01\x12\x62\n\rBidiStreaming\x12$.protocols.grpc.common.CommonRequest\x1a%.protocols.grpc.common.CommonReqponse\"\x00(\x01\x30\x01\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -39,5 +39,5 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_COMMONREQPONSE']._serialized_start=209
   _globals['_COMMONREQPONSE']._serialized_end=315
   _globals['_COMMONSERVICE']._serialized_start=318
-  _globals['_COMMONSERVICE']._serialized_end=721
+  _globals['_COMMONSERVICE']._serialized_end=720
 # @@protoc_insertion_point(module_scope)

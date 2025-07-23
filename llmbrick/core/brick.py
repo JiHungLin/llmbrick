@@ -1,35 +1,69 @@
 from typing import TypeVar, Generic, Callable, Awaitable, Optional, AsyncIterator, Union
 from enum import Enum
 import functools
+# --- 強型別 decorator，避免字串錯誤 ---
+def unary_handler(func):
+    return _brick_handler("unary")(func)
+
+def output_streaming_handler(func):
+    return _brick_handler("output_streaming")(func)
+
+def input_streaming_handler(func):
+    return _brick_handler("input_streaming")(func)
+
+def bidi_streaming_handler(func):
+    return _brick_handler("bidi_streaming")(func)
+# --- Brick Handler Decorator for Class-level Registration ---
+def _brick_handler(call_type: str):
+    """
+    用於標記 class method 為 brick handler，call_type 可為 'unary'、'output_streaming' 等
+    """
+    def decorator(func):
+        setattr(func, "_brick_handler_type", call_type)
+        return func
+    return decorator
 from ..utils.logging import log_function
 
 InputT = TypeVar("InputT")
 OutputT = TypeVar("OutputT")
 
 UnaryHandler = Callable[[InputT], Awaitable[OutputT]]
-ServerStreamingHandler = Callable[[InputT], AsyncIterator[OutputT]]
-ClientStreamingHandler = Callable[[AsyncIterator[InputT]], Awaitable[OutputT]]
+OutputStreamingHandler = Callable[[InputT], AsyncIterator[OutputT]]
+InputStreamingHandler = Callable[[AsyncIterator[InputT]], Awaitable[OutputT]]
 BidiStreamingHandler = Callable[[AsyncIterator[InputT]], AsyncIterator[OutputT]]
 
 
 class GRPCCallType(Enum):
     UNARY = "unary"
-    SERVER_STREAMING = "server_streaming"
-    CLIENT_STREAMING = "client_streaming"
+    output_streaming = "output_streaming"
+    input_streaming = "input_streaming"
     BIDI_STREAMING = "bidi_streaming"
 
 class BaseBrick(Generic[InputT, OutputT]):
     def __init__(self, verbose: bool = True):
-        self._unary_handler: Optional[Callable[[InputT], Awaitable[OutputT]]] = None
-        self._server_streaming_handler: Optional[Callable[[InputT], AsyncIterator[OutputT]]] = None
-        self._client_streaming_handler: Optional[Callable[[AsyncIterator[InputT]], Awaitable[OutputT]]] = None
-        self._bidi_streaming_handler: Optional[Callable[[AsyncIterator[InputT]], AsyncIterator[OutputT]]] = None
+        self._unary_handler: Optional[UnaryHandler] = None
+        self._output_streaming_handler: Optional[OutputStreamingHandler] = None
+        self._input_streaming_handler: Optional[InputStreamingHandler] = None
+        self._bidi_streaming_handler: Optional[BidiStreamingHandler] = None
         self.brick_name: str = self.__class__.__name__
         self._verbose: bool = verbose
 
+        # --- 自動註冊 class-level handler ---
+        for attr_name in dir(self):
+            attr = getattr(self, attr_name)
+            if callable(attr) and hasattr(attr, "_brick_handler_type"):
+                call_type = getattr(attr, "_brick_handler_type")
+                if call_type == "unary":
+                    self._unary_handler = attr
+                elif call_type == "output_streaming":
+                    self._output_streaming_handler = attr
+                elif call_type == "input_streaming":
+                    self._input_streaming_handler = attr
+                elif call_type == "bidi_streaming":
+                    self._bidi_streaming_handler = attr
     # Decorator for unary
     def unary(self):
-        def decorator(func):
+        def decorator(func: UnaryHandler) -> UnaryHandler:
             if self._verbose:
                 @functools.wraps(func)
                 @log_function(service_name=f"{self.brick_name}-Unary")
@@ -41,16 +75,16 @@ class BaseBrick(Generic[InputT, OutputT]):
                 async def wrapper(*args, **kwargs):
                     res = await func(*args, **kwargs)
                     return res
-            self._unary_handler = wrapper
-            return wrapper
+            self._unary_handler = wrapper  # type: ignore
+            return wrapper  # type: ignore
         return decorator
 
     # Decorator for server streaming
-    def server_streaming(self):
-        def decorator(func):
+    def output_streaming(self):
+        def decorator(func: OutputStreamingHandler) -> OutputStreamingHandler:
             if self._verbose:
                 @functools.wraps(func)
-                @log_function(service_name=f"{self.brick_name}-ServerStreaming")
+                @log_function(service_name=f"{self.brick_name}-OutputStreaming")
                 async def wrapper(*args, **kwargs):
                     async for val in func(*args, **kwargs):
                         yield val
@@ -59,16 +93,16 @@ class BaseBrick(Generic[InputT, OutputT]):
                 async def wrapper(*args, **kwargs):
                     async for val in func(*args, **kwargs):
                         yield val
-            self._server_streaming_handler = wrapper
-            return wrapper
+            self._output_streaming_handler = wrapper  # type: ignore
+            return wrapper  # type: ignore
         return decorator
 
     # Decorator for client streaming
-    def client_streaming(self):
-        def decorator(func):
+    def input_streaming(self):
+        def decorator(func: InputStreamingHandler) -> InputStreamingHandler:
             if self._verbose:
                 @functools.wraps(func)
-                @log_function(service_name=f"{self.brick_name}-ClientStreaming")
+                @log_function(service_name=f"{self.brick_name}-InputStreaming")
                 async def wrapper(*args, **kwargs):
                     res = await func(*args, **kwargs)
                     return res
@@ -77,13 +111,13 @@ class BaseBrick(Generic[InputT, OutputT]):
                 async def wrapper(*args, **kwargs):
                     res = await func(*args, **kwargs)
                     return res
-            self._client_streaming_handler = wrapper
-            return wrapper
+            self._input_streaming_handler = wrapper  # type: ignore
+            return wrapper  # type: ignore
         return decorator
 
     # Decorator for bidi streaming
     def bidi_streaming(self):
-        def decorator(func):
+        def decorator(func: BidiStreamingHandler) -> BidiStreamingHandler:
             if self._verbose:
                 @functools.wraps(func)
                 @log_function(service_name=f"{self.brick_name}-BidiStreaming")
@@ -95,8 +129,8 @@ class BaseBrick(Generic[InputT, OutputT]):
                 async def wrapper(*args, **kwargs):
                     async for val in func(*args, **kwargs):
                         yield val
-            self._bidi_streaming_handler = wrapper
-            return wrapper
+            self._bidi_streaming_handler = wrapper  # type: ignore
+            return wrapper  # type: ignore
         return decorator
 
     # Entry: unary call
@@ -111,26 +145,26 @@ class BaseBrick(Generic[InputT, OutputT]):
             raise
 
     # Entry: server streaming call
-    async def run_server_streaming(self, input_data: InputT) -> AsyncIterator[OutputT]:
-        if not self._server_streaming_handler:
+    async def run_output_streaming(self, input_data: InputT) -> AsyncIterator[OutputT]:
+        if not self._output_streaming_handler:
             raise NotImplementedError("Server streaming handler not registered")
         try:
-            async for val in self._server_streaming_handler(input_data):
+            async for val in self._output_streaming_handler(input_data):
                 yield val
         except Exception as e:
             from ..utils.logging import logger
-            logger.error(f"[{self.brick_name}] run_server_streaming exception: {e}", exc_info=True)
+            logger.error(f"[{self.brick_name}] run_output_streaming exception: {e}", exc_info=True)
             raise
 
     # Entry: client streaming call
-    async def run_client_streaming(self, input_stream: AsyncIterator[InputT]) -> OutputT:
-        if not self._client_streaming_handler:
+    async def run_input_streaming(self, input_stream: AsyncIterator[InputT]) -> OutputT:
+        if not self._input_streaming_handler:
             raise NotImplementedError("Client streaming handler not registered")
         try:
-            return await self._client_streaming_handler(input_stream)
+            return await self._input_streaming_handler(input_stream)
         except Exception as e:
             from ..utils.logging import logger
-            logger.error(f"[{self.brick_name}] run_client_streaming exception: {e}", exc_info=True)
+            logger.error(f"[{self.brick_name}] run_input_streaming exception: {e}", exc_info=True)
             raise
 
     # Entry: bidirectional streaming call

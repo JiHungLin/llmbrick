@@ -16,12 +16,6 @@
   - [x] 加入日誌記錄功能
   - [x] 支援配置注入
 
-- [ ] **Config 配置管理** (`config.py`)
-  - [ ] YAML/JSON 配置檔讀取
-  - [ ] 環境變數覆蓋機制
-  - [ ] 配置驗證和預設值
-  - [ ] 動態配置重載
-
 - [ ] **EventBus 事件匯流排** (`event_bus.py`)
   - [ ] LocalEventBus (記憶體內實作)
   - [ ] 抽象介面定義
@@ -144,34 +138,12 @@
 
 ## 🎯 Phase 5: 開發者體驗優化 (預估時間: 2-3 週)
 
-### 5.1 CLI 工具 (`llmbrick/cli.py`)
-- [ ] **專案初始化**
-  - [ ] 模板生成 (basic, rag, voice)
-  - [ ] 配置檔案生成
-  - [ ] 範例代碼建立
-
-- [ ] **開發伺服器**
-  - [ ] 熱重載功能
-  - [ ] 開發模式配置
-  - [ ] 除錯資訊顯示
-
-- [ ] **工具指令**
-  - [ ] Brick 清單顯示
-  - [ ] 配置驗證
-  - [ ] 服務健康檢查
-
-### 5.2 裝飾器系統 (`llmbrick/utils/decorators.py`)
-- [ ] **@brick_plugin 裝飾器**
-  - [ ] 自動註冊機制
-  - [ ] 中介資料收集
-  - [ ] 類型驗證
-
+### 5.1 裝飾器系統 (`llmbrick/utils/decorators.py`)
 - [ ] **其他實用裝飾器**
-  - [ ] @async_retry 重試機制
   - [ ] @measure_time 性能測量
   - [ ] @cache_result 結果快取
 
-### 5.3 插件系統 (`llmbrick/plugins/`)
+### 5.2 插件系統 (`llmbrick/plugins/`)
 - [ ] **插件註冊表** (`registry.py`)
   - [ ] 動態插件載入
   - [ ] 版本相容性檢查
