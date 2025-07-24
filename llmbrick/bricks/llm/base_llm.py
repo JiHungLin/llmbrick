@@ -1,7 +1,7 @@
-from llmbrick.core.brick import BaseBrick
+from deprecated import deprecated
+import warnings
 
-# gRPC Servicer class import
-from llmbrick.protocols.grpc.llm import llm_pb2_grpc
+from llmbrick.core.brick import BaseBrick
 
 class LLMBrick(BaseBrick):
     """
@@ -20,7 +20,25 @@ class LLMBrick(BaseBrick):
 
     """
     grpc_service_type = "llm"
+    # 僅允許這三種 handler
+    allowed_handler_types = {"unary", "output_streaming", "get_service_info"}
 
     def __init__(self, default_prompt: str, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.default_prompt = default_prompt
+
+    @deprecated(reason="LLMBrick does not support bidi_streaming handler.")
+    def bidi_streaming(self):
+        """
+        Deprecated: LLMBrick only supports unary and output_streaming handlers, input_streaming and bidi_streaming are not applicable.
+        """
+        warnings.warn("LLMBrick does not support bidi_streaming handler.", PendingDeprecationWarning)
+        raise NotImplementedError("LLMBrick does not support bidi_streaming handler.")
+    
+    @deprecated(reason="LLMBrick does not support input_streaming handler.")
+    def input_streaming(self):
+        """
+        Deprecated: LLMBrick only supports unary and output_streaming handlers, input_streaming is not applicable.
+        """
+        warnings.warn("LLMBrick does not support input_streaming handler.", DeprecationWarning)
+        raise NotImplementedError("LLMBrick does not support input_streaming handler.")

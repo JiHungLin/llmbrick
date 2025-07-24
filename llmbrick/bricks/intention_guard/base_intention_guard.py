@@ -1,3 +1,5 @@
+from deprecated import deprecated
+import warnings
 from llmbrick.core.brick import BaseBrick
 
 class IntentionGuardBrick(BaseBrick):
@@ -15,3 +17,33 @@ class IntentionGuardBrick(BaseBrick):
 
     """
     grpc_service_type = "intention_guard"
+
+    allowed_handler_types = {"unary", "get_service_info"}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    @deprecated(reason="IntentionGuardBrick does not support bidi_streaming handler.")
+    def bidi_streaming(self):
+        """
+        Deprecated: IntentionGuardBrick only supports unary and get_service_info handlers, input_streaming and bidi_streaming are not applicable.
+        """
+        warnings.warn("IntentionGuardBrick does not support bidi_streaming handler.", PendingDeprecationWarning)
+        raise NotImplementedError("IntentionGuardBrick does not support bidi_streaming handler.")
+    
+    @deprecated(reason="IntentionGuardBrick does not support input_streaming handler.")
+    def input_streaming(self):
+        """
+        Deprecated: IntentionGuardBrick only supports unary and get_service_info handlers, input_streaming is not applicable.
+        """
+        warnings.warn("IntentionGuardBrick does not support input_streaming handler.", DeprecationWarning)
+        raise NotImplementedError("IntentionGuardBrick does not support input_streaming handler.")
+    
+
+    @deprecated(reason="IntentionGuardBrick does not support output_streaming handler.")
+    def output_streaming(self):
+        """
+        Deprecated: IntentionGuardBrick only supports unary and get_service_info handlers, output_streaming is not applicable.
+        """
+        warnings.warn("IntentionGuardBrick does not support output_streaming handler.", DeprecationWarning)
+        raise NotImplementedError("IntentionGuardBrick does not support output_streaming handler.")

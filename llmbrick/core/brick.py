@@ -46,6 +46,8 @@ class GRPCCallType(Enum):
 class BaseBrick(Generic[InputT, OutputT]):
 
     grpc_service_type = "common"  # 預設為 common
+    # 可由子類覆寫，若為 None 則不限制
+    allowed_handler_types: Optional[set] = None
 
     def __init__(self, verbose: bool = True):
         self._unary_handler: Optional[UnaryHandler] = None
@@ -61,6 +63,13 @@ class BaseBrick(Generic[InputT, OutputT]):
             attr = getattr(self, attr_name)
             if callable(attr) and hasattr(attr, "_brick_handler_type"):
                 call_type = getattr(attr, "_brick_handler_type")
+                # 檢查是否允許此 handler
+                allowed = getattr(self, "allowed_handler_types", None)
+                if allowed is not None and call_type not in allowed:
+                    raise RuntimeError(
+                        f"[{self.brick_name}] 不允許定義 handler: '{call_type}'，"
+                        f"只允許: {sorted(allowed)}"
+                    )
                 if call_type == "unary":
                     self._unary_handler = attr
                 elif call_type == "output_streaming":
