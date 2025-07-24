@@ -3,6 +3,7 @@
 import grpc
 import warnings
 
+from protocols.grpc.common import common_pb2 as protocols_dot_grpc_dot_common_dot_common__pb2
 from protocols.grpc.rectify import rectify_pb2 as protocols_dot_grpc_dot_rectify_dot_rectify__pb2
 
 GRPC_GENERATED_VERSION = '1.73.1'
@@ -35,6 +36,11 @@ class RectifyServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
+        self.GetServiceInfo = channel.unary_unary(
+                '/protocols.grpc.rectify.RectifyService/GetServiceInfo',
+                request_serializer=protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoRequest.SerializeToString,
+                response_deserializer=protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoResponse.FromString,
+                _registered_method=True)
         self.RectifyText = channel.unary_unary(
                 '/protocols.grpc.rectify.RectifyService/RectifyText',
                 request_serializer=protocols_dot_grpc_dot_rectify_dot_rectify__pb2.TextRequest.SerializeToString,
@@ -46,6 +52,12 @@ class RectifyServiceServicer(object):
     """Rectify 服務
     """
 
+    def GetServiceInfo(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def RectifyText(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -55,6 +67,11 @@ class RectifyServiceServicer(object):
 
 def add_RectifyServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
+            'GetServiceInfo': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetServiceInfo,
+                    request_deserializer=protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoRequest.FromString,
+                    response_serializer=protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoResponse.SerializeToString,
+            ),
             'RectifyText': grpc.unary_unary_rpc_method_handler(
                     servicer.RectifyText,
                     request_deserializer=protocols_dot_grpc_dot_rectify_dot_rectify__pb2.TextRequest.FromString,
@@ -71,6 +88,33 @@ def add_RectifyServiceServicer_to_server(servicer, server):
 class RectifyService(object):
     """Rectify 服務
     """
+
+    @staticmethod
+    def GetServiceInfo(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/protocols.grpc.rectify.RectifyService/GetServiceInfo',
+            protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoRequest.SerializeToString,
+            protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def RectifyText(request,
