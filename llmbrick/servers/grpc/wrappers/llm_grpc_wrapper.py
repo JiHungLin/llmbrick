@@ -1,8 +1,7 @@
 from llmbrick.protocols.grpc.llm import llm_pb2_grpc
-from llmbrick.protocols.grpc.llm import llm_pb2
-
+from llmbrick.core.brick import BaseBrick
 class LLMGrpcWrapper(llm_pb2_grpc.LLMServiceServicer):
-    def __init__(self, brick):
+    def __init__(self, brick: BaseBrick):
         self.brick = brick
 
     def GenerateResponse(self, request, context):
