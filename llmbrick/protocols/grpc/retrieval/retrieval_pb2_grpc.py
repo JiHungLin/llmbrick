@@ -40,8 +40,8 @@ class RetrievalServiceStub(object):
                 request_serializer=protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoRequest.SerializeToString,
                 response_deserializer=protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoResponse.FromString,
                 _registered_method=True)
-        self.RetrieveDocs = channel.unary_unary(
-                '/protocols.grpc.retrieval.RetrievalService/RetrieveDocs',
+        self.Unary = channel.unary_unary(
+                '/protocols.grpc.retrieval.RetrievalService/Unary',
                 request_serializer=protocols_dot_grpc_dot_retrieval_dot_retrieval__pb2.RetrievalRequest.SerializeToString,
                 response_deserializer=protocols_dot_grpc_dot_retrieval_dot_retrieval__pb2.RetrievalResponse.FromString,
                 _registered_method=True)
@@ -56,7 +56,7 @@ class RetrievalServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def RetrieveDocs(self, request, context):
+    def Unary(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -70,8 +70,8 @@ def add_RetrievalServiceServicer_to_server(servicer, server):
                     request_deserializer=protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoRequest.FromString,
                     response_serializer=protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoResponse.SerializeToString,
             ),
-            'RetrieveDocs': grpc.unary_unary_rpc_method_handler(
-                    servicer.RetrieveDocs,
+            'Unary': grpc.unary_unary_rpc_method_handler(
+                    servicer.Unary,
                     request_deserializer=protocols_dot_grpc_dot_retrieval_dot_retrieval__pb2.RetrievalRequest.FromString,
                     response_serializer=protocols_dot_grpc_dot_retrieval_dot_retrieval__pb2.RetrievalResponse.SerializeToString,
             ),
@@ -114,7 +114,7 @@ class RetrievalService(object):
             _registered_method=True)
 
     @staticmethod
-    def RetrieveDocs(request,
+    def Unary(request,
             target,
             options=(),
             channel_credentials=None,
@@ -127,7 +127,7 @@ class RetrievalService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/protocols.grpc.retrieval.RetrievalService/RetrieveDocs',
+            '/protocols.grpc.retrieval.RetrievalService/Unary',
             protocols_dot_grpc_dot_retrieval_dot_retrieval__pb2.RetrievalRequest.SerializeToString,
             protocols_dot_grpc_dot_retrieval_dot_retrieval__pb2.RetrievalResponse.FromString,
             options,

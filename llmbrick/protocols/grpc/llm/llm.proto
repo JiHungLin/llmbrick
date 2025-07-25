@@ -23,8 +23,8 @@ message LLMResponse {
 service LLMService {
   rpc GetServiceInfo(protocols.grpc.common.ServiceInfoRequest) returns (protocols.grpc.common.ServiceInfoResponse);
   
-  rpc GenerateResponse(LLMRequest) returns (LLMResponse);
+  rpc Unary(LLMRequest) returns (LLMResponse);
 
   // Server Streaming 實作
-  rpc GenerateResponseStream(LLMRequest) returns (stream LLMResponse);
+  rpc OutputStreaming(LLMRequest) returns (stream LLMResponse);
 }

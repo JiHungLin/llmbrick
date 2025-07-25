@@ -40,13 +40,13 @@ class LLMServiceStub(object):
                 request_serializer=protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoRequest.SerializeToString,
                 response_deserializer=protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoResponse.FromString,
                 _registered_method=True)
-        self.GenerateResponse = channel.unary_unary(
-                '/protocols.grpc.llm.LLMService/GenerateResponse',
+        self.Unary = channel.unary_unary(
+                '/protocols.grpc.llm.LLMService/Unary',
                 request_serializer=protocols_dot_grpc_dot_llm_dot_llm__pb2.LLMRequest.SerializeToString,
                 response_deserializer=protocols_dot_grpc_dot_llm_dot_llm__pb2.LLMResponse.FromString,
                 _registered_method=True)
-        self.GenerateResponseStream = channel.unary_stream(
-                '/protocols.grpc.llm.LLMService/GenerateResponseStream',
+        self.OutputStreaming = channel.unary_stream(
+                '/protocols.grpc.llm.LLMService/OutputStreaming',
                 request_serializer=protocols_dot_grpc_dot_llm_dot_llm__pb2.LLMRequest.SerializeToString,
                 response_deserializer=protocols_dot_grpc_dot_llm_dot_llm__pb2.LLMResponse.FromString,
                 _registered_method=True)
@@ -61,13 +61,13 @@ class LLMServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GenerateResponse(self, request, context):
+    def Unary(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GenerateResponseStream(self, request, context):
+    def OutputStreaming(self, request, context):
         """Server Streaming 實作
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -82,13 +82,13 @@ def add_LLMServiceServicer_to_server(servicer, server):
                     request_deserializer=protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoRequest.FromString,
                     response_serializer=protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoResponse.SerializeToString,
             ),
-            'GenerateResponse': grpc.unary_unary_rpc_method_handler(
-                    servicer.GenerateResponse,
+            'Unary': grpc.unary_unary_rpc_method_handler(
+                    servicer.Unary,
                     request_deserializer=protocols_dot_grpc_dot_llm_dot_llm__pb2.LLMRequest.FromString,
                     response_serializer=protocols_dot_grpc_dot_llm_dot_llm__pb2.LLMResponse.SerializeToString,
             ),
-            'GenerateResponseStream': grpc.unary_stream_rpc_method_handler(
-                    servicer.GenerateResponseStream,
+            'OutputStreaming': grpc.unary_stream_rpc_method_handler(
+                    servicer.OutputStreaming,
                     request_deserializer=protocols_dot_grpc_dot_llm_dot_llm__pb2.LLMRequest.FromString,
                     response_serializer=protocols_dot_grpc_dot_llm_dot_llm__pb2.LLMResponse.SerializeToString,
             ),
@@ -131,7 +131,7 @@ class LLMService(object):
             _registered_method=True)
 
     @staticmethod
-    def GenerateResponse(request,
+    def Unary(request,
             target,
             options=(),
             channel_credentials=None,
@@ -144,7 +144,7 @@ class LLMService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/protocols.grpc.llm.LLMService/GenerateResponse',
+            '/protocols.grpc.llm.LLMService/Unary',
             protocols_dot_grpc_dot_llm_dot_llm__pb2.LLMRequest.SerializeToString,
             protocols_dot_grpc_dot_llm_dot_llm__pb2.LLMResponse.FromString,
             options,
@@ -158,7 +158,7 @@ class LLMService(object):
             _registered_method=True)
 
     @staticmethod
-    def GenerateResponseStream(request,
+    def OutputStreaming(request,
             target,
             options=(),
             channel_credentials=None,
@@ -171,7 +171,7 @@ class LLMService(object):
         return grpc.experimental.unary_stream(
             request,
             target,
-            '/protocols.grpc.llm.LLMService/GenerateResponseStream',
+            '/protocols.grpc.llm.LLMService/OutputStreaming',
             protocols_dot_grpc_dot_llm_dot_llm__pb2.LLMRequest.SerializeToString,
             protocols_dot_grpc_dot_llm_dot_llm__pb2.LLMResponse.FromString,
             options,

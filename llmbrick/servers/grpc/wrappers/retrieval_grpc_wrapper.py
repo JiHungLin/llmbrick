@@ -1,5 +1,5 @@
+from llmbrick.bricks.retrieval.base_retrieval import RetrievalBrick
 from llmbrick.protocols.grpc.retrieval import retrieval_pb2_grpc
-from llmbrick.core.brick import BaseBrick
 class RetrievalGrpcWrapper(retrieval_pb2_grpc.RetrievalServiceServicer):
     """
     RetrievalGrpcWrapper: gRPC服務包裝器，用於處理檢索相關請求
@@ -13,7 +13,9 @@ class RetrievalGrpcWrapper(retrieval_pb2_grpc.RetrievalServiceServicer):
 
     """
 
-    def __init__(self, brick: BaseBrick):
+    def __init__(self, brick: RetrievalBrick):
+        if not isinstance(brick, RetrievalBrick):
+            raise TypeError("brick must be an instance of RetrievalBrick")
         self.brick = brick
     
     def get_service_info(self, request, context):

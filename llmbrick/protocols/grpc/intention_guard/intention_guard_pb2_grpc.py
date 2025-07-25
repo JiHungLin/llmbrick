@@ -40,8 +40,8 @@ class IntentionGuardServiceStub(object):
                 request_serializer=protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoRequest.SerializeToString,
                 response_deserializer=protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoResponse.FromString,
                 _registered_method=True)
-        self.CheckIntention = channel.unary_unary(
-                '/protocols.grpc.intentionguard.IntentionGuardService/CheckIntention',
+        self.Unary = channel.unary_unary(
+                '/protocols.grpc.intentionguard.IntentionGuardService/Unary',
                 request_serializer=protocols_dot_grpc_dot_intention__guard_dot_intention__guard__pb2.IntentionRequest.SerializeToString,
                 response_deserializer=protocols_dot_grpc_dot_intention__guard_dot_intention__guard__pb2.IntentionResponse.FromString,
                 _registered_method=True)
@@ -56,7 +56,7 @@ class IntentionGuardServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def CheckIntention(self, request, context):
+    def Unary(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -70,8 +70,8 @@ def add_IntentionGuardServiceServicer_to_server(servicer, server):
                     request_deserializer=protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoRequest.FromString,
                     response_serializer=protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoResponse.SerializeToString,
             ),
-            'CheckIntention': grpc.unary_unary_rpc_method_handler(
-                    servicer.CheckIntention,
+            'Unary': grpc.unary_unary_rpc_method_handler(
+                    servicer.Unary,
                     request_deserializer=protocols_dot_grpc_dot_intention__guard_dot_intention__guard__pb2.IntentionRequest.FromString,
                     response_serializer=protocols_dot_grpc_dot_intention__guard_dot_intention__guard__pb2.IntentionResponse.SerializeToString,
             ),
@@ -114,7 +114,7 @@ class IntentionGuardService(object):
             _registered_method=True)
 
     @staticmethod
-    def CheckIntention(request,
+    def Unary(request,
             target,
             options=(),
             channel_credentials=None,
@@ -127,7 +127,7 @@ class IntentionGuardService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/protocols.grpc.intentionguard.IntentionGuardService/CheckIntention',
+            '/protocols.grpc.intentionguard.IntentionGuardService/Unary',
             protocols_dot_grpc_dot_intention__guard_dot_intention__guard__pb2.IntentionRequest.SerializeToString,
             protocols_dot_grpc_dot_intention__guard_dot_intention__guard__pb2.IntentionResponse.FromString,
             options,

@@ -19,13 +19,13 @@ class ComposeTranslateBrick(BaseBrick):
     gRPC服務類型為'ComposeTranslate'，用於統整資料、轉換或翻譯。
     gRPC提中以下方法：
     - GetServiceInfo: 用於獲取服務信息。
-    - ComposeAndTranslate: 用於統整資料並進行翻譯。
-    - ComposeAndTranslateStream: 用於統整資料並進行翻譯的流式輸出。
+    - Unary: 用於統整資料並進行翻譯。
+    - OutputStreaming: 用於統整資料並進行翻譯的流式輸出。
 
     gRPC服務與Brick的Handler對應表： (gRPC方法 -> Brick Handler)
     - GetServiceInfo -> get_service_info
-    - ComposeAndTranslate -> unary
-    - ComposeAndTranslateStream -> output_streaming
+    - Unary -> unary
+    - OutputStreaming -> output_streaming
 
     """
     grpc_service_type = "ComposeTranslate"
@@ -51,21 +51,3 @@ class ComposeTranslateBrick(BaseBrick):
         """
         warnings.warn("ComposeTranslateBrick does not support input_streaming handler.", DeprecationWarning)
         raise NotImplementedError("ComposeTranslateBrick does not support input_streaming handler.")
-    
-    def GetServiceInfo(self) -> ServiceInfoResponse:
-        """
-        與 gRPC 的 GetServiceInfo 方法對應，返回服務信息。方便內部使用。
-        """
-        return self.run_get_service_info()
-
-    def ComposeAndTranslate(self, request: ComposeRequest) -> ComposeResponse:
-        """
-        與 gRPC 的 ComposeAndTranslate 方法對應，處理單次請求。方便內部使用。
-        """
-        return self.run_unary(request)
-    
-    def ComposeAndTranslateStream(self, request: ComposeRequest) -> ComposeResponse:
-        """
-        與 gRPC 的 ComposeAndTranslateStream 方法對應，處理流式回應。方便內部使用。
-        """
-        return self.run_output_streaming(request)

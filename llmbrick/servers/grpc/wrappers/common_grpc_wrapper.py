@@ -1,3 +1,4 @@
+from llmbrick.bricks.common.common import CommonBrick
 from llmbrick.protocols.grpc.common import common_pb2_grpc
 from llmbrick.protocols.grpc.common import common_pb2
 
@@ -19,7 +20,9 @@ class CommonGrpcWrapper(common_pb2_grpc.CommonServiceServicer):
     - BidiStreaming -> bidi_streaming
     """
 
-    def __init__(self, brick):
+    def __init__(self, brick: CommonBrick):
+        if not isinstance(brick, CommonBrick):
+            raise TypeError("brick must be an instance of CommonBrick")
         self.brick = brick
 
     def get_service_info(self, request, context):

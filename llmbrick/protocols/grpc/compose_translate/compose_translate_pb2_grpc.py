@@ -40,13 +40,13 @@ class ComposeTranslateServiceStub(object):
                 request_serializer=protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoRequest.SerializeToString,
                 response_deserializer=protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoResponse.FromString,
                 _registered_method=True)
-        self.ComposeAndTranslate = channel.unary_unary(
-                '/protocols.grpc.compose_translate.ComposeTranslateService/ComposeAndTranslate',
+        self.Unary = channel.unary_unary(
+                '/protocols.grpc.compose_translate.ComposeTranslateService/Unary',
                 request_serializer=protocols_dot_grpc_dot_compose__translate_dot_compose__translate__pb2.ComposeRequest.SerializeToString,
                 response_deserializer=protocols_dot_grpc_dot_compose__translate_dot_compose__translate__pb2.ComposeResponse.FromString,
                 _registered_method=True)
-        self.ComposeAndTranslateStream = channel.unary_stream(
-                '/protocols.grpc.compose_translate.ComposeTranslateService/ComposeAndTranslateStream',
+        self.OutputStreaming = channel.unary_stream(
+                '/protocols.grpc.compose_translate.ComposeTranslateService/OutputStreaming',
                 request_serializer=protocols_dot_grpc_dot_compose__translate_dot_compose__translate__pb2.ComposeRequest.SerializeToString,
                 response_deserializer=protocols_dot_grpc_dot_compose__translate_dot_compose__translate__pb2.ComposeResponse.FromString,
                 _registered_method=True)
@@ -61,13 +61,13 @@ class ComposeTranslateServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def ComposeAndTranslate(self, request, context):
+    def Unary(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def ComposeAndTranslateStream(self, request, context):
+    def OutputStreaming(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -81,13 +81,13 @@ def add_ComposeTranslateServiceServicer_to_server(servicer, server):
                     request_deserializer=protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoRequest.FromString,
                     response_serializer=protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoResponse.SerializeToString,
             ),
-            'ComposeAndTranslate': grpc.unary_unary_rpc_method_handler(
-                    servicer.ComposeAndTranslate,
+            'Unary': grpc.unary_unary_rpc_method_handler(
+                    servicer.Unary,
                     request_deserializer=protocols_dot_grpc_dot_compose__translate_dot_compose__translate__pb2.ComposeRequest.FromString,
                     response_serializer=protocols_dot_grpc_dot_compose__translate_dot_compose__translate__pb2.ComposeResponse.SerializeToString,
             ),
-            'ComposeAndTranslateStream': grpc.unary_stream_rpc_method_handler(
-                    servicer.ComposeAndTranslateStream,
+            'OutputStreaming': grpc.unary_stream_rpc_method_handler(
+                    servicer.OutputStreaming,
                     request_deserializer=protocols_dot_grpc_dot_compose__translate_dot_compose__translate__pb2.ComposeRequest.FromString,
                     response_serializer=protocols_dot_grpc_dot_compose__translate_dot_compose__translate__pb2.ComposeResponse.SerializeToString,
             ),
@@ -130,7 +130,7 @@ class ComposeTranslateService(object):
             _registered_method=True)
 
     @staticmethod
-    def ComposeAndTranslate(request,
+    def Unary(request,
             target,
             options=(),
             channel_credentials=None,
@@ -143,7 +143,7 @@ class ComposeTranslateService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/protocols.grpc.compose_translate.ComposeTranslateService/ComposeAndTranslate',
+            '/protocols.grpc.compose_translate.ComposeTranslateService/Unary',
             protocols_dot_grpc_dot_compose__translate_dot_compose__translate__pb2.ComposeRequest.SerializeToString,
             protocols_dot_grpc_dot_compose__translate_dot_compose__translate__pb2.ComposeResponse.FromString,
             options,
@@ -157,7 +157,7 @@ class ComposeTranslateService(object):
             _registered_method=True)
 
     @staticmethod
-    def ComposeAndTranslateStream(request,
+    def OutputStreaming(request,
             target,
             options=(),
             channel_credentials=None,
@@ -170,7 +170,7 @@ class ComposeTranslateService(object):
         return grpc.experimental.unary_stream(
             request,
             target,
-            '/protocols.grpc.compose_translate.ComposeTranslateService/ComposeAndTranslateStream',
+            '/protocols.grpc.compose_translate.ComposeTranslateService/OutputStreaming',
             protocols_dot_grpc_dot_compose__translate_dot_compose__translate__pb2.ComposeRequest.SerializeToString,
             protocols_dot_grpc_dot_compose__translate_dot_compose__translate__pb2.ComposeResponse.FromString,
             options,

@@ -1,5 +1,5 @@
+from llmbrick.bricks.compose.base_compose_translate import ComposeTranslateBrick
 from llmbrick.protocols.grpc.compose_translate import compose_translate_pb2_grpc
-from llmbrick.core.brick import BaseBrick
 class ComposeTranslateGrpcWrapper(compose_translate_pb2_grpc.ComposeTranslateServiceServicer):
     """
     ComposeTranslateGrpcWrapper: gRPC服務包裝器，用於處理Compose Translate相關請求
@@ -14,7 +14,9 @@ class ComposeTranslateGrpcWrapper(compose_translate_pb2_grpc.ComposeTranslateSer
     - ComposeTranslateStream -> output_streaming
     """
 
-    def __init__(self, brick: BaseBrick):
+    def __init__(self, brick: ComposeTranslateBrick):
+        if not isinstance(brick, ComposeTranslateBrick):
+            raise TypeError("brick must be an instance of ComposeTranslateBrick")
         self.brick = brick
     
     def get_service_info(self, request, context):

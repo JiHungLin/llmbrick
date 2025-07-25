@@ -1,5 +1,5 @@
+from llmbrick.bricks.rectify.base_rectify import RectifyBrick
 from llmbrick.protocols.grpc.rectify import rectify_pb2_grpc
-from llmbrick.core.brick import BaseBrick
 class RectifyGrpcWrapper(rectify_pb2_grpc.RectifyServiceServicer):
     """
     RectifyGrpcWrapper: gRPC服務包裝器，用於處理Rectify相關請求
@@ -12,7 +12,9 @@ class RectifyGrpcWrapper(rectify_pb2_grpc.RectifyServiceServicer):
     - Rectify -> unary
     """
 
-    def __init__(self, brick: BaseBrick):
+    def __init__(self, brick: RectifyBrick):
+        if not isinstance(brick, RectifyBrick):
+            raise TypeError("brick must be an instance of RectifyBrick")
         self.brick = brick
     
     def get_service_info(self, request, context):
