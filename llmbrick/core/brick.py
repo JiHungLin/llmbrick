@@ -45,7 +45,7 @@ class GRPCCallType(Enum):
 
 class BaseBrick(Generic[InputT, OutputT]):
 
-    grpc_service_type = "common"  # 預設為 common
+    grpc_service_type = None 
     # 可由子類覆寫，若為 None 則不限制
     allowed_handler_types: Optional[set] = None
 

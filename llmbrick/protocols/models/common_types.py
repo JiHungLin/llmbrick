@@ -19,7 +19,7 @@ class CommonRequest:
     data: Dict[str, Any] = field(default_factory=dict)
 
 @dataclass
-class CommonReqponse:
+class CommonResponse:
     data: Dict[str, Any] = field(default_factory=dict)
     error: Optional[ErrorDetail] = None
 

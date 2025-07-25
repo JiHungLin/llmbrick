@@ -14,7 +14,7 @@ message CommonRequest {
   google.protobuf.Struct data = 1;
 }
 
-message CommonReqponse {
+message CommonResponse {
   google.protobuf.Struct data = 1;
   protocols.grpc.common.ErrorDetail error = 2;
 }
@@ -38,8 +38,8 @@ message ServiceInfoResponse {
 
 service CommonService{
   rpc GetServiceInfo(ServiceInfoRequest) returns (ServiceInfoResponse);
-  rpc Unary (CommonRequest) returns (CommonReqponse) {}
-  rpc OutputStreaming (CommonRequest) returns (stream CommonReqponse) {}
-  rpc InputStreaming (stream CommonRequest) returns (CommonReqponse) {}
-  rpc BidiStreaming (stream CommonRequest) returns (stream CommonReqponse) {}
+  rpc Unary (CommonRequest) returns (CommonResponse) {}
+  rpc OutputStreaming (CommonRequest) returns (stream CommonResponse) {}
+  rpc InputStreaming (stream CommonRequest) returns (CommonResponse) {}
+  rpc BidiStreaming (stream CommonRequest) returns (stream CommonResponse) {}
 }

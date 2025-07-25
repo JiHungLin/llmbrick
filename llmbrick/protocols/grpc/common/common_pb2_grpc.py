@@ -42,22 +42,22 @@ class CommonServiceStub(object):
         self.Unary = channel.unary_unary(
                 '/protocols.grpc.common.CommonService/Unary',
                 request_serializer=protocols_dot_grpc_dot_common_dot_common__pb2.CommonRequest.SerializeToString,
-                response_deserializer=protocols_dot_grpc_dot_common_dot_common__pb2.CommonReqponse.FromString,
+                response_deserializer=protocols_dot_grpc_dot_common_dot_common__pb2.CommonResponse.FromString,
                 _registered_method=True)
         self.OutputStreaming = channel.unary_stream(
                 '/protocols.grpc.common.CommonService/OutputStreaming',
                 request_serializer=protocols_dot_grpc_dot_common_dot_common__pb2.CommonRequest.SerializeToString,
-                response_deserializer=protocols_dot_grpc_dot_common_dot_common__pb2.CommonReqponse.FromString,
+                response_deserializer=protocols_dot_grpc_dot_common_dot_common__pb2.CommonResponse.FromString,
                 _registered_method=True)
         self.InputStreaming = channel.stream_unary(
                 '/protocols.grpc.common.CommonService/InputStreaming',
                 request_serializer=protocols_dot_grpc_dot_common_dot_common__pb2.CommonRequest.SerializeToString,
-                response_deserializer=protocols_dot_grpc_dot_common_dot_common__pb2.CommonReqponse.FromString,
+                response_deserializer=protocols_dot_grpc_dot_common_dot_common__pb2.CommonResponse.FromString,
                 _registered_method=True)
         self.BidiStreaming = channel.stream_stream(
                 '/protocols.grpc.common.CommonService/BidiStreaming',
                 request_serializer=protocols_dot_grpc_dot_common_dot_common__pb2.CommonRequest.SerializeToString,
-                response_deserializer=protocols_dot_grpc_dot_common_dot_common__pb2.CommonReqponse.FromString,
+                response_deserializer=protocols_dot_grpc_dot_common_dot_common__pb2.CommonResponse.FromString,
                 _registered_method=True)
 
 
@@ -105,22 +105,22 @@ def add_CommonServiceServicer_to_server(servicer, server):
             'Unary': grpc.unary_unary_rpc_method_handler(
                     servicer.Unary,
                     request_deserializer=protocols_dot_grpc_dot_common_dot_common__pb2.CommonRequest.FromString,
-                    response_serializer=protocols_dot_grpc_dot_common_dot_common__pb2.CommonReqponse.SerializeToString,
+                    response_serializer=protocols_dot_grpc_dot_common_dot_common__pb2.CommonResponse.SerializeToString,
             ),
             'OutputStreaming': grpc.unary_stream_rpc_method_handler(
                     servicer.OutputStreaming,
                     request_deserializer=protocols_dot_grpc_dot_common_dot_common__pb2.CommonRequest.FromString,
-                    response_serializer=protocols_dot_grpc_dot_common_dot_common__pb2.CommonReqponse.SerializeToString,
+                    response_serializer=protocols_dot_grpc_dot_common_dot_common__pb2.CommonResponse.SerializeToString,
             ),
             'InputStreaming': grpc.stream_unary_rpc_method_handler(
                     servicer.InputStreaming,
                     request_deserializer=protocols_dot_grpc_dot_common_dot_common__pb2.CommonRequest.FromString,
-                    response_serializer=protocols_dot_grpc_dot_common_dot_common__pb2.CommonReqponse.SerializeToString,
+                    response_serializer=protocols_dot_grpc_dot_common_dot_common__pb2.CommonResponse.SerializeToString,
             ),
             'BidiStreaming': grpc.stream_stream_rpc_method_handler(
                     servicer.BidiStreaming,
                     request_deserializer=protocols_dot_grpc_dot_common_dot_common__pb2.CommonRequest.FromString,
-                    response_serializer=protocols_dot_grpc_dot_common_dot_common__pb2.CommonReqponse.SerializeToString,
+                    response_serializer=protocols_dot_grpc_dot_common_dot_common__pb2.CommonResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -176,7 +176,7 @@ class CommonService(object):
             target,
             '/protocols.grpc.common.CommonService/Unary',
             protocols_dot_grpc_dot_common_dot_common__pb2.CommonRequest.SerializeToString,
-            protocols_dot_grpc_dot_common_dot_common__pb2.CommonReqponse.FromString,
+            protocols_dot_grpc_dot_common_dot_common__pb2.CommonResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -203,7 +203,7 @@ class CommonService(object):
             target,
             '/protocols.grpc.common.CommonService/OutputStreaming',
             protocols_dot_grpc_dot_common_dot_common__pb2.CommonRequest.SerializeToString,
-            protocols_dot_grpc_dot_common_dot_common__pb2.CommonReqponse.FromString,
+            protocols_dot_grpc_dot_common_dot_common__pb2.CommonResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -230,7 +230,7 @@ class CommonService(object):
             target,
             '/protocols.grpc.common.CommonService/InputStreaming',
             protocols_dot_grpc_dot_common_dot_common__pb2.CommonRequest.SerializeToString,
-            protocols_dot_grpc_dot_common_dot_common__pb2.CommonReqponse.FromString,
+            protocols_dot_grpc_dot_common_dot_common__pb2.CommonResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -257,7 +257,7 @@ class CommonService(object):
             target,
             '/protocols.grpc.common.CommonService/BidiStreaming',
             protocols_dot_grpc_dot_common_dot_common__pb2.CommonRequest.SerializeToString,
-            protocols_dot_grpc_dot_common_dot_common__pb2.CommonReqponse.FromString,
+            protocols_dot_grpc_dot_common_dot_common__pb2.CommonResponse.FromString,
             options,
             channel_credentials,
             insecure,

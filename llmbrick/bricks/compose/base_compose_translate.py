@@ -1,6 +1,15 @@
 from deprecated import deprecated
 import warnings
 
+from llmbrick.protocols.models.common_types import (
+    ServiceInfoResponse,
+)
+
+from llmbrick.protocols.models.compose_translate_types import (
+    ComposeRequest,
+    ComposeResponse,
+)
+
 from llmbrick.core.brick import BaseBrick
 
 class ComposeTranslateBrick(BaseBrick):
@@ -42,3 +51,21 @@ class ComposeTranslateBrick(BaseBrick):
         """
         warnings.warn("ComposeTranslateBrick does not support input_streaming handler.", DeprecationWarning)
         raise NotImplementedError("ComposeTranslateBrick does not support input_streaming handler.")
+    
+    def GetServiceInfo(self) -> ServiceInfoResponse:
+        """
+        與 gRPC 的 GetServiceInfo 方法對應，返回服務信息。方便內部使用。
+        """
+        return self.run_get_service_info()
+
+    def ComposeAndTranslate(self, request: ComposeRequest) -> ComposeResponse:
+        """
+        與 gRPC 的 ComposeAndTranslate 方法對應，處理單次請求。方便內部使用。
+        """
+        return self.run_unary(request)
+    
+    def ComposeAndTranslateStream(self, request: ComposeRequest) -> ComposeResponse:
+        """
+        與 gRPC 的 ComposeAndTranslateStream 方法對應，處理流式回應。方便內部使用。
+        """
+        return self.run_output_streaming(request)
