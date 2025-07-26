@@ -1,8 +1,11 @@
 from deprecated import deprecated
 import warnings
 from llmbrick.core.brick import BaseBrick
-
-class IntentionGuardBrick(BaseBrick):
+from llmbrick.protocols.models.bricks.intention_guard_types import (
+    IntentionRequest,
+    IntentionResponse,
+)
+class IntentionGuardBrick(BaseBrick[IntentionRequest, IntentionResponse]):
     """
     IntentionGuardBrick: 基於 BaseBrick
 

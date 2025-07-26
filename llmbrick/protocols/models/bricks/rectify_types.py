@@ -4,12 +4,12 @@ from typing import Optional
 from .common_types import ErrorDetail
 
 @dataclass
-class TextRequest:
+class RectifyRequest:
     text: str = ""
     language: str = ""
 
 @dataclass
-class TextResponse:
+class RectifyResponse:
     corrected_text: str = ""
     error: Optional[ErrorDetail] = None
 

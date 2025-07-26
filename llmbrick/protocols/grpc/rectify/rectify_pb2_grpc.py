@@ -43,8 +43,8 @@ class RectifyServiceStub(object):
                 _registered_method=True)
         self.Unary = channel.unary_unary(
                 '/protocols.grpc.rectify.RectifyService/Unary',
-                request_serializer=protocols_dot_grpc_dot_rectify_dot_rectify__pb2.TextRequest.SerializeToString,
-                response_deserializer=protocols_dot_grpc_dot_rectify_dot_rectify__pb2.TextResponse.FromString,
+                request_serializer=protocols_dot_grpc_dot_rectify_dot_rectify__pb2.RectifyRequest.SerializeToString,
+                response_deserializer=protocols_dot_grpc_dot_rectify_dot_rectify__pb2.RectifyResponse.FromString,
                 _registered_method=True)
 
 
@@ -74,8 +74,8 @@ def add_RectifyServiceServicer_to_server(servicer, server):
             ),
             'Unary': grpc.unary_unary_rpc_method_handler(
                     servicer.Unary,
-                    request_deserializer=protocols_dot_grpc_dot_rectify_dot_rectify__pb2.TextRequest.FromString,
-                    response_serializer=protocols_dot_grpc_dot_rectify_dot_rectify__pb2.TextResponse.SerializeToString,
+                    request_deserializer=protocols_dot_grpc_dot_rectify_dot_rectify__pb2.RectifyRequest.FromString,
+                    response_serializer=protocols_dot_grpc_dot_rectify_dot_rectify__pb2.RectifyResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -131,8 +131,8 @@ class RectifyService(object):
             request,
             target,
             '/protocols.grpc.rectify.RectifyService/Unary',
-            protocols_dot_grpc_dot_rectify_dot_rectify__pb2.TextRequest.SerializeToString,
-            protocols_dot_grpc_dot_rectify_dot_rectify__pb2.TextResponse.FromString,
+            protocols_dot_grpc_dot_rectify_dot_rectify__pb2.RectifyRequest.SerializeToString,
+            protocols_dot_grpc_dot_rectify_dot_rectify__pb2.RectifyResponse.FromString,
             options,
             channel_credentials,
             insecure,

@@ -1,8 +1,12 @@
 from deprecated import deprecated
 import warnings
+from llmbrick.protocols.models.bricks.rectify_types import (
+    RectifyRequest,
+    RectifyResponse,
+)
 from llmbrick.core.brick import BaseBrick
 
-class RectifyBrick(BaseBrick):
+class RectifyBrick(BaseBrick[RectifyRequest, RectifyResponse]):
     """
     RectifyBrick: 基於 BaseBrick
 

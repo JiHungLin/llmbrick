@@ -1,8 +1,7 @@
 from llmbrick.core.brick import BaseBrick
-from llmbrick.protocols.models.common_types import (
+from llmbrick.protocols.models.bricks.common_types import (
     CommonRequest,
     CommonResponse,
-    ServiceInfoResponse,
 )
 
 class CommonBrick(BaseBrick[CommonRequest, CommonResponse]):
@@ -24,34 +23,3 @@ class CommonBrick(BaseBrick[CommonRequest, CommonResponse]):
     - BidiStreaming -> bidi_streaming
     """
     grpc_service_type = "Common"
-
-
-    def GetServiceInfo(self) -> ServiceInfoResponse:
-        """
-        與 gRPC 的 GetServiceInfo 方法對應，返回服務信息。方便內部使用。
-        """
-        return self.run_get_service_info()
-    
-    def Unary(self, request: CommonRequest) -> CommonResponse:
-        """
-        與 gRPC 的 Unary 方法對應，處理單次請求。方便內部使用。
-        """
-        return self.run_unary(request)
-    
-    def OutputStreaming(self, request: CommonRequest) -> CommonResponse:
-        """
-        與 gRPC 的 OutputStreaming 方法對應，處理流式回應。方便內部使用。
-        """
-        return self.run_output_streaming(request)
-    
-    def InputStreaming(self, request_iterator) -> CommonResponse:
-        """
-        與 gRPC 的 InputStreaming 方法對應，處理流式輸入。方便內部使用。
-        """
-        return self.run_input_streaming(request_iterator)
-
-    def BidiStreaming(self, request_iterator) -> CommonResponse:
-        """
-        與 gRPC 的 BidiStreaming 方法對應，處理雙向流式請求。方便內部使用。
-        """
-        return self.run_bidi_streaming(request_iterator)

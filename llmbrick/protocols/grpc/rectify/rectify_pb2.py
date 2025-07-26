@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 from protocols.grpc.common import common_pb2 as protocols_dot_grpc_dot_common_dot_common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n$protocols/grpc/rectify/rectify.proto\x12\x16protocols.grpc.rectify\x1a\"protocols/grpc/common/common.proto\"-\n\x0bTextRequest\x12\x0c\n\x04text\x18\x01 \x01(\t\x12\x10\n\x08language\x18\x02 \x01(\t\"Y\n\x0cTextResponse\x12\x16\n\x0e\x63orrected_text\x18\x01 \x01(\t\x12\x31\n\x05\x65rror\x18\x02 \x01(\x0b\x32\".protocols.grpc.common.ErrorDetail2\xd3\x01\n\x0eRectifyService\x12g\n\x0eGetServiceInfo\x12).protocols.grpc.common.ServiceInfoRequest\x1a*.protocols.grpc.common.ServiceInfoResponse\x12X\n\x0bRectifyText\x12#.protocols.grpc.rectify.TextRequest\x1a$.protocols.grpc.rectify.TextResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n$protocols/grpc/rectify/rectify.proto\x12\x16protocols.grpc.rectify\x1a\"protocols/grpc/common/common.proto\"-\n\x0bTextRequest\x12\x0c\n\x04text\x18\x01 \x01(\t\x12\x10\n\x08language\x18\x02 \x01(\t\"Y\n\x0cTextResponse\x12\x16\n\x0e\x63orrected_text\x18\x01 \x01(\t\x12\x31\n\x05\x65rror\x18\x02 \x01(\x0b\x32\".protocols.grpc.common.ErrorDetail2\xd3\x01\n\x0eRectifyService\x12g\n\x0eGetServiceInfo\x12).protocols.grpc.common.ServiceInfoRequest\x1a*.protocols.grpc.common.ServiceInfoResponse\x12X\n\x0bRectifyText\x12#.protocols.grpc.rectify.RectifyRequest\x1a$.protocols.grpc.rectify.TextResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)

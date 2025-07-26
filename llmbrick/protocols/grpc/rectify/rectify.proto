@@ -5,12 +5,12 @@ package protocols.grpc.rectify;
 import "protocols/grpc/common/common.proto";
 
 // Rectify Brick 相關訊息
-message TextRequest {
+message RectifyRequest {
   string text = 1;
   string language = 2;   // 可選，識別語言
 }
 
-message TextResponse {
+message RectifyResponse {
   string corrected_text = 1;
   protocols.grpc.common.ErrorDetail error = 2;
 }
@@ -19,5 +19,5 @@ message TextResponse {
 service RectifyService {
   rpc GetServiceInfo(protocols.grpc.common.ServiceInfoRequest) returns (protocols.grpc.common.ServiceInfoResponse);
 
-  rpc Unary(TextRequest) returns (TextResponse);
+  rpc Unary(RectifyRequest) returns (RectifyResponse);
 }

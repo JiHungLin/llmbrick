@@ -1,8 +1,12 @@
 from deprecated import deprecated
 import warnings
 from llmbrick.core.brick import BaseBrick
+from llmbrick.protocols.models.bricks.retrieval_types import (
+    RetrievalRequest,
+    RetrievalResponse,
+)
 
-class RetrievalBrick(BaseBrick):
+class RetrievalBrick(BaseBrick[RetrievalRequest, RetrievalResponse]):
     """
     RetrievalBrick: 基於 BaseBrick
 

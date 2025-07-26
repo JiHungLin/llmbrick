@@ -1,9 +1,13 @@
 from deprecated import deprecated
 import warnings
+from llmbrick.protocols.models.bricks.llm_types import (
+    LLMRequest,
+    LLMResponse,
+)
 
 from llmbrick.core.brick import BaseBrick
 
-class LLMBrick(BaseBrick):
+class LLMBrick(BaseBrick[LLMRequest, LLMResponse]):
     """
     LLMBrick: 基於 BaseBrick，並支援 default_prompt 參數
     

@@ -1,18 +1,14 @@
 from deprecated import deprecated
 import warnings
 
-from llmbrick.protocols.models.common_types import (
-    ServiceInfoResponse,
-)
-
-from llmbrick.protocols.models.compose_translate_types import (
+from llmbrick.protocols.models.bricks.compose_translate_types import (
     ComposeRequest,
     ComposeResponse,
 )
 
 from llmbrick.core.brick import BaseBrick
 
-class ComposeTranslateBrick(BaseBrick):
+class ComposeTranslateBrick(BaseBrick[ComposeRequest, ComposeResponse]):
     """
     ComposeTranslateBrick: 基於 BaseBrick
 

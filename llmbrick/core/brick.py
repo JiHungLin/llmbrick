@@ -1,5 +1,6 @@
-from typing import TypeVar, Generic, Callable, Awaitable, Optional, AsyncIterator, Union
+from typing import TypeVar, Generic, Callable, Awaitable, Optional, AsyncIterator
 from enum import Enum
+from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse
 import functools
 # --- 強型別 decorator，避免字串錯誤 ---
 def unary_handler(func):
@@ -81,7 +82,7 @@ class BaseBrick(Generic[InputT, OutputT]):
                 elif call_type == "get_service_info":
                     self._get_service_info_handler = attr
 
-    def get_service_info(self):
+    def get_service_info(self) -> ServiceInfoResponse:
         """
         回傳服務資訊，子類可覆寫
         """
@@ -174,7 +175,7 @@ class BaseBrick(Generic[InputT, OutputT]):
             raise
 
     # Entry: get_service_info call
-    async def run_get_service_info(self):
+    async def run_get_service_info(self) -> ServiceInfoResponse:
         """
         呼叫 get_service_info handler，若無則回傳預設
         """
