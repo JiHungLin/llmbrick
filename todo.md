@@ -16,11 +16,6 @@
   - [x] 加入日誌記錄功能
   - [x] 支援配置注入
 
-- [ ] **EventBus 事件匯流排** (`event_bus.py`)
-  - [ ] LocalEventBus (記憶體內實作)
-  - [ ] 抽象介面定義
-  - [ ] 事件發布/訂閱機制
-  - [ ] 事件序列化/反序列化
 
 - [ ] **Pipeline 管道管理** (`pipeline.py`)
   - [ ] Brick 註冊和管理
