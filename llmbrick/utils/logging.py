@@ -20,7 +20,7 @@ config = LoggerConfig(
 )
 
 # 預設全域 logger
-logger = create_logger("llmbrick", config=config)
+logger: EnhancedLogger = create_logger("llmbrick", config=config)
 
 def get_logger(name: str = "llmbrick"):
     """
