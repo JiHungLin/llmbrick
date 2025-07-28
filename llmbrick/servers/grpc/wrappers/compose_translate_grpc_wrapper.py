@@ -1,5 +1,5 @@
 from llmbrick.bricks.compose.base_compose_translate import ComposeTranslateBrick
-from llmbrick.protocols.grpc.compose_translate import compose_translate_pb2_grpc
+from llmbrick.protocols.grpc.translate import compose_translate_pb2_grpc
 class ComposeTranslateGrpcWrapper(compose_translate_pb2_grpc.ComposeTranslateServiceServicer):
     """
     ComposeTranslateGrpcWrapper: gRPC服務包裝器，用於處理Compose Translate相關請求

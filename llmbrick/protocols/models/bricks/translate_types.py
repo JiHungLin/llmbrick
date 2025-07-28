@@ -3,25 +3,20 @@ from typing import List, Optional
 from .common_types import ErrorDetail
 
 @dataclass
-class Context:
-    role: str = ""
-    content: str = ""
-
-@dataclass
-class LLMRequest:
+class TranslateRequest:
+    text: str = ""
     model_id: str = ""
-    prompt: str = ""
-    context: List[Context] = field(default_factory=list)
+    target_language: str = ""
     client_id: str = ""
     session_id: str = ""
     request_id: str = ""
     source_language: str = ""
-    temperature: float
-    max_tokens: int = 0
 
 @dataclass
-class LLMResponse:
+class TranslateResponse:
     text: str = ""
     tokens: List[str] = field(default_factory=list)
+    language_code: str = ""
     is_final: bool = False
     error: Optional[ErrorDetail] = None
+

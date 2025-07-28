@@ -1,12 +1,15 @@
 from dataclasses import dataclass, field
-from typing import List, Optional, Dict, Any
-
+from typing import List, Dict, Any, Optional
 from .common_types import ErrorDetail
 
 @dataclass
 class RetrievalRequest:
     query: str = ""
     max_results: int = 0
+    client_id: str = ""
+    session_id: str = ""
+    request_id: str = ""
+    source_language: str = ""
 
 @dataclass
 class Document:
@@ -20,4 +23,3 @@ class Document:
 class RetrievalResponse:
     documents: List[Document] = field(default_factory=list)
     error: Optional[ErrorDetail] = None
-

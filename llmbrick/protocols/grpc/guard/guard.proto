@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package protocols.grpc.guard;
+
+
+import "protocols/grpc/common/common.proto";
+
+// Guard Brick 相關訊息
+message GuardRequest {
+  string text = 1;
+  string client_id = 2;
+  string session_id = 3;
+  string request_id = 4;
+  string source_language = 5;
+}
+
+message GuardResult {
+  bool is_attack = 1;           // 是否偵測攻擊行為
+  float confidence = 2;         // 信度 0~1
+  string detail = 3;
+}
+
+message GuardResponse {
+  repeated GuardResult results = 1;
+  protocols.grpc.common.ErrorDetail error = 2;
+}
+
+service GuardService {
+  rpc GetServiceInfo(protocols.grpc.common.ServiceInfoRequest) returns (protocols.grpc.common.ServiceInfoResponse);
+  rpc Unary(GuardRequest) returns (GuardResponse);
+}

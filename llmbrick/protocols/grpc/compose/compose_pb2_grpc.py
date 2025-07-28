@@ -4,7 +4,7 @@ import grpc
 import warnings
 
 from protocols.grpc.common import common_pb2 as protocols_dot_grpc_dot_common_dot_common__pb2
-from protocols.grpc.compose_translate import compose_translate_pb2 as protocols_dot_grpc_dot_compose__translate_dot_compose__translate__pb2
+from protocols.grpc.compose import compose_pb2 as protocols_dot_grpc_dot_compose_dot_compose__pb2
 
 GRPC_GENERATED_VERSION = '1.73.1'
 GRPC_VERSION = grpc.__version__
@@ -19,14 +19,14 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + f' but the generated code in protocols/grpc/compose_translate/compose_translate_pb2_grpc.py depends on'
+        + f' but the generated code in protocols/grpc/compose/compose_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
     )
 
 
-class ComposeTranslateServiceStub(object):
+class ComposeServiceStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -36,23 +36,23 @@ class ComposeTranslateServiceStub(object):
             channel: A grpc.Channel.
         """
         self.GetServiceInfo = channel.unary_unary(
-                '/protocols.grpc.compose_translate.ComposeTranslateService/GetServiceInfo',
+                '/protocols.grpc.compose.ComposeService/GetServiceInfo',
                 request_serializer=protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoRequest.SerializeToString,
                 response_deserializer=protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoResponse.FromString,
                 _registered_method=True)
         self.Unary = channel.unary_unary(
-                '/protocols.grpc.compose_translate.ComposeTranslateService/Unary',
-                request_serializer=protocols_dot_grpc_dot_compose__translate_dot_compose__translate__pb2.ComposeRequest.SerializeToString,
-                response_deserializer=protocols_dot_grpc_dot_compose__translate_dot_compose__translate__pb2.ComposeResponse.FromString,
+                '/protocols.grpc.compose.ComposeService/Unary',
+                request_serializer=protocols_dot_grpc_dot_compose_dot_compose__pb2.ComposeRequest.SerializeToString,
+                response_deserializer=protocols_dot_grpc_dot_compose_dot_compose__pb2.ComposeResponse.FromString,
                 _registered_method=True)
         self.OutputStreaming = channel.unary_stream(
-                '/protocols.grpc.compose_translate.ComposeTranslateService/OutputStreaming',
-                request_serializer=protocols_dot_grpc_dot_compose__translate_dot_compose__translate__pb2.ComposeRequest.SerializeToString,
-                response_deserializer=protocols_dot_grpc_dot_compose__translate_dot_compose__translate__pb2.ComposeResponse.FromString,
+                '/protocols.grpc.compose.ComposeService/OutputStreaming',
+                request_serializer=protocols_dot_grpc_dot_compose_dot_compose__pb2.ComposeRequest.SerializeToString,
+                response_deserializer=protocols_dot_grpc_dot_compose_dot_compose__pb2.ComposeResponse.FromString,
                 _registered_method=True)
 
 
-class ComposeTranslateServiceServicer(object):
+class ComposeServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def GetServiceInfo(self, request, context):
@@ -74,7 +74,7 @@ class ComposeTranslateServiceServicer(object):
         raise NotImplementedError('Method not implemented!')
 
 
-def add_ComposeTranslateServiceServicer_to_server(servicer, server):
+def add_ComposeServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'GetServiceInfo': grpc.unary_unary_rpc_method_handler(
                     servicer.GetServiceInfo,
@@ -83,23 +83,23 @@ def add_ComposeTranslateServiceServicer_to_server(servicer, server):
             ),
             'Unary': grpc.unary_unary_rpc_method_handler(
                     servicer.Unary,
-                    request_deserializer=protocols_dot_grpc_dot_compose__translate_dot_compose__translate__pb2.ComposeRequest.FromString,
-                    response_serializer=protocols_dot_grpc_dot_compose__translate_dot_compose__translate__pb2.ComposeResponse.SerializeToString,
+                    request_deserializer=protocols_dot_grpc_dot_compose_dot_compose__pb2.ComposeRequest.FromString,
+                    response_serializer=protocols_dot_grpc_dot_compose_dot_compose__pb2.ComposeResponse.SerializeToString,
             ),
             'OutputStreaming': grpc.unary_stream_rpc_method_handler(
                     servicer.OutputStreaming,
-                    request_deserializer=protocols_dot_grpc_dot_compose__translate_dot_compose__translate__pb2.ComposeRequest.FromString,
-                    response_serializer=protocols_dot_grpc_dot_compose__translate_dot_compose__translate__pb2.ComposeResponse.SerializeToString,
+                    request_deserializer=protocols_dot_grpc_dot_compose_dot_compose__pb2.ComposeRequest.FromString,
+                    response_serializer=protocols_dot_grpc_dot_compose_dot_compose__pb2.ComposeResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'protocols.grpc.compose_translate.ComposeTranslateService', rpc_method_handlers)
+            'protocols.grpc.compose.ComposeService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('protocols.grpc.compose_translate.ComposeTranslateService', rpc_method_handlers)
+    server.add_registered_method_handlers('protocols.grpc.compose.ComposeService', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
-class ComposeTranslateService(object):
+class ComposeService(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
@@ -116,7 +116,7 @@ class ComposeTranslateService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/protocols.grpc.compose_translate.ComposeTranslateService/GetServiceInfo',
+            '/protocols.grpc.compose.ComposeService/GetServiceInfo',
             protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoRequest.SerializeToString,
             protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoResponse.FromString,
             options,
@@ -143,9 +143,9 @@ class ComposeTranslateService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/protocols.grpc.compose_translate.ComposeTranslateService/Unary',
-            protocols_dot_grpc_dot_compose__translate_dot_compose__translate__pb2.ComposeRequest.SerializeToString,
-            protocols_dot_grpc_dot_compose__translate_dot_compose__translate__pb2.ComposeResponse.FromString,
+            '/protocols.grpc.compose.ComposeService/Unary',
+            protocols_dot_grpc_dot_compose_dot_compose__pb2.ComposeRequest.SerializeToString,
+            protocols_dot_grpc_dot_compose_dot_compose__pb2.ComposeResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -170,9 +170,9 @@ class ComposeTranslateService(object):
         return grpc.experimental.unary_stream(
             request,
             target,
-            '/protocols.grpc.compose_translate.ComposeTranslateService/OutputStreaming',
-            protocols_dot_grpc_dot_compose__translate_dot_compose__translate__pb2.ComposeRequest.SerializeToString,
-            protocols_dot_grpc_dot_compose__translate_dot_compose__translate__pb2.ComposeResponse.FromString,
+            '/protocols.grpc.compose.ComposeService/OutputStreaming',
+            protocols_dot_grpc_dot_compose_dot_compose__pb2.ComposeRequest.SerializeToString,
+            protocols_dot_grpc_dot_compose_dot_compose__pb2.ComposeResponse.FromString,
             options,
             channel_credentials,
             insecure,

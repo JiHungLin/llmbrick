@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package protocols.grpc.translate;
+
+import "protocols/grpc/common/common.proto";
+import "google/protobuf/struct.proto";
+
+// Translate Brick 相關訊息
+message TranslateRequest {
+  string text = 1; // 需要翻譯內容
+  string model_id = 2; // 選用模型
+  string target_language = 3;  // 例: "en", "zh-tw"
+  string client_id = 4;      // 識別呼叫系統/應用來源
+  string session_id = 5;     // 識別連續對話會話
+  string request_id = 6;     // 唯一請求ID，用於追蹤和除錯
+  string source_language = 7; // 輸入文件原始語言，如未提供可視為 target_language 相同
+}
+
+message TranslateResponse {
+  string text = 1;
+  repeated string tokens = 2;  // 串流時可用
+  string language_code = 3;
+  bool is_final = 4;
+  protocols.grpc.common.ErrorDetail error = 5;
+}
+
+service TranslateService {
+  rpc GetServiceInfo(protocols.grpc.common.ServiceInfoRequest) returns (protocols.grpc.common.ServiceInfoResponse);
+  rpc Unary(TranslateRequest) returns (TranslateResponse);
+  rpc OutputStreaming(TranslateRequest) returns (stream TranslateResponse);
+}

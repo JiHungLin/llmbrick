@@ -4,7 +4,7 @@ import grpc
 import warnings
 
 from protocols.grpc.common import common_pb2 as protocols_dot_grpc_dot_common_dot_common__pb2
-from protocols.grpc.intention_guard import intention_guard_pb2 as protocols_dot_grpc_dot_intention__guard_dot_intention__guard__pb2
+from protocols.grpc.guard import guard_pb2 as protocols_dot_grpc_dot_guard_dot_guard__pb2
 
 GRPC_GENERATED_VERSION = '1.73.1'
 GRPC_VERSION = grpc.__version__
@@ -19,14 +19,14 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + f' but the generated code in protocols/grpc/intention_guard/intention_guard_pb2_grpc.py depends on'
+        + f' but the generated code in protocols/grpc/guard/guard_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
     )
 
 
-class IntentionGuardServiceStub(object):
+class GuardServiceStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -36,18 +36,18 @@ class IntentionGuardServiceStub(object):
             channel: A grpc.Channel.
         """
         self.GetServiceInfo = channel.unary_unary(
-                '/protocols.grpc.intentionguard.IntentionGuardService/GetServiceInfo',
+                '/protocols.grpc.guard.GuardService/GetServiceInfo',
                 request_serializer=protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoRequest.SerializeToString,
                 response_deserializer=protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoResponse.FromString,
                 _registered_method=True)
         self.Unary = channel.unary_unary(
-                '/protocols.grpc.intentionguard.IntentionGuardService/Unary',
-                request_serializer=protocols_dot_grpc_dot_intention__guard_dot_intention__guard__pb2.IntentionRequest.SerializeToString,
-                response_deserializer=protocols_dot_grpc_dot_intention__guard_dot_intention__guard__pb2.IntentionResponse.FromString,
+                '/protocols.grpc.guard.GuardService/Unary',
+                request_serializer=protocols_dot_grpc_dot_guard_dot_guard__pb2.GuardRequest.SerializeToString,
+                response_deserializer=protocols_dot_grpc_dot_guard_dot_guard__pb2.GuardResponse.FromString,
                 _registered_method=True)
 
 
-class IntentionGuardServiceServicer(object):
+class GuardServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def GetServiceInfo(self, request, context):
@@ -63,7 +63,7 @@ class IntentionGuardServiceServicer(object):
         raise NotImplementedError('Method not implemented!')
 
 
-def add_IntentionGuardServiceServicer_to_server(servicer, server):
+def add_GuardServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'GetServiceInfo': grpc.unary_unary_rpc_method_handler(
                     servicer.GetServiceInfo,
@@ -72,18 +72,18 @@ def add_IntentionGuardServiceServicer_to_server(servicer, server):
             ),
             'Unary': grpc.unary_unary_rpc_method_handler(
                     servicer.Unary,
-                    request_deserializer=protocols_dot_grpc_dot_intention__guard_dot_intention__guard__pb2.IntentionRequest.FromString,
-                    response_serializer=protocols_dot_grpc_dot_intention__guard_dot_intention__guard__pb2.IntentionResponse.SerializeToString,
+                    request_deserializer=protocols_dot_grpc_dot_guard_dot_guard__pb2.GuardRequest.FromString,
+                    response_serializer=protocols_dot_grpc_dot_guard_dot_guard__pb2.GuardResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'protocols.grpc.intentionguard.IntentionGuardService', rpc_method_handlers)
+            'protocols.grpc.guard.GuardService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('protocols.grpc.intentionguard.IntentionGuardService', rpc_method_handlers)
+    server.add_registered_method_handlers('protocols.grpc.guard.GuardService', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
-class IntentionGuardService(object):
+class GuardService(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
@@ -100,7 +100,7 @@ class IntentionGuardService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/protocols.grpc.intentionguard.IntentionGuardService/GetServiceInfo',
+            '/protocols.grpc.guard.GuardService/GetServiceInfo',
             protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoRequest.SerializeToString,
             protocols_dot_grpc_dot_common_dot_common__pb2.ServiceInfoResponse.FromString,
             options,
@@ -127,9 +127,9 @@ class IntentionGuardService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/protocols.grpc.intentionguard.IntentionGuardService/Unary',
-            protocols_dot_grpc_dot_intention__guard_dot_intention__guard__pb2.IntentionRequest.SerializeToString,
-            protocols_dot_grpc_dot_intention__guard_dot_intention__guard__pb2.IntentionResponse.FromString,
+            '/protocols.grpc.guard.GuardService/Unary',
+            protocols_dot_grpc_dot_guard_dot_guard__pb2.GuardRequest.SerializeToString,
+            protocols_dot_grpc_dot_guard_dot_guard__pb2.GuardResponse.FromString,
             options,
             channel_credentials,
             insecure,

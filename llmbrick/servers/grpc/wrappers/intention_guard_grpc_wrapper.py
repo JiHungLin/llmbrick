@@ -1,5 +1,5 @@
 from llmbrick.bricks.intention_guard.base_intention_guard import IntentionGuardBrick
-from llmbrick.protocols.grpc.intention_guard import intention_guard_pb2_grpc
+from llmbrick.protocols.grpc.intention import intention_guard_pb2_grpc
 class IntentionGuardGrpcWrapper(intention_guard_pb2_grpc.IntentionGuardServiceServicer):
     """
     IntentionGuardGrpcWrapper: gRPC服務包裝器，用於處理Intention Guard相關請求

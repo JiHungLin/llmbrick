@@ -14,7 +14,10 @@ class Document:
 class ComposeRequest:
     input_documents: List[Document] = field(default_factory=list)
     target_format: str = ""
-    target_language: str = ""
+    client_id: str = ""
+    session_id: str = ""
+    request_id: str = ""
+    source_language: str = ""
 
 @dataclass
 class ComposeResponse:

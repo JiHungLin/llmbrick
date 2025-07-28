@@ -1,11 +1,11 @@
 syntax = "proto3";
 
-package protocols.grpc.compose_translate;
+package protocols.grpc.compose;
 
 import "protocols/grpc/common/common.proto";
 import "google/protobuf/struct.proto";
 
-// Compose/Translate Brick 相關訊息
+// Compose Brick 相關訊息
 message Document {
   string doc_id = 1;
   string title = 2;
@@ -17,11 +17,10 @@ message Document {
 message ComposeRequest {
   repeated Document input_documents = 1;
   string target_format = 2;    // 例: "json", "html", "markdown"
-  string target_language = 3;  // 例: "en", "zh-tw"
-  string client_id = 4;      // 識別呼叫系統/應用來源
-  string session_id = 5;     // 識別連續對話會話
-  string request_id = 6;     // 唯一請求ID，用於追蹤和除錯
-  string source_language = 7; // 輸入文件原始語言，如未提供可視為 target_language 相同
+  string client_id = 3;      // 識別呼叫系統/應用來源
+  string session_id = 4;     // 識別連續對話會話
+  string request_id = 5;     // 唯一請求ID，用於追蹤和除錯
+  string source_language = 6; // 輸入文件原始語言，如未提供可視為 target_language 相同
 }
 
 message ComposeResponse {
@@ -29,7 +28,7 @@ message ComposeResponse {
   protocols.grpc.common.ErrorDetail error = 2;
 }
 
-service ComposeTranslateService {
+service ComposeService {
   rpc GetServiceInfo(protocols.grpc.common.ServiceInfoRequest) returns (protocols.grpc.common.ServiceInfoResponse);
   rpc Unary(ComposeRequest) returns (ComposeResponse);
   rpc OutputStreaming(ComposeRequest) returns (stream ComposeResponse);
