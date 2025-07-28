@@ -18,8 +18,8 @@ class LLMGrpcWrapper(llm_pb2_grpc.LLMServiceServicer):
         if not isinstance(brick, LLMBrick):
             raise TypeError("brick must be an instance of LLMBrick")
         self.brick = brick
-    
-    def get_service_info(self, request, context):
+
+    def GetServiceInfo(self, request, context):
         # 假設 brick 有 run_get_service_info 方法
         return self.brick.run_get_service_info()
 
