@@ -25,29 +25,27 @@ class CommonGrpcWrapper(common_pb2_grpc.CommonServiceServicer):
             raise TypeError("brick must be an instance of CommonBrick")
         self.brick = brick
 
-    def get_service_info(self, request, context):
+    def GetServiceInfo(self, request, context):
         # 假設 brick 有 run_get_service_info 方法
         return self.brick.run_get_service_info()
-    
-    def unary(self, request, context):
+
+    def Unary(self, request, context):
         # 假設 brick 有 run_unary 方法
         return self.brick.run_unary(request)
-    
-    def output_streaming(self, request, context):
+
+    def OutputStreaming(self, request, context):
         # 假設 brick 有 run_output_streaming 方法
         for response in self.brick.run_output_streaming(request):
             yield response
 
-    def input_streaming(self, request_iterator, context):
+    def InputStreaming(self, request_iterator, context):
         # 假設 brick 有 run_input_streaming 方法
         return self.brick.run_input_streaming(request_iterator)
 
     # TODO: 可能會有問題，因為這個方法需要處理雙向流式請求，待測試
-    def bidi_streaming(self, request_iterator, context):
+    def BidiStreaming(self, request_iterator, context):
         # 假設 brick 有 run_bidi_streaming 方法
         return self.brick.run_bidi_streaming(request_iterator)
-
-
 
     def register(self, server):
         common_pb2_grpc.add_CommonServiceServicer_to_server(self, server)
