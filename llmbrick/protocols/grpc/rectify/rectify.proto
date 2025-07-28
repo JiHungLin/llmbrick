@@ -7,7 +7,10 @@ import "protocols/grpc/common/common.proto";
 // Rectify Brick 相關訊息
 message RectifyRequest {
   string text = 1;
-  string language = 2;   // 可選，識別語言
+  string client_id = 2;
+  string session_id = 3;
+  string request_id = 4;
+  string source_language = 5;
 }
 
 message RectifyResponse {

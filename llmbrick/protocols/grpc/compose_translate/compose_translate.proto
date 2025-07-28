@@ -18,6 +18,10 @@ message ComposeRequest {
   repeated Document input_documents = 1;
   string target_format = 2;    // 例: "json", "html", "markdown"
   string target_language = 3;  // 例: "en", "zh-tw"
+  string client_id = 4;      // 識別呼叫系統/應用來源
+  string session_id = 5;     // 識別連續對話會話
+  string request_id = 6;     // 唯一請求ID，用於追蹤和除錯
+  string source_language = 7; // 輸入文件原始語言，如未提供可視為 target_language 相同
 }
 
 message ComposeResponse {

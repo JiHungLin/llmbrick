@@ -3,6 +3,10 @@ from llmbrick.protocols.models.bricks.common_types import (
     CommonRequest,
     CommonResponse,
 )
+from llmbrick.protocols.grpc.common import common_pb2_grpc, common_pb2
+import grpc
+from google.protobuf.json_format import ParseDict
+
 
 class CommonBrick(BaseBrick[CommonRequest, CommonResponse]):
     """
@@ -23,3 +27,48 @@ class CommonBrick(BaseBrick[CommonRequest, CommonResponse]):
     - BidiStreaming -> bidi_streaming
     """
     grpc_service_type = "Common"
+
+    @classmethod
+    def toGRPCClient(cls, remote_address: str):
+        """
+        將 IntentionGuardBrick 轉換為 gRPC 客戶端。
+        """
+        channel = grpc.insecure_channel(remote_address)
+        grpc_client: common_pb2_grpc.CommonServiceStub = common_pb2_grpc.CommonServiceStub(channel)
+        from google.protobuf import struct_pb2
+
+        brick = cls()
+        @brick.unary
+        def unary_handler(request: CommonRequest) -> CommonResponse:
+            input = request.to_dict()
+            s = struct_pb2.Struct()
+            s.update(input)
+            return grpc_client.Unary(s)
+
+        @brick.output_streaming
+        def output_streaming_handler(request: CommonRequest) -> grpc.ResponseStream[CommonResponse]:
+            s = struct_pb2.Struct()
+            s.update(request.to_dict())
+            yield grpc_client.OutputStreaming(s)
+
+        @brick.input_streaming
+        def input_streaming_handler(request_stream: grpc.RequestStream[CommonRequest]) -> CommonResponse:
+            # 將 request_stream 轉換為 gRPC 可用的 generator
+            def grpc_request_generator():
+                for req in request_stream:
+                    # 假設 CommonRequest 有 to_dict 方法，轉換為 protobuf Struct
+                    s = struct_pb2.Struct()
+                    s.update(req.to_dict())
+                    yield s
+
+            return grpc_client.InputStreaming(grpc_request_generator())
+
+        @brick.bidi_streaming
+        def bidi_streaming_handler(request_stream: grpc.RequestStream[CommonRequest]) -> grpc.ResponseStream[CommonResponse]:
+            yield grpc_client.BidiStreaming(request_stream)
+
+        @brick.get_service_info
+        def get_service_info_handler(request: common_pb2.GetServiceInfoRequest) -> common_pb2.GetServiceInfoResponse:
+            return grpc_client.GetServiceInfo(request)
+
+        return brick

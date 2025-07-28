@@ -6,7 +6,7 @@ from .common_types import ErrorDetail
 @dataclass
 class RectifyRequest:
     text: str = ""
-    language: str = ""
+    source_language: str = ""
 
 @dataclass
 class RectifyResponse:

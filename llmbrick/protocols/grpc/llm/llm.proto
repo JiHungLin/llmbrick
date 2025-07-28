@@ -5,12 +5,22 @@ package protocols.grpc.llm;
 
 import "protocols/grpc/common/common.proto";
 
+message Context {
+  string role = 1;
+  string content = 2;
+}
+
 // LLM Brick 相關訊息
 message LLMRequest {
   string model_id = 1;          // 指定模型
   string prompt = 2;
-  map<string, string> options = 3; // 溫度、max_tokens等參數
-  repeated string context = 4;      // 上下文 (可選)
+  repeated Context context = 3;      // 上下文
+  string client_id = 4;
+  string session_id = 5;
+  string request_id = 6;
+  string source_language = 7;
+  float temperature = 8;
+  int32 max_tokens = 9;
 }
 
 message LLMResponse {

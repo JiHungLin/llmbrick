@@ -9,6 +9,10 @@ import "google/protobuf/struct.proto";
 message RetrievalRequest {
   string query = 1;
   int32 max_results = 2;  // 最多回傳數量
+  string client_id = 3;
+  string session_id = 4;
+  string request_id = 5;
+  string source_language = 6;
 }
 
 message Document {

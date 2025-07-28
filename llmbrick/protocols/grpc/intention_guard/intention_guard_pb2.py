@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 from protocols.grpc.common import common_pb2 as protocols_dot_grpc_dot_common_dot_common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n4protocols/grpc/intention_guard/intention_guard.proto\x12\x1dprotocols.grpc.intentionguard\x1a\"protocols/grpc/common/common.proto\" \n\x10IntentionRequest\x12\x0c\n\x04text\x18\x01 \x01(\t\"a\n\x0fIntentionResult\x12\x17\n\x0fintent_category\x18\x01 \x01(\t\x12\x12\n\nconfidence\x18\x02 \x01(\x02\x12\x11\n\tis_attack\x18\x03 \x01(\x08\x12\x0e\n\x06\x61\x63tion\x18\x04 \x01(\t\"\x87\x01\n\x11IntentionResponse\x12?\n\x07results\x18\x01 \x03(\x0b\x32..protocols.grpc.intentionguard.IntentionResult\x12\x31\n\x05\x65rror\x18\x02 \x01(\x0b\x32\".protocols.grpc.common.ErrorDetail2\xf5\x01\n\x15IntentionGuardService\x12g\n\x0eGetServiceInfo\x12).protocols.grpc.common.ServiceInfoRequest\x1a*.protocols.grpc.common.ServiceInfoResponse\x12s\n\x0e\x43heckIntention\x12/.protocols.grpc.intentionguard.IntentionRequest\x1a\x30.protocols.grpc.intentionguard.IntentionResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n4protocols/grpc/intention_guard/intention_guard.proto\x12\x1dprotocols.grpc.intentionguard\x1a\"protocols/grpc/common/common.proto\"t\n\x10IntentionRequest\x12\x0c\n\x04text\x18\x01 \x01(\t\x12\x11\n\tclient_id\x18\x02 \x01(\t\x12\x12\n\nsession_id\x18\x03 \x01(\t\x12\x12\n\nrequest_id\x18\x04 \x01(\t\x12\x17\n\x0fsource_language\x18\x05 \x01(\t\"a\n\x0fIntentionResult\x12\x17\n\x0fintent_category\x18\x01 \x01(\t\x12\x12\n\nconfidence\x18\x02 \x01(\x02\x12\x11\n\tis_attack\x18\x03 \x01(\x08\x12\x0e\n\x06\x61\x63tion\x18\x04 \x01(\t\"\x87\x01\n\x11IntentionResponse\x12?\n\x07results\x18\x01 \x03(\x0b\x32..protocols.grpc.intentionguard.IntentionResult\x12\x31\n\x05\x65rror\x18\x02 \x01(\x0b\x32\".protocols.grpc.common.ErrorDetail2\xec\x01\n\x15IntentionGuardService\x12g\n\x0eGetServiceInfo\x12).protocols.grpc.common.ServiceInfoRequest\x1a*.protocols.grpc.common.ServiceInfoResponse\x12j\n\x05Unary\x12/.protocols.grpc.intentionguard.IntentionRequest\x1a\x30.protocols.grpc.intentionguard.IntentionResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -33,11 +33,11 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'protocols.grpc.intention_gu
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_INTENTIONREQUEST']._serialized_start=123
-  _globals['_INTENTIONREQUEST']._serialized_end=155
-  _globals['_INTENTIONRESULT']._serialized_start=157
-  _globals['_INTENTIONRESULT']._serialized_end=254
-  _globals['_INTENTIONRESPONSE']._serialized_start=257
-  _globals['_INTENTIONRESPONSE']._serialized_end=392
-  _globals['_INTENTIONGUARDSERVICE']._serialized_start=395
-  _globals['_INTENTIONGUARDSERVICE']._serialized_end=640
+  _globals['_INTENTIONREQUEST']._serialized_end=239
+  _globals['_INTENTIONRESULT']._serialized_start=241
+  _globals['_INTENTIONRESULT']._serialized_end=338
+  _globals['_INTENTIONRESPONSE']._serialized_start=341
+  _globals['_INTENTIONRESPONSE']._serialized_end=476
+  _globals['_INTENTIONGUARDSERVICE']._serialized_start=479
+  _globals['_INTENTIONGUARDSERVICE']._serialized_end=715
 # @@protoc_insertion_point(module_scope)

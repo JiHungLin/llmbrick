@@ -28,11 +28,13 @@ class ConversationSSERequest(BaseModel):
     model: str = Field(..., description="指定模型名稱 (Model name, e.g. 'gpt-4o', 'sonar')")
     messages: List[Message] = Field(..., description="訊息陣列 (List of messages)")
     stream: bool = Field(True, description="是否啟用串流 (Enable SSE streaming, must be True)")
+    client_id: Optional[str] = Field(None, alias="clientId", description="客戶端識別碼 (Client ID, optional)")    
     session_id: str = Field(..., alias="sessionId", description="對話 session id，標記本次對話所屬 (Session id for conversation tracking)")
     temperature: Optional[float] = Field(None, description="回應多樣性 (Response diversity)")
     max_tokens: Optional[int] = Field(None, alias="maxTokens", description="生成最大 token 數 (Max tokens to generate)")
     tools: Optional[List[Any]] = Field(None, description="工具列表 (Tools, for function calling, optional)")
     tool_choice: Optional[Any] = Field(None, alias="toolChoice", description="工具選擇 (Tool choice, optional)")
+    source_language: Optional[str] = Field(None, alias="sourceLanguage", description="源語言 (Source language, optional)")
 
     model_config = ConfigDict(
         extra="forbid",  # 禁止額外欄位
@@ -45,6 +47,7 @@ class ConversationSSERequest(BaseModel):
                     {"role": "user", "content": "What is the weather like today?"}
                 ],
                 "stream": True,
+                "clientId": "client123",
                 "sessionId": "1234567890",
                 "temperature": 0.7,
                 "maxTokens": 100

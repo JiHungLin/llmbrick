@@ -8,6 +8,10 @@ import "protocols/grpc/common/common.proto";
 // Intention/Guard Brick 相關訊息
 message IntentionRequest {
   string text = 1;
+  string client_id = 2;
+  string session_id = 3;
+  string request_id = 4;
+  string source_language = 5;
 }
 
 message IntentionResult {

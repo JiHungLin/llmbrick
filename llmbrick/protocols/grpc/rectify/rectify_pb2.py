@@ -25,17 +25,17 @@ _sym_db = _symbol_database.Default()
 from protocols.grpc.common import common_pb2 as protocols_dot_grpc_dot_common_dot_common__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n$protocols/grpc/rectify/rectify.proto\x12\x16protocols.grpc.rectify\x1a\"protocols/grpc/common/common.proto\"-\n\x0bTextRequest\x12\x0c\n\x04text\x18\x01 \x01(\t\x12\x10\n\x08language\x18\x02 \x01(\t\"Y\n\x0cTextResponse\x12\x16\n\x0e\x63orrected_text\x18\x01 \x01(\t\x12\x31\n\x05\x65rror\x18\x02 \x01(\x0b\x32\".protocols.grpc.common.ErrorDetail2\xd3\x01\n\x0eRectifyService\x12g\n\x0eGetServiceInfo\x12).protocols.grpc.common.ServiceInfoRequest\x1a*.protocols.grpc.common.ServiceInfoResponse\x12X\n\x0bRectifyText\x12#.protocols.grpc.rectify.RectifyRequest\x1a$.protocols.grpc.rectify.TextResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n$protocols/grpc/rectify/rectify.proto\x12\x16protocols.grpc.rectify\x1a\"protocols/grpc/common/common.proto\"r\n\x0eRectifyRequest\x12\x0c\n\x04text\x18\x01 \x01(\t\x12\x11\n\tclient_id\x18\x02 \x01(\t\x12\x12\n\nsession_id\x18\x03 \x01(\t\x12\x12\n\nrequest_id\x18\x04 \x01(\t\x12\x17\n\x0fsource_language\x18\x05 \x01(\t\"\\\n\x0fRectifyResponse\x12\x16\n\x0e\x63orrected_text\x18\x01 \x01(\t\x12\x31\n\x05\x65rror\x18\x02 \x01(\x0b\x32\".protocols.grpc.common.ErrorDetail2\xd3\x01\n\x0eRectifyService\x12g\n\x0eGetServiceInfo\x12).protocols.grpc.common.ServiceInfoRequest\x1a*.protocols.grpc.common.ServiceInfoResponse\x12X\n\x05Unary\x12&.protocols.grpc.rectify.RectifyRequest\x1a\'.protocols.grpc.rectify.RectifyResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'protocols.grpc.rectify.rectify_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_TEXTREQUEST']._serialized_start=100
-  _globals['_TEXTREQUEST']._serialized_end=145
-  _globals['_TEXTRESPONSE']._serialized_start=147
-  _globals['_TEXTRESPONSE']._serialized_end=236
-  _globals['_RECTIFYSERVICE']._serialized_start=239
-  _globals['_RECTIFYSERVICE']._serialized_end=450
+  _globals['_RECTIFYREQUEST']._serialized_start=100
+  _globals['_RECTIFYREQUEST']._serialized_end=214
+  _globals['_RECTIFYRESPONSE']._serialized_start=216
+  _globals['_RECTIFYRESPONSE']._serialized_end=308
+  _globals['_RECTIFYSERVICE']._serialized_start=311
+  _globals['_RECTIFYSERVICE']._serialized_end=522
 # @@protoc_insertion_point(module_scope)

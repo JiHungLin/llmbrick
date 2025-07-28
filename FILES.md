@@ -114,10 +114,6 @@ llmbrick/
 │   │   ├── decorators.py            # 裝飾器
 │   │   └── helpers.py               # 幫助函數
 │   │
-│   └── plugins/                     # 插件系統
-│       ├── __init__.py
-│       ├── registry.py              # 插件註冊
-│       └── loader.py                # 插件載入器
 │
 ├── examples/                        # 範例代碼
 │   ├── __init__.py
