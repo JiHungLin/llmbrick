@@ -55,7 +55,7 @@ class BaseBrick(Generic[InputT, OutputT]):
         self._output_streaming_handler: Optional[OutputStreamingHandler] = None
         self._input_streaming_handler: Optional[InputStreamingHandler] = None
         self._bidi_streaming_handler: Optional[BidiStreamingHandler] = None
-        self._get_service_info_handler: Optional[Callable] = None
+        self._get_service_info_handler: Optional[Callable] = self.__get_service_info
         self.brick_name: str = self.__class__.__name__
         self._verbose: bool = verbose
 
@@ -82,7 +82,7 @@ class BaseBrick(Generic[InputT, OutputT]):
                 elif call_type == "get_service_info":
                     self._get_service_info_handler = attr
 
-    def get_service_info(self) -> ServiceInfoResponse:
+    def __get_service_info(self) -> ServiceInfoResponse:
         """
         回傳服務資訊，子類可覆寫
         """
@@ -91,6 +91,25 @@ class BaseBrick(Generic[InputT, OutputT]):
             "version": "1.0.0",
             "models": []
         }
+    
+    # Decorator for get_service_info
+    def get_service_info(self):
+        def decorator(func: Callable[[], ServiceInfoResponse]) -> Callable[[], ServiceInfoResponse]:
+            if self._verbose:
+                @functools.wraps(func)
+                @log_function(service_name=f"{self.brick_name}-GetServiceInfo")
+                async def wrapper(*args, **kwargs):
+                    res = await func(*args, **kwargs)
+                    return res
+            else:
+                @functools.wraps(func)
+                async def wrapper(*args, **kwargs):
+                    res = await func(*args, **kwargs)
+                    return res
+            self._get_service_info_handler = wrapper  # type: ignore
+            return wrapper  # type: ignore
+        return decorator
+
     # Decorator for unary
     def unary(self):
         def decorator(func: UnaryHandler) -> UnaryHandler:
@@ -176,22 +195,12 @@ class BaseBrick(Generic[InputT, OutputT]):
 
     # Entry: get_service_info call
     async def run_get_service_info(self) -> ServiceInfoResponse:
-        """
-        呼叫 get_service_info handler，若無則回傳預設
-        """
-        if self._get_service_info_handler:
-            if callable(self._get_service_info_handler):
-                # 支援 async/await
-                if hasattr(self._get_service_info_handler, "__code__") and self._get_service_info_handler.__code__.co_flags & 0x80:
-                    return await self._get_service_info_handler()
-                else:
-                    return self._get_service_info_handler()
-        # fallback 預設
-        return {
-            "service_name": self.brick_name,
-            "version": "1.0.0",
-            "models": []
-        }
+        try:
+            return await self._get_service_info_handler()
+        except Exception as e:
+            from ..utils.logging import logger
+            logger.error(f"[{self.brick_name}] run_get_service_info exception: {e}", exc_info=True)
+            raise
 
     # Entry: server streaming call
     async def run_output_streaming(self, input_data: InputT) -> AsyncIterator[OutputT]:
