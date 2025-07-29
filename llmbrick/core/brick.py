@@ -56,7 +56,7 @@ class GRPCCallType(Enum):
 
 class BaseBrick(Generic[InputT, OutputT]):
 
-    brick_type: Optional[GrpcServiceType] = None
+    brick_type: Optional[BrickType] = None
     # 可由子類覆寫，若為 None 則不限制
     allowed_handler_types: Optional[set] = None
 
