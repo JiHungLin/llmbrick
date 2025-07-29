@@ -5,6 +5,7 @@ import uvicorn
 import json
 from typing import Callable, Awaitable, Dict, Any, AsyncGenerator, Optional
 from ...utils.logging import logger
+from ...core.exceptions import LLMBrickException
 
 from ...protocols.models.http.conversation import (
     ConversationSSERequest,
@@ -19,6 +20,14 @@ class SSEServer:
         prefix: str = ""
     ):
         self.app = FastAPI()
+        # 註冊 LLMBrickException handler
+        @self.app.exception_handler(LLMBrickException)
+        async def llmbrick_exception_handler(request, exc: LLMBrickException):
+            logger.error(f"LLMBrickException: {exc}")
+            return JSONResponse(
+                status_code=400,
+                content=exc.to_dict()
+            )
         # 處理 prefix 格式，確保開頭有 /，結尾無 /
         if prefix and not prefix.startswith("/"):
             prefix = "/" + prefix
