@@ -1,6 +1,6 @@
 from deprecated import deprecated
 import warnings
-from llmbrick.core.brick import BaseBrick
+from llmbrick.core.brick import BaseBrick, BrickType
 from llmbrick.protocols.models.bricks.retrieval_types import (
     RetrievalRequest,
     RetrievalResponse,
@@ -20,7 +20,7 @@ class RetrievalBrick(BaseBrick[RetrievalRequest, RetrievalResponse]):
     - Unary -> unary
 
     """
-    grpc_service_type = "retrieval"
+    brick_type = BrickType.RETRIEVAL
 
     allowed_handler_types = {"unary", "get_service_info"}
 

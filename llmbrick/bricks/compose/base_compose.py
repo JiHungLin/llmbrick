@@ -6,7 +6,7 @@ from llmbrick.protocols.models.bricks.compose_types import (
     ComposeResponse,
 )
 
-from llmbrick.core.brick import BaseBrick
+from llmbrick.core.brick import BaseBrick, BrickType
 
 class ComposeBrick(BaseBrick[ComposeRequest, ComposeResponse]):
     """
@@ -24,7 +24,7 @@ class ComposeBrick(BaseBrick[ComposeRequest, ComposeResponse]):
     - OutputStreaming -> output_streaming
 
     """
-    grpc_service_type = "Compose"
+    brick_type = BrickType.COMPOSE
 
     # 僅允許這三種 handler
     allowed_handler_types = {"unary", "output_streaming", "get_service_info"}

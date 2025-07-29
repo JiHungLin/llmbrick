@@ -1,12 +1,12 @@
 from llmbrick.bricks.compose.base_compose import ComposeBrick
 from llmbrick.protocols.grpc.compose import compose_pb2_grpc
-class ComposeTranslateGrpcWrapper(compose_pb2_grpc.ComposeServiceServicer):
+class ComposeGrpcWrapper(compose_pb2_grpc.ComposeServiceServicer):
     """
-    ComposeTranslateGrpcWrapper: gRPC服務包裝器，用於處理Compose Translate相關請求
+    ComposeGrpcWrapper: gRPC服務包裝器，用於處理Compose相關請求
     此類別繼承自compose_pb2_grpc.ComposeServiceServicer, 並實現了以下方法：
     - GetServiceInfo: 用於獲取服務信息。
-    - Unary: 用於處理Compose Translate請求。
-    - OutputStreaming: 用於處理Compose Translate的流式請求。
+    - Unary: 用於處理Compose請求。
+    - OutputStreaming: 用於處理Compose的流式請求。
 
     gRPC服務與Brick的Handler對應表： (gRPC方法 -> Brick Handler)
     - GetServiceInfo -> get_service_info

@@ -1,6 +1,5 @@
 from llmbrick.bricks.common.common import CommonBrick
 from llmbrick.protocols.grpc.common import common_pb2_grpc
-from llmbrick.protocols.grpc.common import common_pb2
 
 class CommonGrpcWrapper(common_pb2_grpc.CommonServiceServicer):
     """

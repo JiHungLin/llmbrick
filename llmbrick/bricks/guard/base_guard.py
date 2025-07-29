@@ -1,6 +1,6 @@
 from deprecated import deprecated
 import warnings
-from llmbrick.core.brick import BaseBrick
+from llmbrick.core.brick import BaseBrick, BrickType
 from llmbrick.protocols.models.bricks.guard_types import (
     GuardRequest,
     GuardResponse,
@@ -19,7 +19,7 @@ class GuardBrick(BaseBrick[GuardRequest, GuardResponse]):
     - Unary -> unary
 
     """
-    grpc_service_type = "guard"
+    brick_type = BrickType.GUARD
 
     allowed_handler_types = {"unary", "get_service_info"}
 

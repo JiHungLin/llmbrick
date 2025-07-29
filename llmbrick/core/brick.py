@@ -38,15 +38,25 @@ InputStreamingHandler = Callable[[AsyncIterator[InputT]], Awaitable[OutputT]]
 BidiStreamingHandler = Callable[[AsyncIterator[InputT]], AsyncIterator[OutputT]]
 
 
+class BrickType(Enum):
+    COMMON = "Common"
+    RECTIFY = "Rectify"
+    INTENTION = "Intention"
+    GUARD = "Guard"
+    LLM = "LLM"
+    COMPOSE = "Compose"
+    RETRIEVAL = "Retrieval"
+    TRANSLATE = "Translate"
+
 class GRPCCallType(Enum):
     UNARY = "unary"
-    output_streaming = "output_streaming"
-    input_streaming = "input_streaming"
+    OUTPUT_STREAMING = "output_streaming"
+    INPUT_STREAMING = "input_streaming"
     BIDI_STREAMING = "bidi_streaming"
 
 class BaseBrick(Generic[InputT, OutputT]):
 
-    grpc_service_type = None 
+    brick_type: Optional[GrpcServiceType] = None
     # 可由子類覆寫，若為 None 則不限制
     allowed_handler_types: Optional[set] = None
 

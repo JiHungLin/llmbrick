@@ -5,7 +5,7 @@ from llmbrick.protocols.models.bricks.llm_types import (
     LLMResponse,
 )
 
-from llmbrick.core.brick import BaseBrick
+from llmbrick.core.brick import BaseBrick, BrickType
 
 class LLMBrick(BaseBrick[LLMRequest, LLMResponse]):
     """
@@ -23,7 +23,7 @@ class LLMBrick(BaseBrick[LLMRequest, LLMResponse]):
     - OutputStreaming -> output_streaming
 
     """
-    grpc_service_type = "llm"
+    brick_type = BrickType.LLM
     # 僅允許這三種 handler
     allowed_handler_types = {"unary", "output_streaming", "get_service_info"}
 

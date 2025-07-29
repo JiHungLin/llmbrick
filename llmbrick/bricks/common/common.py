@@ -1,4 +1,4 @@
-from llmbrick.core.brick import BaseBrick
+from llmbrick.core.brick import BaseBrick, BrickType
 from llmbrick.protocols.models.bricks.common_types import (
     CommonRequest,
     CommonResponse,
@@ -26,7 +26,7 @@ class CommonBrick(BaseBrick[CommonRequest, CommonResponse]):
     - InputStreaming -> input_streaming
     - BidiStreaming -> bidi_streaming
     """
-    grpc_service_type = "Common"
+    brick_type = BrickType.COMMON
 
     @classmethod
     def toGRPCClient(cls, remote_address: str):

@@ -1,6 +1,6 @@
 from deprecated import deprecated
 import warnings
-from llmbrick.core.brick import BaseBrick
+from llmbrick.core.brick import BaseBrick, BrickType
 from llmbrick.protocols.models.bricks.intention_types import (
     IntentionRequest,
     IntentionResponse,
@@ -19,7 +19,7 @@ class IntentionBrick(BaseBrick[IntentionRequest, IntentionResponse]):
     - Unary -> unary
 
     """
-    grpc_service_type = "intention"
+    brick_type = BrickType.INTENTION
 
     allowed_handler_types = {"unary", "get_service_info"}
 

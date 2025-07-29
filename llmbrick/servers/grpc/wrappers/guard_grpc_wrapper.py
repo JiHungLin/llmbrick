@@ -1,8 +1,8 @@
 from llmbrick.bricks.guard.base_guard import GuardBrick
 from llmbrick.protocols.grpc.guard import guard_pb2_grpc
-class IntentionGuardGrpcWrapper(guard_pb2_grpc.GuardServiceServicer):
+class GuardGrpcWrapper(guard_pb2_grpc.GuardServiceServicer):
     """
-    IntentionGuardGrpcWrapper: gRPC服務包裝器，用於處理Intention Guard相關請求
+    GuardGrpcWrapper: gRPC服務包裝器，用於處理Guard相關請求
     此類別繼承自guard_pb2_grpc.GuardServiceServicer，並實現了以下方法：
     - GetServiceInfo: 用於獲取服務信息。
     - Unary: 用於檢查用戶意圖。

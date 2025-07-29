@@ -6,7 +6,7 @@ from llmbrick.protocols.models.bricks.translate_types import (
     TranslateResponse,
 )
 
-from llmbrick.core.brick import BaseBrick
+from llmbrick.core.brick import BaseBrick, BrickType
 
 class TranslateBrick(BaseBrick[TranslateRequest, TranslateResponse]):
     """
@@ -24,7 +24,7 @@ class TranslateBrick(BaseBrick[TranslateRequest, TranslateResponse]):
     - OutputStreaming -> output_streaming
 
     """
-    grpc_service_type = "Translate"
+    brick_type = BrickType.TRANSLATE
 
     # 僅允許這三種 handler
     allowed_handler_types = {"unary", "output_streaming", "get_service_info"}

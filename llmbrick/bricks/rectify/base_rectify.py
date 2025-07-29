@@ -4,7 +4,7 @@ from llmbrick.protocols.models.bricks.rectify_types import (
     RectifyRequest,
     RectifyResponse,
 )
-from llmbrick.core.brick import BaseBrick
+from llmbrick.core.brick import BaseBrick, BrickType
 
 class RectifyBrick(BaseBrick[RectifyRequest, RectifyResponse]):
     """
@@ -19,7 +19,7 @@ class RectifyBrick(BaseBrick[RectifyRequest, RectifyResponse]):
     - GetServiceInfo -> get_service_info
     - Unary -> unary
     """
-    grpc_service_type = "rectify"
+    brick_type = BrickType.RECTIFY
 
     allowed_handler_types = {"unary", "get_service_info"}
 

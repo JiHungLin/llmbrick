@@ -1,8 +1,8 @@
 from llmbrick.bricks.intention.base_intention import IntentionBrick
 from llmbrick.protocols.grpc.intention import intention_pb2_grpc
-class IntentionGuardGrpcWrapper(intention_pb2_grpc.IntentionServiceServicer):
+class IntentionGrpcWrapper(intention_pb2_grpc.IntentionServiceServicer):
     """
-    IntentionGuardGrpcWrapper: gRPC服務包裝器，用於處理Intention Guard相關請求
+    IntentionGrpcWrapper: gRPC服務包裝器，用於處理Intention相關請求
     此類別繼承自intention_pb2_grpc.IntentionServiceServicer，並實現了以下方法：
     - GetServiceInfo: 用於獲取服務信息。
     - Unary: 用於檢查用戶意圖。
