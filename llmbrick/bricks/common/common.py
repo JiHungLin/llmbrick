@@ -2,6 +2,7 @@ from llmbrick.core.brick import BaseBrick, BrickType
 from llmbrick.protocols.models.bricks.common_types import (
     CommonRequest,
     CommonResponse,
+    ErrorDetail,
 )
 from llmbrick.protocols.grpc.common import common_pb2_grpc
 import grpc
@@ -51,51 +52,102 @@ class CommonBrick(BaseBrick[CommonRequest, CommonResponse]):
         @brick.unary
         async def unary_handler(request: CommonRequest) -> CommonResponse:
             """異步單次請求處理器"""
-            input_data = request.to_dict()
-            s = struct_pb2.Struct()
-            s.update(input_data)
-            response = await grpc_client.Unary(s)
+            from llmbrick.protocols.grpc.common import common_pb2
+            
+            # 建立 gRPC 請求
+            grpc_request = common_pb2.CommonRequest()
+            grpc_request.data.update(request.data)
+            
+            response = await grpc_client.Unary(grpc_request)
+            
             # 將 protobuf 回應轉換為 CommonResponse
-            return CommonResponse.from_dict(response)
+            response_data = dict(response.data) if response.data else {}
+            error = None
+            if response.error:
+                error = ErrorDetail(
+                    code=response.error.code,
+                    message=response.error.message,
+                    detail=response.error.detail
+                )
+            
+            return CommonResponse(data=response_data, error=error)
 
         @brick.output_streaming
         async def output_streaming_handler(request: CommonRequest):
             """異步流式輸出處理器"""
-            input_data = request.to_dict()
-            s = struct_pb2.Struct()
-            s.update(input_data)
-            async for response in grpc_client.OutputStreaming(s):
-                yield CommonResponse.from_dict(response)
+            from llmbrick.protocols.grpc.common import common_pb2
+            
+            # 建立 gRPC 請求
+            grpc_request = common_pb2.CommonRequest()
+            grpc_request.data.update(request.data)
+            
+            async for response in grpc_client.OutputStreaming(grpc_request):
+                # 將 protobuf 回應轉換為 CommonResponse
+                response_data = dict(response.data) if response.data else {}
+                error = None
+                if response.error:
+                    error = ErrorDetail(
+                        code=response.error.code,
+                        message=response.error.message,
+                        detail=response.error.detail
+                    )
+                
+                yield CommonResponse(data=response_data, error=error)
 
         @brick.input_streaming
         async def input_streaming_handler(request_stream) -> CommonResponse:
             """異步流式輸入處理器"""
+            from llmbrick.protocols.grpc.common import common_pb2
+            
             async def grpc_request_generator():
                 async for req in request_stream:
-                    s = struct_pb2.Struct()
-                    s.update(req.to_dict())
-                    yield s
+                    grpc_request = common_pb2.CommonRequest()
+                    grpc_request.data.update(req.data)
+                    yield grpc_request
 
             response = await grpc_client.InputStreaming(grpc_request_generator())
-            return CommonResponse.from_dict(response)
+            
+            # 將 protobuf 回應轉換為 CommonResponse
+            response_data = dict(response.data) if response.data else {}
+            error = None
+            if response.error:
+                error = ErrorDetail(
+                    code=response.error.code,
+                    message=response.error.message,
+                    detail=response.error.detail
+                )
+            
+            return CommonResponse(data=response_data, error=error)
 
         @brick.bidi_streaming
         async def bidi_streaming_handler(request_stream):
             """異步雙向流式處理器"""
+            from llmbrick.protocols.grpc.common import common_pb2
+            
             async def grpc_request_generator():
                 async for req in request_stream:
-                    s = struct_pb2.Struct()
-                    s.update(req.to_dict())
-                    yield s
+                    grpc_request = common_pb2.CommonRequest()
+                    grpc_request.data.update(req.data)
+                    yield grpc_request
 
             async for response in grpc_client.BidiStreaming(grpc_request_generator()):
-                yield CommonResponse.from_dict(response)
+                # 將 protobuf 回應轉換為 CommonResponse
+                response_data = dict(response.data) if response.data else {}
+                error = None
+                if response.error:
+                    error = ErrorDetail(
+                        code=response.error.code,
+                        message=response.error.message,
+                        detail=response.error.detail
+                    )
+                
+                yield CommonResponse(data=response_data, error=error)
 
         @brick.get_service_info
         async def get_service_info_handler():
             """異步服務信息處理器"""
-            from llmbrick.protocols.grpc.common.common_pb2 import ServiceInfoRequest
-            request = ServiceInfoRequest()
+            from llmbrick.protocols.grpc.common import common_pb2
+            request = common_pb2.ServiceInfoRequest()
             response = await grpc_client.GetServiceInfo(request)
             return {
                 "service_name": response.service_name,
