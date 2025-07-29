@@ -4,6 +4,7 @@ from llmbrick.protocols.models.bricks.llm_types import (
     LLMRequest,
     LLMResponse,
 )
+from llmbrick.protocols.models.bricks.common_types import ErrorDetail
 
 from llmbrick.core.brick import BaseBrick, BrickType
 
@@ -46,3 +47,120 @@ class LLMBrick(BaseBrick[LLMRequest, LLMResponse]):
         """
         warnings.warn("LLMBrick does not support input_streaming handler.", DeprecationWarning)
         raise NotImplementedError("LLMBrick does not support input_streaming handler.")
+
+    @classmethod
+    def toGrpcClient(cls, remote_address: str, default_prompt: str = "", **kwargs):
+        """
+        將 LLMBrick 轉換為異步 gRPC 客戶端。
+        
+        Args:
+            remote_address: gRPC 伺服器地址，格式為 "host:port"
+            default_prompt: 預設提示詞
+            **kwargs: 傳遞給 LLMBrick 建構子的額外參數
+            
+        Returns:
+            配置為異步 gRPC 客戶端的 LLMBrick 實例
+        """
+        import grpc
+        from google.protobuf import struct_pb2
+        from llmbrick.protocols.grpc.llm import llm_pb2_grpc
+        
+        # 建立異步 gRPC 通道和客戶端
+        channel = grpc.aio.insecure_channel(remote_address)
+        grpc_client = llm_pb2_grpc.LLMServiceStub(channel)
+        
+        # 建立 brick 實例
+        brick = cls(default_prompt=default_prompt, **kwargs)
+        
+        @brick.unary
+        async def unary_handler(request: LLMRequest) -> LLMResponse:
+            """異步單次請求處理器"""
+            from llmbrick.protocols.grpc.llm import llm_pb2
+            
+            # 轉換 Context 列表
+            grpc_contexts = []
+            for ctx in request.context:
+                grpc_context = llm_pb2.Context()
+                grpc_context.role = ctx.role
+                grpc_context.content = ctx.content
+                grpc_contexts.append(grpc_context)
+            
+            # 建立 gRPC 請求
+            grpc_request = llm_pb2.LLMRequest()
+            grpc_request.model_id = request.model_id
+            grpc_request.prompt = request.prompt
+            grpc_request.context.extend(grpc_contexts)
+            grpc_request.client_id = request.client_id
+            grpc_request.session_id = request.session_id
+            grpc_request.request_id = request.request_id
+            grpc_request.source_language = request.source_language
+            grpc_request.temperature = request.temperature
+            grpc_request.max_tokens = request.max_tokens
+            
+            response = await grpc_client.Unary(grpc_request)
+            
+            # 將 protobuf 回應轉換為 LLMResponse
+            return LLMResponse(
+                text=response.text,
+                tokens=list(response.tokens),
+                is_final=response.is_final,
+                error=ErrorDetail(
+                    code=response.error.code,
+                    message=response.error.message,
+                    detail=response.error.detail
+                ) if response.error else None
+            )
+
+        @brick.output_streaming
+        async def output_streaming_handler(request: LLMRequest):
+            """異步流式輸出處理器"""
+            from llmbrick.protocols.grpc.llm import llm_pb2
+            
+            # 轉換 Context 列表
+            grpc_contexts = []
+            for ctx in request.context:
+                grpc_context = llm_pb2.Context()
+                grpc_context.role = ctx.role
+                grpc_context.content = ctx.content
+                grpc_contexts.append(grpc_context)
+            
+            # 建立 gRPC 請求
+            grpc_request = llm_pb2.LLMRequest()
+            grpc_request.model_id = request.model_id
+            grpc_request.prompt = request.prompt
+            grpc_request.context.extend(grpc_contexts)
+            grpc_request.client_id = request.client_id
+            grpc_request.session_id = request.session_id
+            grpc_request.request_id = request.request_id
+            grpc_request.source_language = request.source_language
+            grpc_request.temperature = request.temperature
+            grpc_request.max_tokens = request.max_tokens
+            
+            async for response in grpc_client.OutputStreaming(grpc_request):
+                yield LLMResponse(
+                    text=response.text,
+                    tokens=list(response.tokens),
+                    is_final=response.is_final,
+                    error=ErrorDetail(
+                        code=response.error.code,
+                        message=response.error.message,
+                        detail=response.error.detail
+                    ) if response.error else None
+                )
+
+        @brick.get_service_info
+        async def get_service_info_handler():
+            """異步服務信息處理器"""
+            from llmbrick.protocols.grpc.common.common_pb2 import ServiceInfoRequest
+            request = ServiceInfoRequest()
+            response = await grpc_client.GetServiceInfo(request)
+            return {
+                "service_name": response.service_name,
+                "version": response.version,
+                "models": list(response.models)
+            }
+
+        # 儲存通道引用以便後續清理
+        brick._grpc_channel = channel
+        
+        return brick

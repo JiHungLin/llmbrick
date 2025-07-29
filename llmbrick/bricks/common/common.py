@@ -3,9 +3,10 @@ from llmbrick.protocols.models.bricks.common_types import (
     CommonRequest,
     CommonResponse,
 )
-from llmbrick.protocols.grpc.common import common_pb2_grpc, common_pb2
+from llmbrick.protocols.grpc.common import common_pb2_grpc
 import grpc
 from google.protobuf.json_format import ParseDict
+from google.protobuf import struct_pb2
 
 
 class CommonBrick(BaseBrick[CommonRequest, CommonResponse]):
@@ -29,46 +30,80 @@ class CommonBrick(BaseBrick[CommonRequest, CommonResponse]):
     brick_type = BrickType.COMMON
 
     @classmethod
-    def toGRPCClient(cls, remote_address: str):
+    def toGrpcClient(cls, remote_address: str, **kwargs):
         """
-        將 IntentionGuardBrick 轉換為 gRPC 客戶端。
+        將 CommonBrick 轉換為異步 gRPC 客戶端。
+        
+        Args:
+            remote_address: gRPC 伺服器地址，格式為 "host:port"
+            **kwargs: 傳遞給 CommonBrick 建構子的額外參數
+            
+        Returns:
+            配置為異步 gRPC 客戶端的 CommonBrick 實例
         """
-        channel = grpc.insecure_channel(remote_address)
-        grpc_client: common_pb2_grpc.CommonServiceStub = common_pb2_grpc.CommonServiceStub(channel)
-        from google.protobuf import struct_pb2
-
-        brick = cls()
+        # 建立異步 gRPC 通道和客戶端
+        channel = grpc.aio.insecure_channel(remote_address)
+        grpc_client = common_pb2_grpc.CommonServiceStub(channel)
+        
+        # 建立 brick 實例
+        brick = cls(**kwargs)
+        
         @brick.unary
-        def unary_handler(request: CommonRequest) -> CommonResponse:
-            input = request.to_dict()
+        async def unary_handler(request: CommonRequest) -> CommonResponse:
+            """異步單次請求處理器"""
+            input_data = request.to_dict()
             s = struct_pb2.Struct()
-            s.update(input)
-            return grpc_client.Unary(s)
+            s.update(input_data)
+            response = await grpc_client.Unary(s)
+            # 將 protobuf 回應轉換為 CommonResponse
+            return CommonResponse.from_dict(response)
 
         @brick.output_streaming
-        def output_streaming_handler(request: CommonRequest) -> grpc.ResponseStream[CommonResponse]:
+        async def output_streaming_handler(request: CommonRequest):
+            """異步流式輸出處理器"""
+            input_data = request.to_dict()
             s = struct_pb2.Struct()
-            s.update(request.to_dict())
-            yield grpc_client.OutputStreaming(s)
+            s.update(input_data)
+            async for response in grpc_client.OutputStreaming(s):
+                yield CommonResponse.from_dict(response)
 
         @brick.input_streaming
-        def input_streaming_handler(request_stream: grpc.RequestStream[CommonRequest]) -> CommonResponse:
-            # 將 request_stream 轉換為 gRPC 可用的 generator
-            def grpc_request_generator():
-                for req in request_stream:
-                    # 假設 CommonRequest 有 to_dict 方法，轉換為 protobuf Struct
+        async def input_streaming_handler(request_stream) -> CommonResponse:
+            """異步流式輸入處理器"""
+            async def grpc_request_generator():
+                async for req in request_stream:
                     s = struct_pb2.Struct()
                     s.update(req.to_dict())
                     yield s
 
-            return grpc_client.InputStreaming(grpc_request_generator())
+            response = await grpc_client.InputStreaming(grpc_request_generator())
+            return CommonResponse.from_dict(response)
 
         @brick.bidi_streaming
-        def bidi_streaming_handler(request_stream: grpc.RequestStream[CommonRequest]) -> grpc.ResponseStream[CommonResponse]:
-            yield grpc_client.BidiStreaming(request_stream)
+        async def bidi_streaming_handler(request_stream):
+            """異步雙向流式處理器"""
+            async def grpc_request_generator():
+                async for req in request_stream:
+                    s = struct_pb2.Struct()
+                    s.update(req.to_dict())
+                    yield s
+
+            async for response in grpc_client.BidiStreaming(grpc_request_generator()):
+                yield CommonResponse.from_dict(response)
 
         @brick.get_service_info
-        def get_service_info_handler(request: common_pb2.GetServiceInfoRequest) -> common_pb2.GetServiceInfoResponse:
-            return grpc_client.GetServiceInfo(request)
+        async def get_service_info_handler():
+            """異步服務信息處理器"""
+            from llmbrick.protocols.grpc.common.common_pb2 import ServiceInfoRequest
+            request = ServiceInfoRequest()
+            response = await grpc_client.GetServiceInfo(request)
+            return {
+                "service_name": response.service_name,
+                "version": response.version,
+                "models": list(response.models)
+            }
 
+        # 儲存通道引用以便後續清理
+        brick._grpc_channel = channel
+        
         return brick

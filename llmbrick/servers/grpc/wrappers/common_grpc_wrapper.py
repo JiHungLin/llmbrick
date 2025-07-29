@@ -3,8 +3,8 @@ from llmbrick.protocols.grpc.common import common_pb2_grpc
 
 class CommonGrpcWrapper(common_pb2_grpc.CommonServiceServicer):
     """
-    CommonGrpcWrapper: gRPC服務包裝器，用於處理通用請求
-    此類別繼承自common_pb2_grpc.CommonServiceServicer，並實現了以下方法：
+    CommonGrpcWrapper: 異步 gRPC 服務包裝器，用於處理通用請求
+    此類別繼承自common_pb2_grpc.CommonServiceServicer，並實現了以下異步方法：
     - GetServiceInfo: 用於獲取服務信息。
     - Unary: 用於處理單次請求。
     - OutputStreaming: 用於處理流式回應。
@@ -24,27 +24,37 @@ class CommonGrpcWrapper(common_pb2_grpc.CommonServiceServicer):
             raise TypeError("brick must be an instance of CommonBrick")
         self.brick = brick
 
-    def GetServiceInfo(self, request, context):
-        # 假設 brick 有 run_get_service_info 方法
-        return self.brick.run_get_service_info()
+    async def GetServiceInfo(self, request, context):
+        """異步獲取服務信息"""
+        return await self.brick.run_get_service_info()
 
-    def Unary(self, request, context):
-        # 假設 brick 有 run_unary 方法
-        return self.brick.run_unary(request)
+    async def Unary(self, request, context):
+        """異步處理單次請求"""
+        return await self.brick.run_unary(request)
 
-    def OutputStreaming(self, request, context):
-        # 假設 brick 有 run_output_streaming 方法
-        for response in self.brick.run_output_streaming(request):
+    async def OutputStreaming(self, request, context):
+        """異步處理流式回應"""
+        async for response in self.brick.run_output_streaming(request):
             yield response
 
-    def InputStreaming(self, request_iterator, context):
-        # 假設 brick 有 run_input_streaming 方法
-        return self.brick.run_input_streaming(request_iterator)
+    async def InputStreaming(self, request_iterator, context):
+        """異步處理流式輸入"""
+        # 將同步迭代器轉換為異步迭代器
+        async def async_request_iterator():
+            async for request in request_iterator:
+                yield request
+        
+        return await self.brick.run_input_streaming(async_request_iterator())
 
-    # TODO: 可能會有問題，因為這個方法需要處理雙向流式請求，待測試
-    def BidiStreaming(self, request_iterator, context):
-        # 假設 brick 有 run_bidi_streaming 方法
-        return self.brick.run_bidi_streaming(request_iterator)
+    async def BidiStreaming(self, request_iterator, context):
+        """異步處理雙向流式請求"""
+        # 將同步迭代器轉換為異步迭代器
+        async def async_request_iterator():
+            async for request in request_iterator:
+                yield request
+        
+        async for response in self.brick.run_bidi_streaming(async_request_iterator()):
+            yield response
 
     def register(self, server):
         common_pb2_grpc.add_CommonServiceServicer_to_server(self, server)
