@@ -4,7 +4,7 @@ import grpc
 import warnings
 
 from google.protobuf import struct_pb2 as google_dot_protobuf_dot_struct__pb2
-from helloworld import helloworld_pb2 as pb2_dot_helloworld_dot_helloworld__pb2
+from pb2.helloworld import helloworld_pb2 as pb2_dot_helloworld_dot_helloworld__pb2
 
 GRPC_GENERATED_VERSION = '1.73.1'
 GRPC_VERSION = grpc.__version__
@@ -60,6 +60,16 @@ class GreeterStub(object):
                 request_serializer=google_dot_protobuf_dot_struct__pb2.Struct.SerializeToString,
                 response_deserializer=pb2_dot_helloworld_dot_helloworld__pb2.HelloReply.FromString,
                 _registered_method=True)
+        self.SayComplexHello = channel.unary_unary(
+                '/Greeter/SayComplexHello',
+                request_serializer=pb2_dot_helloworld_dot_helloworld__pb2.ComplexRequest.SerializeToString,
+                response_deserializer=pb2_dot_helloworld_dot_helloworld__pb2.HelloReply.FromString,
+                _registered_method=True)
+        self.SayComplexHelloStream = channel.stream_unary(
+                '/Greeter/SayComplexHelloStream',
+                request_serializer=pb2_dot_helloworld_dot_helloworld__pb2.ComplexRequest.SerializeToString,
+                response_deserializer=pb2_dot_helloworld_dot_helloworld__pb2.HelloReply.FromString,
+                _registered_method=True)
 
 
 class GreeterServicer(object):
@@ -95,6 +105,18 @@ class GreeterServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def SayComplexHello(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def SayComplexHelloStream(self, request_iterator, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_GreeterServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -121,6 +143,16 @@ def add_GreeterServicer_to_server(servicer, server):
             'SayHelloWithStruct': grpc.unary_unary_rpc_method_handler(
                     servicer.SayHelloWithStruct,
                     request_deserializer=google_dot_protobuf_dot_struct__pb2.Struct.FromString,
+                    response_serializer=pb2_dot_helloworld_dot_helloworld__pb2.HelloReply.SerializeToString,
+            ),
+            'SayComplexHello': grpc.unary_unary_rpc_method_handler(
+                    servicer.SayComplexHello,
+                    request_deserializer=pb2_dot_helloworld_dot_helloworld__pb2.ComplexRequest.FromString,
+                    response_serializer=pb2_dot_helloworld_dot_helloworld__pb2.HelloReply.SerializeToString,
+            ),
+            'SayComplexHelloStream': grpc.stream_unary_rpc_method_handler(
+                    servicer.SayComplexHelloStream,
+                    request_deserializer=pb2_dot_helloworld_dot_helloworld__pb2.ComplexRequest.FromString,
                     response_serializer=pb2_dot_helloworld_dot_helloworld__pb2.HelloReply.SerializeToString,
             ),
     }
@@ -258,6 +290,60 @@ class Greeter(object):
             target,
             '/Greeter/SayHelloWithStruct',
             google_dot_protobuf_dot_struct__pb2.Struct.SerializeToString,
+            pb2_dot_helloworld_dot_helloworld__pb2.HelloReply.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def SayComplexHello(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/Greeter/SayComplexHello',
+            pb2_dot_helloworld_dot_helloworld__pb2.ComplexRequest.SerializeToString,
+            pb2_dot_helloworld_dot_helloworld__pb2.HelloReply.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def SayComplexHelloStream(request_iterator,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.stream_unary(
+            request_iterator,
+            target,
+            '/Greeter/SayComplexHelloStream',
+            pb2_dot_helloworld_dot_helloworld__pb2.ComplexRequest.SerializeToString,
             pb2_dot_helloworld_dot_helloworld__pb2.HelloReply.FromString,
             options,
             channel_credentials,
