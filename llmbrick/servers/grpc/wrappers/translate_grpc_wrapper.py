@@ -1,10 +1,9 @@
-from typing import AsyncIterator
 import grpc
 from llmbrick.bricks.translate.base_translate import TranslateBrick
 from llmbrick.protocols.grpc.translate import translate_pb2_grpc, translate_pb2
+from llmbrick.protocols.grpc.common import common_pb2
 from llmbrick.protocols.models.bricks.translate_types import TranslateRequest, TranslateResponse
-from llmbrick.protocols.models.bricks.common_types import ErrorDetail, ServiceInfoResponse
-from google.protobuf import struct_pb2
+from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse
 
 # /protocols/grpc/translate/translate.proto
 # translate_pb2
@@ -30,8 +29,6 @@ class TranslateGrpcWrapper(translate_pb2_grpc.TranslateServiceServicer):
         self.brick = brick
 
     async def GetServiceInfo(self, request, context):
-        from llmbrick.protocols.grpc.common import common_pb2
-        from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse
         result = await self.brick.run_get_service_info()
         error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
         if result is None:
@@ -64,7 +61,6 @@ class TranslateGrpcWrapper(translate_pb2_grpc.TranslateServiceServicer):
         return response
 
     async def Unary(self, request: translate_pb2.TranslateRequest, context):
-        from llmbrick.protocols.models.bricks.translate_types import TranslateRequest, TranslateResponse
         req = TranslateRequest.from_pb2_model(request)
         result = await self.brick.run_unary(req)
         error_data = translate_pb2.ErrorDetail(code=0, message="", detail="")
@@ -92,10 +88,9 @@ class TranslateGrpcWrapper(translate_pb2_grpc.TranslateServiceServicer):
         return response
 
     async def OutputStreaming(self, request: translate_pb2.TranslateRequest, context):
-        from llmbrick.protocols.models.bricks.translate_types import TranslateRequest, TranslateResponse
         req = TranslateRequest.from_pb2_model(request)
         async for response in self.brick.run_output_streaming(req):
-            error_data = translate_pb2.ErrorDetail(code=0, message="", detail="")
+            error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
             if not isinstance(response, TranslateResponse):
                 context.set_code(grpc.StatusCode.INTERNAL)
                 context.set_details('Invalid output streaming response type!')

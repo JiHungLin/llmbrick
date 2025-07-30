@@ -8,6 +8,7 @@ from llmbrick.servers.grpc.server import GrpcServer
 from llmbrick.bricks.llm.base_llm import LLMBrick
 from llmbrick.core.brick import unary_handler, output_streaming_handler, get_service_info_handler
 from llmbrick.protocols.models.bricks.llm_types import LLMRequest, LLMResponse
+from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse, ErrorDetail
 import pytest_asyncio
 
 class _TestLLMBrick(LLMBrick):
@@ -20,10 +21,12 @@ class _TestLLMBrick(LLMBrick):
         await asyncio.sleep(0.1)
         # 回傳 text, tokens, is_final
         tokens = list(request.prompt) if request.prompt else []
+        error = ErrorDetail(code=0, message="No error")
         return LLMResponse(
             text=f"回應: {request.prompt}",
             tokens=tokens,
-            is_final=True
+            is_final=True,
+            error=error
         )
 
     @output_streaming_handler
@@ -34,23 +37,25 @@ class _TestLLMBrick(LLMBrick):
             yield LLMResponse(
                 text=word,
                 tokens=[word],
-                is_final=(i == len(words) - 1)
+                is_final=(i == len(words) - 1),
+                error=ErrorDetail(code=0, message="No error")
             )
 
     @get_service_info_handler
-    async def get_service_info_handler(self):
+    async def get_service_info_handler(self) -> ServiceInfoResponse:
         await asyncio.sleep(0.01)
-        return type("ServiceInfo", (), {
-            "service_name": "TestLLMBrick",
-            "version": "9.9.9",
-            "models": [{
+        return ServiceInfoResponse(
+            service_name="TestLLMBrick",
+            version="9.9.9",
+            models=[{
                 "model_id": "test",
                 "version": "1.0",
                 "supported_languages": ["zh", "en"],
                 "support_streaming": True,
                 "description": "test"
-            }]
-        })()
+            }],
+            error=ErrorDetail(code=0, message="No error")
+        )
 
 @pytest.mark.asyncio
 async def test_async_grpc_server_startup():
@@ -83,7 +88,7 @@ async def grpc_client(grpc_server):
     await client_brick._grpc_channel.close()
 
 @pytest.mark.asyncio
-async def test_unary(grpc_client):
+async def test_unary(grpc_client: _TestLLMBrick):
     request = LLMRequest(prompt="單一請求")
     response = await grpc_client.run_unary(request)
     assert response is not None
@@ -91,18 +96,18 @@ async def test_unary(grpc_client):
     assert isinstance(response.tokens, list)
     assert response.is_final is True
 
-# @pytest.mark.asyncio
-# async def test_output_streaming(grpc_client):
-#     stream_req = LLMRequest(prompt="流式請求")
-#     results = []
-#     async for resp in grpc_client.run_output_streaming(stream_req):
-#         results.append(resp.text)
-#         assert isinstance(resp.tokens, list)
-#     assert results == ["這", "是", "流式", "回應"]
+@pytest.mark.asyncio
+async def test_output_streaming(grpc_client: _TestLLMBrick):
+    stream_req = LLMRequest(prompt="流式請求")
+    results = []
+    async for resp in grpc_client.run_output_streaming(stream_req):
+        results.append(resp.text)
+        assert isinstance(resp.tokens, list)
+    assert results == ["這", "是", "流式", "回應"]
 
-# @pytest.mark.asyncio
-# async def test_get_service_info(grpc_client):
-#     info = await grpc_client.run_get_service_info()
-#     assert info.service_name == "TestLLMBrick"
-#     assert info.version == "9.9.9"
-#     assert isinstance(info.models, list)
+@pytest.mark.asyncio
+async def test_get_service_info(grpc_client: _TestLLMBrick):
+    info = await grpc_client.run_get_service_info()
+    assert info.service_name == "TestLLMBrick"
+    assert info.version == "9.9.9"
+    assert isinstance(info.models, list)

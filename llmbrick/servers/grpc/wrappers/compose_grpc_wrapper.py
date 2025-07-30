@@ -1,9 +1,9 @@
-from typing import AsyncIterator
 import grpc
 from llmbrick.bricks.compose.base_compose import ComposeBrick
 from llmbrick.protocols.grpc.compose import compose_pb2_grpc, compose_pb2
+from llmbrick.protocols.grpc.common import common_pb2
 from llmbrick.protocols.models.bricks.compose_types import ComposeRequest, ComposeResponse
-from llmbrick.protocols.models.bricks.common_types import ErrorDetail, ServiceInfoResponse
+from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse
 from google.protobuf import struct_pb2
 
 # /protocols/grpc/compose/compose.proto
@@ -29,8 +29,6 @@ class ComposeGrpcWrapper(compose_pb2_grpc.ComposeServiceServicer):
 
     async def GetServiceInfo(self, request, context):
         """異步獲取服務信息"""
-        from llmbrick.protocols.grpc.common import common_pb2
-        from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse
         result = await self.brick.run_get_service_info()
         error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
         if result is None:
@@ -63,10 +61,9 @@ class ComposeGrpcWrapper(compose_pb2_grpc.ComposeServiceServicer):
 
     async def Unary(self, request: compose_pb2.ComposeRequest, context):
         """異步處理單次請求"""
-        from llmbrick.protocols.models.bricks.compose_types import ComposeRequest, ComposeResponse
         req = ComposeRequest.from_pb2_model(request)
         result = await self.brick.run_unary(req)
-        error_data = compose_pb2.ErrorDetail(code=0, message="", detail="")
+        error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
         if not isinstance(result, ComposeResponse):
             context.set_code(grpc.StatusCode.INTERNAL)
             context.set_details('Invalid unary response type!')
@@ -88,10 +85,9 @@ class ComposeGrpcWrapper(compose_pb2_grpc.ComposeServiceServicer):
 
     async def OutputStreaming(self, request: compose_pb2.ComposeRequest, context):
         """異步處理流式回應"""
-        from llmbrick.protocols.models.bricks.compose_types import ComposeRequest, ComposeResponse
         req = ComposeRequest.from_pb2_model(request)
         async for response in self.brick.run_output_streaming(req):
-            error_data = compose_pb2.ErrorDetail(code=0, message="", detail="")
+            error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
             if not isinstance(response, ComposeResponse):
                 context.set_code(grpc.StatusCode.INTERNAL)
                 context.set_details('Invalid output streaming response type!')

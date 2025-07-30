@@ -1,10 +1,9 @@
-from typing import AsyncIterator
 import grpc
 from llmbrick.bricks.guard.base_guard import GuardBrick
 from llmbrick.protocols.grpc.guard import guard_pb2_grpc, guard_pb2
+from llmbrick.protocols.grpc.common import common_pb2
 from llmbrick.protocols.models.bricks.guard_types import GuardRequest, GuardResponse
-from llmbrick.protocols.models.bricks.common_types import ErrorDetail, ServiceInfoResponse
-from google.protobuf import struct_pb2
+from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse
 
 # /protocols/grpc/guard/guard.proto
 # guard_pb2
@@ -29,8 +28,6 @@ class GuardGrpcWrapper(guard_pb2_grpc.GuardServiceServicer):
         self.brick = brick
 
     async def GetServiceInfo(self, request, context):
-        from llmbrick.protocols.grpc.common import common_pb2
-        from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse
         result = await self.brick.run_get_service_info()
         error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
         if result is None:
@@ -61,8 +58,7 @@ class GuardGrpcWrapper(guard_pb2_grpc.GuardServiceServicer):
         response = common_pb2.ServiceInfoResponse(**response_dict)
         return response
 
-    async def Unary(self, request: guard_pb2.GuardRequest, context):
-        from llmbrick.protocols.models.bricks.guard_types import GuardRequest, GuardResponse
+    async def Unary(self, request: GuardRequest, context):
         req = GuardRequest(
             text=request.text,
             client_id=request.client_id,
@@ -71,7 +67,7 @@ class GuardGrpcWrapper(guard_pb2_grpc.GuardServiceServicer):
             source_language=request.source_language,
         )
         result = await self.brick.run_unary(req)
-        error_data = guard_pb2.ErrorDetail(code=0, message="", detail="")
+        error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
         if not isinstance(result, GuardResponse):
             context.set_code(grpc.StatusCode.INTERNAL)
             context.set_details('Invalid unary response type!')

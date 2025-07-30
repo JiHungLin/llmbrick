@@ -6,6 +6,7 @@ from llmbrick.protocols.models.bricks.compose_types import (
     ComposeResponse,
     Document,
 )
+from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse
 from llmbrick.protocols.models.bricks.common_types import ErrorDetail
 
 from llmbrick.core.brick import BaseBrick, BrickType
@@ -155,18 +156,23 @@ class ComposeBrick(BaseBrick[ComposeRequest, ComposeResponse]):
                         detail=response.error.detail
                     ) if response.error else None
                 )
-
-        @brick.get_service_info
-        async def get_service_info_handler():
+                
+        @brick.get_service_info()
+        async def get_service_info_handler() -> ServiceInfoResponse:
             """異步服務信息處理器"""
             from llmbrick.protocols.grpc.common import common_pb2
             request = common_pb2.ServiceInfoRequest()
             response = await grpc_client.GetServiceInfo(request)
-            return {
-                "service_name": response.service_name,
-                "version": response.version,
-                "models": list(response.models)
-            }
+            return ServiceInfoResponse(
+                service_name=response.service_name,
+                version=response.version,
+                models=[{
+                    "model_id": model.model_id,
+                    "version": model.version,
+                    "supported_languages": list(model.supported_languages),
+                    "support_streaming": model.support_streaming
+                } for model in response.models]
+            )
 
         # 儲存通道引用以便後續清理
         brick._grpc_channel = channel

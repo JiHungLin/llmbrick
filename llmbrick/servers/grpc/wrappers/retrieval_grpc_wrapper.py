@@ -1,10 +1,9 @@
-from typing import AsyncIterator
 import grpc
 from llmbrick.bricks.retrieval.base_retrieval import RetrievalBrick
 from llmbrick.protocols.grpc.retrieval import retrieval_pb2_grpc, retrieval_pb2
+from llmbrick.protocols.grpc.common import common_pb2
 from llmbrick.protocols.models.bricks.retrieval_types import RetrievalRequest, RetrievalResponse
-from llmbrick.protocols.models.bricks.common_types import ErrorDetail, ServiceInfoResponse
-from google.protobuf import struct_pb2
+from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse
 
 # /protocols/grpc/retrieval/retrieval.proto
 # retrieval_pb2
@@ -29,8 +28,6 @@ class RetrievalGrpcWrapper(retrieval_pb2_grpc.RetrievalServiceServicer):
         self.brick = brick
 
     async def GetServiceInfo(self, request, context):
-        from llmbrick.protocols.grpc.common import common_pb2
-        from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse
         result = await self.brick.run_get_service_info()
         error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
         if result is None:
@@ -63,10 +60,9 @@ class RetrievalGrpcWrapper(retrieval_pb2_grpc.RetrievalServiceServicer):
         return response
 
     async def Unary(self, request: retrieval_pb2.RetrievalRequest, context):
-        from llmbrick.protocols.models.bricks.retrieval_types import RetrievalRequest, RetrievalResponse
         req = RetrievalRequest.from_pb2_model(request)
         result = await self.brick.run_unary(req)
-        error_data = retrieval_pb2.ErrorDetail(code=0, message="", detail="")
+        error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
         if not isinstance(result, RetrievalResponse):
             context.set_code(grpc.StatusCode.INTERNAL)
             context.set_details('Invalid unary response type!')

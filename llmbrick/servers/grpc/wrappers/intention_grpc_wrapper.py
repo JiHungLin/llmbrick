@@ -1,10 +1,9 @@
-from typing import AsyncIterator
 import grpc
 from llmbrick.bricks.intention.base_intention import IntentionBrick
 from llmbrick.protocols.grpc.intention import intention_pb2_grpc, intention_pb2
+from llmbrick.protocols.grpc.common import common_pb2
 from llmbrick.protocols.models.bricks.intention_types import IntentionRequest, IntentionResponse
-from llmbrick.protocols.models.bricks.common_types import ErrorDetail, ServiceInfoResponse
-from google.protobuf import struct_pb2
+from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse
 
 # /protocols/grpc/intention/intention.proto
 # intention_pb2
@@ -28,8 +27,6 @@ class IntentionGrpcWrapper(intention_pb2_grpc.IntentionServiceServicer):
         self.brick = brick
 
     async def GetServiceInfo(self, request, context):
-        from llmbrick.protocols.grpc.common import common_pb2
-        from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse
         result = await self.brick.run_get_service_info()
         error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
         if result is None:
@@ -62,7 +59,6 @@ class IntentionGrpcWrapper(intention_pb2_grpc.IntentionServiceServicer):
         return response
 
     async def Unary(self, request: intention_pb2.IntentionRequest, context):
-        from llmbrick.protocols.models.bricks.intention_types import IntentionRequest, IntentionResponse
         req = IntentionRequest(
             text=request.text,
             client_id=request.client_id,
@@ -71,7 +67,7 @@ class IntentionGrpcWrapper(intention_pb2_grpc.IntentionServiceServicer):
             source_language=request.source_language,
         )
         result = await self.brick.run_unary(req)
-        error_data = intention_pb2.ErrorDetail(code=0, message="", detail="")
+        error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
         if not isinstance(result, IntentionResponse):
             context.set_code(grpc.StatusCode.INTERNAL)
             context.set_details('Invalid unary response type!')

@@ -105,7 +105,7 @@ async def grpc_server():
         pass
 
 @pytest_asyncio.fixture
-async def grpc_client(grpc_server) -> _TestCommonBrick:
+async def grpc_client(grpc_server):
     client_brick = _TestCommonBrick.toGrpcClient(remote_address="127.0.0.1:50056", verbose=False)
     yield client_brick
     await client_brick._grpc_channel.close()

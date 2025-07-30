@@ -1,10 +1,9 @@
-from typing import AsyncIterator
 import grpc
 from llmbrick.bricks.rectify.base_rectify import RectifyBrick
 from llmbrick.protocols.grpc.rectify import rectify_pb2_grpc, rectify_pb2
+from llmbrick.protocols.grpc.common import common_pb2
 from llmbrick.protocols.models.bricks.rectify_types import RectifyRequest, RectifyResponse
-from llmbrick.protocols.models.bricks.common_types import ErrorDetail, ServiceInfoResponse
-from google.protobuf import struct_pb2
+from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse
 
 # /protocols/grpc/rectify/rectify.proto
 # rectify_pb2
@@ -28,8 +27,6 @@ class RectifyGrpcWrapper(rectify_pb2_grpc.RectifyServiceServicer):
         self.brick = brick
 
     async def GetServiceInfo(self, request, context):
-        from llmbrick.protocols.grpc.common import common_pb2
-        from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse
         result = await self.brick.run_get_service_info()
         error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
         if result is None:
@@ -62,7 +59,6 @@ class RectifyGrpcWrapper(rectify_pb2_grpc.RectifyServiceServicer):
         return response
 
     async def Unary(self, request: rectify_pb2.RectifyRequest, context):
-        from llmbrick.protocols.models.bricks.rectify_types import RectifyRequest, RectifyResponse
         req = RectifyRequest(
             text=request.text,
             client_id=request.client_id,
@@ -71,7 +67,7 @@ class RectifyGrpcWrapper(rectify_pb2_grpc.RectifyServiceServicer):
             source_language=request.source_language,
         )
         result = await self.brick.run_unary(req)
-        error_data = rectify_pb2.ErrorDetail(code=0, message="", detail="")
+        error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
         if not isinstance(result, RectifyResponse):
             context.set_code(grpc.StatusCode.INTERNAL)
             context.set_details('Invalid unary response type!')
