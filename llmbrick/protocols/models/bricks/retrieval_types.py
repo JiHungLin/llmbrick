@@ -66,6 +66,15 @@ class RetrievalResponse:
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
+    
+    @classmethod
+    def from_pb2_model(cls, model: retrieval_pb2.RetrievalResponse) -> 'RetrievalResponse':
+        docs = [Document.from_dict(MessageToDict(doc)) for doc in model.documents]
+        error = ErrorDetail.from_dict(MessageToDict(model.error)) if model.error else None
+        return cls(
+            documents=docs,
+            error=error
+        )
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'RetrievalResponse':

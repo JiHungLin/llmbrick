@@ -29,35 +29,45 @@ class ComposeGrpcWrapper(compose_pb2_grpc.ComposeServiceServicer):
 
     async def GetServiceInfo(self, request, context):
         """異步獲取服務信息"""
-        result = await self.brick.run_get_service_info()
-        error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
-        if result is None:
-            context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-            context.set_details('Service info not implemented!')
-            error_data.code = grpc.StatusCode.UNIMPLEMENTED.value[0]
-            error_data.message = 'Service info not implemented!'
-            error_data.detail = 'The brick did not implement service info.'
-            response = common_pb2.ServiceInfoResponse(error=error_data)
+        try:
+            result = await self.brick.run_get_service_info()
+            error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
+            if result is None:
+                # context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+                # context.set_details('Service info not implemented!')
+                error_data.code = grpc.StatusCode.UNIMPLEMENTED.value[0]
+                error_data.message = 'Service info not implemented!'
+                error_data.detail = 'The brick did not implement service info.'
+                response = common_pb2.ServiceInfoResponse(error=error_data)
+                return response
+            if not isinstance(result, ServiceInfoResponse):
+                # context.set_code(grpc.StatusCode.INTERNAL)
+                # context.set_details('Invalid service info response type!')
+                error_data.code = grpc.StatusCode.INTERNAL.value[0]
+                error_data.message = 'Invalid service info response type!'
+                error_data.detail = 'The response from the brick is not of type ServiceInfoResponse.'
+                response = common_pb2.ServiceInfoResponse(error=error_data)
+                return response
+            if result.error and result.error.code != 0:
+                # context.set_code(grpc.StatusCode.INTERNAL)
+                # context.set_details(result.error.message)
+                error_data.code = result.error.code
+                error_data.message = result.error.message
+                error_data.detail = result.error.detail
+                return common_pb2.ServiceInfoResponse(error=error_data)
+            response_dict = result.to_dict()
+            response_dict["error"] = error_data
+            response = common_pb2.ServiceInfoResponse(**response_dict)
             return response
-        if not isinstance(result, ServiceInfoResponse):
-            context.set_code(grpc.StatusCode.INTERNAL)
-            context.set_details('Invalid service info response type!')
-            error_data.code = grpc.StatusCode.INTERNAL.value[0]
-            error_data.message = 'Invalid service info response type!'
-            error_data.detail = 'The response from the brick is not of type ServiceInfoResponse.'
-            response = common_pb2.ServiceInfoResponse(error=error_data)
-            return response
-        if result.error and result.error.code != 0:
-            context.set_code(grpc.StatusCode.INTERNAL)
-            context.set_details(result.error.message)
-            error_data.code = result.error.code
-            error_data.message = result.error.message
-            error_data.detail = result.error.detail
+        except Exception as e:
+            # context.set_code(grpc.StatusCode.INTERNAL)
+            # context.set_details(f'Error in GetServiceInfo: {str(e)}')
+            error_data = common_pb2.ErrorDetail(
+                code=grpc.StatusCode.INTERNAL.value[0],
+                message=str(e),
+                detail='An error occurred while processing GetServiceInfo.'
+            )
             return common_pb2.ServiceInfoResponse(error=error_data)
-        response_dict = result.to_dict()
-        response_dict["error"] = error_data
-        response = common_pb2.ServiceInfoResponse(**response_dict)
-        return response
 
     async def Unary(self, request: compose_pb2.ComposeRequest, context):
         """異步處理單次請求"""
@@ -65,15 +75,15 @@ class ComposeGrpcWrapper(compose_pb2_grpc.ComposeServiceServicer):
         result = await self.brick.run_unary(req)
         error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
         if not isinstance(result, ComposeResponse):
-            context.set_code(grpc.StatusCode.INTERNAL)
-            context.set_details('Invalid unary response type!')
+            # context.set_code(grpc.StatusCode.INTERNAL)
+            # context.set_details('Invalid unary response type!')
             error_data.code = grpc.StatusCode.INTERNAL.value[0]
             error_data.message = 'Invalid unary response type!'
             error_data.detail = 'The response from the brick is not of type ComposeResponse.'
             return compose_pb2.ComposeResponse(error=error_data)
         if result.error and result.error.code != 0:
-            context.set_code(grpc.StatusCode.INTERNAL)
-            context.set_details(result.error.message)
+            # context.set_code(grpc.StatusCode.INTERNAL)
+            # context.set_details(result.error.message)
             error_data.code = result.error.code
             error_data.message = result.error.message
             error_data.detail = result.error.detail
@@ -89,16 +99,16 @@ class ComposeGrpcWrapper(compose_pb2_grpc.ComposeServiceServicer):
         async for response in self.brick.run_output_streaming(req):
             error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
             if not isinstance(response, ComposeResponse):
-                context.set_code(grpc.StatusCode.INTERNAL)
-                context.set_details('Invalid output streaming response type!')
+                # context.set_code(grpc.StatusCode.INTERNAL)
+                # context.set_details('Invalid output streaming response type!')
                 error_data.code = grpc.StatusCode.INTERNAL.value[0]
                 error_data.message = 'Invalid output streaming response type!'
                 error_data.detail = 'The response from the brick is not of type ComposeResponse.'
                 yield compose_pb2.ComposeResponse(error=error_data)
                 break
             if response.error and response.error.code != 0:
-                context.set_code(grpc.StatusCode.INTERNAL)
-                context.set_details(response.error.message)
+                # context.set_code(grpc.StatusCode.INTERNAL)
+                # context.set_details(response.error.message)
                 error_data.code = response.error.code
                 error_data.message = response.error.message
                 error_data.detail = response.error.detail

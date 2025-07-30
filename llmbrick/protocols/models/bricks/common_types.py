@@ -61,6 +61,15 @@ class CommonResponse:
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
+    
+    @classmethod
+    def from_pb2_model(cls, model: common_pb2.CommonResponse) -> 'CommonResponse':
+        data = MessageToDict(model.data)
+        error = ErrorDetail.from_dict(MessageToDict(model.error)) if model.error else None
+        return cls(
+            data=data,
+            error=error
+        )
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'CommonResponse':

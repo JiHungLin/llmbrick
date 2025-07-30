@@ -74,7 +74,7 @@ class ComposeBrick(BaseBrick[ComposeRequest, ComposeResponse]):
         # 建立 brick 實例
         brick = cls(**kwargs)
         
-        @brick.unary
+        @brick.unary()
         async def unary_handler(request: ComposeRequest) -> ComposeResponse:
             """異步單次請求處理器"""
             from llmbrick.protocols.grpc.compose import compose_pb2
@@ -102,21 +102,9 @@ class ComposeBrick(BaseBrick[ComposeRequest, ComposeResponse]):
             
             response = await grpc_client.Unary(grpc_request)
             
-            # 將 protobuf 回應轉換為 ComposeResponse
-            output_dict = {}
-            if response.output:
-                output_dict = dict(response.output)
-            
-            return ComposeResponse(
-                output=output_dict,
-                error=ErrorDetail(
-                    code=response.error.code,
-                    message=response.error.message,
-                    detail=response.error.detail
-                ) if response.error else None
-            )
+            return ComposeResponse.from_pb2_model(response)
 
-        @brick.output_streaming
+        @brick.output_streaming()
         async def output_streaming_handler(request: ComposeRequest):
             """異步流式輸出處理器"""
             from llmbrick.protocols.grpc.compose import compose_pb2

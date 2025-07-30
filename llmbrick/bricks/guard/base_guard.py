@@ -76,7 +76,7 @@ class GuardBrick(BaseBrick[GuardRequest, GuardResponse]):
         # 建立 brick 實例
         brick = cls(**kwargs)
         
-        @brick.unary
+        @brick.unary()
         async def unary_handler(request: GuardRequest) -> GuardResponse:
             """異步單次請求處理器"""
             from llmbrick.protocols.grpc.guard import guard_pb2

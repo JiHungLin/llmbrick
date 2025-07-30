@@ -74,7 +74,7 @@ class RectifyBrick(BaseBrick[RectifyRequest, RectifyResponse]):
         # 建立 brick 實例
         brick = cls(**kwargs)
         
-        @brick.unary
+        @brick.unary()
         async def unary_handler(request: RectifyRequest) -> RectifyResponse:
             """異步單次請求處理器"""
             from llmbrick.protocols.grpc.rectify import rectify_pb2

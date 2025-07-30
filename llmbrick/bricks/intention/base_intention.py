@@ -76,7 +76,7 @@ class IntentionBrick(BaseBrick[IntentionRequest, IntentionResponse]):
         # 建立 brick 實例
         brick = cls(**kwargs)
         
-        @brick.unary
+        @brick.unary()
         async def unary_handler(request: IntentionRequest) -> IntentionResponse:
             """異步單次請求處理器"""
             from llmbrick.protocols.grpc.intention import intention_pb2

@@ -60,19 +60,9 @@ class CommonBrick(BaseBrick[CommonRequest, CommonResponse]):
             grpc_request.data.update(request.data)
             
             response = await grpc_client.Unary(grpc_request)
-            
-            # 將 protobuf 回應轉換為 CommonResponse
-            response_data = dict(response.data) if response.data else {}
-            error = None
-            if response.error:
-                error = ErrorDetail(
-                    code=response.error.code,
-                    message=response.error.message,
-                    detail=response.error.detail
-                )
-            
-            return CommonResponse(data=response_data, error=error)
 
+            return CommonResponse.from_pb2_model(response)
+        
         @brick.output_streaming()
         async def output_streaming_handler(request: struct_pb2.Struct):
             """異步流式輸出處理器"""
@@ -84,16 +74,7 @@ class CommonBrick(BaseBrick[CommonRequest, CommonResponse]):
             
             async for response in grpc_client.OutputStreaming(grpc_request):
                 # 將 protobuf 回應轉換為 CommonResponse
-                response_data = dict(response.data) if response.data else {}
-                error = None
-                if response.error:
-                    error = ErrorDetail(
-                        code=response.error.code,
-                        message=response.error.message,
-                        detail=response.error.detail
-                    )
-                
-                yield CommonResponse(data=response_data, error=error)
+                yield CommonResponse.from_pb2_model(response)
 
         @brick.input_streaming()
         async def input_streaming_handler(request_stream) -> CommonResponse:
@@ -107,18 +88,8 @@ class CommonBrick(BaseBrick[CommonRequest, CommonResponse]):
                     yield grpc_request
 
             response = await grpc_client.InputStreaming(grpc_request_generator())
-            
-            # 將 protobuf 回應轉換為 CommonResponse
-            response_data = dict(response.data) if response.data else {}
-            error = None
-            if response.error:
-                error = ErrorDetail(
-                    code=response.error.code,
-                    message=response.error.message,
-                    detail=response.error.detail
-                )
-            
-            return CommonResponse(data=response_data, error=error)
+        
+            return CommonResponse.from_pb2_model(response)
 
         @brick.bidi_streaming()
         async def bidi_streaming_handler(request_stream):
@@ -132,17 +103,7 @@ class CommonBrick(BaseBrick[CommonRequest, CommonResponse]):
                     yield grpc_request
 
             async for response in grpc_client.BidiStreaming(grpc_request_generator()):
-                # 將 protobuf 回應轉換為 CommonResponse
-                response_data = dict(response.data) if response.data else {}
-                error = None
-                if response.error:
-                    error = ErrorDetail(
-                        code=response.error.code,
-                        message=response.error.message,
-                        detail=response.error.detail
-                    )
-                
-                yield CommonResponse(data=response_data, error=error)
+                yield CommonResponse.from_pb2_model(response)
 
         @brick.get_service_info()
         async def get_service_info_handler() -> ServiceInfoResponse:

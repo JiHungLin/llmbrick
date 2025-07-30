@@ -50,6 +50,17 @@ class TranslateResponse:
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
+    
+    @classmethod
+    def from_pb2_model(cls, model: translate_pb2.TranslateResponse) -> 'TranslateResponse':
+        error = ErrorDetail.from_dict(MessageToDict(model.error)) if model.error else None
+        return cls(
+            text=model.text,
+            tokens=model.tokens,
+            language_code=model.language_code,
+            is_final=model.is_final,
+            error=error
+        )
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'TranslateResponse':

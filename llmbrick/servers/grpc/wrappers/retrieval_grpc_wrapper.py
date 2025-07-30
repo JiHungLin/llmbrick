@@ -31,24 +31,24 @@ class RetrievalGrpcWrapper(retrieval_pb2_grpc.RetrievalServiceServicer):
         result = await self.brick.run_get_service_info()
         error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
         if result is None:
-            context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-            context.set_details('Service info not implemented!')
+            # context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+            # context.set_details('Service info not implemented!')
             error_data.code = grpc.StatusCode.UNIMPLEMENTED.value[0]
             error_data.message = 'Service info not implemented!'
             error_data.detail = 'The brick did not implement service info.'
             response = common_pb2.ServiceInfoResponse(error=error_data)
             return response
         if not isinstance(result, ServiceInfoResponse):
-            context.set_code(grpc.StatusCode.INTERNAL)
-            context.set_details('Invalid service info response type!')
+            # context.set_code(grpc.StatusCode.INTERNAL)
+            # context.set_details('Invalid service info response type!')
             error_data.code = grpc.StatusCode.INTERNAL.value[0]
             error_data.message = 'Invalid service info response type!'
             error_data.detail = 'The response from the brick is not of type ServiceInfoResponse.'
             response = common_pb2.ServiceInfoResponse(error=error_data)
             return response
         if result.error and result.error.code != 0:
-            context.set_code(grpc.StatusCode.INTERNAL)
-            context.set_details(result.error.message)
+            # context.set_code(grpc.StatusCode.INTERNAL)
+            # context.set_details(result.error.message)
             error_data.code = result.error.code
             error_data.message = result.error.message
             error_data.detail = result.error.detail
@@ -64,15 +64,15 @@ class RetrievalGrpcWrapper(retrieval_pb2_grpc.RetrievalServiceServicer):
         result = await self.brick.run_unary(req)
         error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
         if not isinstance(result, RetrievalResponse):
-            context.set_code(grpc.StatusCode.INTERNAL)
-            context.set_details('Invalid unary response type!')
+            # context.set_code(grpc.StatusCode.INTERNAL)
+            # context.set_details('Invalid unary response type!')
             error_data.code = grpc.StatusCode.INTERNAL.value[0]
             error_data.message = 'Invalid unary response type!'
             error_data.detail = 'The response from the brick is not of type RetrievalResponse.'
             return retrieval_pb2.RetrievalResponse(error=error_data)
         if result.error and result.error.code != 0:
-            context.set_code(grpc.StatusCode.INTERNAL)
-            context.set_details(result.error.message)
+            # context.set_code(grpc.StatusCode.INTERNAL)
+            # context.set_details(result.error.message)
             error_data.code = result.error.code
             error_data.message = result.error.message
             error_data.detail = result.error.detail

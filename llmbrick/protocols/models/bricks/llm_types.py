@@ -77,6 +77,16 @@ class LLMResponse:
         return asdict(self)
 
     @classmethod
+    def from_pb2_model(cls, model: llm_pb2.LLMResponse) -> 'LLMResponse':
+        error = ErrorDetail.from_dict(MessageToDict(model.error)) if model.error else None
+        return cls(
+            text=model.text,
+            tokens=list(model.tokens),
+            is_final=model.is_final,
+            error=error
+        )
+
+    @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'LLMResponse':
         error_data = data.get('error')
         error = ErrorDetail.from_dict(error_data) if error_data else None

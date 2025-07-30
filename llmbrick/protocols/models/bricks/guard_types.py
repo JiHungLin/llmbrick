@@ -58,6 +58,15 @@ class GuardResponse:
         return asdict(self)
 
     @classmethod
+    def from_pb2_model(cls, model: guard_pb2.GuardResponse) -> 'GuardResponse':
+        results = [GuardResult.from_pb2_model(result) for result in model.results]
+        error = ErrorDetail.from_dict(MessageToDict(model.error)) if model.error else None
+        return cls(
+            results=results,
+            error=error
+        )
+
+    @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'GuardResponse':
         results_data = data.get('results', [])
         results = [GuardResult.from_dict(result) for result in results_data]

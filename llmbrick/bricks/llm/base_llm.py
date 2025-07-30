@@ -101,17 +101,8 @@ class LLMBrick(BaseBrick[LLMRequest, LLMResponse]):
             response = await grpc_client.Unary(grpc_request)
 
             # 將 protobuf 回應轉換為 LLMResponse
-            return LLMResponse(
-                text=response.text,
-                tokens=list(response.tokens),
-                is_final=response.is_final,
-                error=ErrorDetail(
-                    code=response.error.code,
-                    message=response.error.message,
-                    detail=response.error.detail
-                ) if response.error else None
-            )
-
+            return LLMResponse.from_pb2_model(response)
+        
         @brick.output_streaming()
         async def output_streaming_handler(request: LLMRequest, context=None):
             """異步流式輸出處理器"""
@@ -138,16 +129,7 @@ class LLMBrick(BaseBrick[LLMRequest, LLMResponse]):
             grpc_request.max_tokens = request.max_tokens
             
             async for response in grpc_client.OutputStreaming(grpc_request):
-                yield LLMResponse(
-                    text=response.text,
-                    tokens=list(response.tokens),
-                    is_final=response.is_final,
-                    error=ErrorDetail(
-                        code=response.error.code,
-                        message=response.error.message,
-                        detail=response.error.detail
-                    ) if response.error else None
-                )
+                yield LLMResponse.from_pb2_model(response)
 
         @brick.get_service_info()
         async def get_service_info_handler() -> ServiceInfoResponse:

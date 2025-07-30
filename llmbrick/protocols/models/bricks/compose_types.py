@@ -72,6 +72,15 @@ class ComposeResponse:
         return asdict(self)
 
     @classmethod
+    def from_pb2_model(cls, model: compose_pb2.ComposeResponse) -> 'ComposeResponse':
+        output_dict = MessageToDict(model.output) if model.output else {}
+        error = ErrorDetail.from_dict(MessageToDict(model.error)) if model.error else None
+        return cls(
+            output=output_dict,
+            error=error
+        )
+
+    @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'ComposeResponse':
         error_data = data.get('error')
         error = ErrorDetail.from_dict(error_data) if error_data else None

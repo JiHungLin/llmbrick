@@ -76,7 +76,7 @@ class RetrievalBrick(BaseBrick[RetrievalRequest, RetrievalResponse]):
         # 建立 brick 實例
         brick = cls(**kwargs)
         
-        @brick.unary
+        @brick.unary()
         async def unary_handler(request: RetrievalRequest) -> RetrievalResponse:
             """異步單次請求處理器"""
             from llmbrick.protocols.grpc.retrieval import retrieval_pb2

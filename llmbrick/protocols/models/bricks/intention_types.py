@@ -57,6 +57,15 @@ class IntentionResponse:
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
+    
+    @classmethod
+    def from_pb2_model(cls, model: intention_pb2.IntentionResponse) -> 'IntentionResponse':
+        results = [IntentionResult.from_dict(MessageToDict(result)) for result in model.results]
+        error = ErrorDetail.from_dict(MessageToDict(model.error)) if model.error else None
+        return cls(
+            results=results,
+            error=error
+        )
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'IntentionResponse':
