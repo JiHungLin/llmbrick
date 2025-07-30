@@ -60,7 +60,7 @@ class CommonGrpcWrapper(common_pb2_grpc.CommonServiceServicer):
 
     async def Unary(self, request: common_pb2.CommonRequest, context):
         """異步處理單次請求"""
-        request = CommonRequest(data=request.data.to_dict())
+        request = CommonRequest.from_pb2_model(request)
         result: CommonResponse = await self.brick.run_unary(request)
         error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
         if not isinstance(result, CommonResponse):
@@ -81,10 +81,6 @@ class CommonGrpcWrapper(common_pb2_grpc.CommonServiceServicer):
     # request.data is struct_pb2.Struct
     async def OutputStreaming(self, request: common_pb2.CommonRequest, context):
         """異步處理流式回應"""
-        print("== Output Streaming Handler ==")
-        print(f"Received request: {request}")
-        print(f"Request data type: {type(request)}")
-        print(f"Request data type: {type(request.data)}")
         request = CommonRequest.from_pb2_model(request)
         async for response in self.brick.run_output_streaming(request):
             error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
@@ -105,7 +101,7 @@ class CommonGrpcWrapper(common_pb2_grpc.CommonServiceServicer):
         # 將同步迭代器轉換為異步迭代器
         async def async_request_iterator():
             async for request in request_iterator:
-                yield request
+                yield CommonRequest.from_pb2_model(request)
 
         result = await self.brick.run_input_streaming(async_request_iterator())
         error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
@@ -125,7 +121,7 @@ class CommonGrpcWrapper(common_pb2_grpc.CommonServiceServicer):
         # 將同步迭代器轉換為異步迭代器
         async def async_request_iterator():
             async for request in request_iterator:
-                yield request
+                yield CommonRequest.from_pb2_model(request)
 
         async for response in self.brick.run_bidi_streaming(async_request_iterator()):
             error_data = common_pb2.ErrorDetail(code=0, message="", detail="")

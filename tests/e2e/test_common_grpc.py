@@ -36,7 +36,7 @@ class _TestCommonBrick(CommonBrick):
         # 將所有 request.data["val"] 相加
         total = 0
         async for req in request_stream:
-            total += req.data.get("val", 0) if req.data else 0
+            total += int(req.data.get("val", 0)) if req.data else 0
         await asyncio.sleep(0.05)
         return CommonResponse(data={"sum": total})
 
@@ -44,7 +44,7 @@ class _TestCommonBrick(CommonBrick):
     async def bidi_streaming_handler(self, request_stream):
         # 每收到一個 request，回傳其 data["val"]*2
         async for req in request_stream:
-            val = req.data.get("val", 0) if req.data else 0
+            val = int(req.data.get("val", 0)) if req.data else 0
             await asyncio.sleep(0.02)
             yield CommonResponse(data={"double": val * 2})
 
@@ -104,14 +104,14 @@ async def grpc_client(grpc_server) -> _TestCommonBrick:
     yield client_brick
     await client_brick._grpc_channel.close()
 
-# @pytest.mark.asyncio
-# async def test_unary(grpc_client: _TestCommonBrick):
-#     print("== 測試 Unary 方法 ==")
-#     print(grpc_client)
-#     request = CommonRequest(data={"test": "data"})
-#     response = await grpc_client.run_unary(request)
-#     assert response is not None
-#     assert response.data["processed"] is True
+@pytest.mark.asyncio
+async def test_unary(grpc_client: _TestCommonBrick):
+    print("== 測試 Unary 方法 ==")
+    print(grpc_client)
+    request = CommonRequest(data={"test": "data"})
+    response = await grpc_client.run_unary(request)
+    assert response is not None
+    assert response.data["processed"] is True
 
 @pytest.mark.asyncio
 async def test_output_streaming(grpc_client: _TestCommonBrick):
@@ -121,27 +121,27 @@ async def test_output_streaming(grpc_client: _TestCommonBrick):
         results.append(resp.data["index"])
     assert results == [0, 1]
 
-# @pytest.mark.asyncio
-# async def test_input_streaming(grpc_client: _TestCommonBrick):
-#     async def input_stream():
-#         for v in [1, 2, 3]:
-#             yield CommonRequest(data={"val": v})
-#     input_resp = await grpc_client.run_input_streaming(input_stream())
-#     assert input_resp.data["sum"] == 6
+@pytest.mark.asyncio
+async def test_input_streaming(grpc_client: _TestCommonBrick):
+    async def input_stream():
+        for v in [1, 2, 3]:
+            yield CommonRequest(data={"val": v})
+    input_resp = await grpc_client.run_input_streaming(input_stream())
+    assert input_resp.data["sum"] == 6
 
-# @pytest.mark.asyncio
-# async def test_bidi_streaming(grpc_client: _TestCommonBrick):
-#     async def bidi_stream():
-#         for v in [10, 20]:
-#             yield CommonRequest(data={"val": v})
-#     doubles = []
-#     async for resp in grpc_client.run_bidi_streaming(bidi_stream()):
-#         doubles.append(resp.data["double"])
-#     assert doubles == [20, 40]
+@pytest.mark.asyncio
+async def test_bidi_streaming(grpc_client: _TestCommonBrick):
+    async def bidi_stream():
+        for v in [10, 20]:
+            yield CommonRequest(data={"val": v})
+    doubles = []
+    async for resp in grpc_client.run_bidi_streaming(bidi_stream()):
+        doubles.append(resp.data["double"])
+    assert doubles == [20, 40]
 
-# @pytest.mark.asyncio
-# async def test_get_service_info(grpc_client: _TestCommonBrick):
-#     info = await grpc_client.run_get_service_info()
-#     assert info.service_name == "TestCommonBrick"
-#     assert info.version == "9.9.9"
-#     assert isinstance(info.models, list)
+@pytest.mark.asyncio
+async def test_get_service_info(grpc_client: _TestCommonBrick):
+    info = await grpc_client.run_get_service_info()
+    assert info.service_name == "TestCommonBrick"
+    assert info.version == "9.9.9"
+    assert isinstance(info.models, list)
