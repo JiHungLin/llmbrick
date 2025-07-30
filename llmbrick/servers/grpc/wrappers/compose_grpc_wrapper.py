@@ -19,15 +19,7 @@ from google.protobuf import struct_pb2
 class ComposeGrpcWrapper(compose_pb2_grpc.ComposeServiceServicer):
     """
     ComposeGrpcWrapper: 異步 gRPC 服務包裝器，用於處理Compose相關請求
-    此類別繼承自compose_pb2_grpc.ComposeServiceServicer, 並實現了以下異步方法：
-    - GetServiceInfo: 用於獲取服務信息。
-    - Unary: 用於處理Compose請求。
-    - OutputStreaming: 用於處理Compose的流式請求。
-
-    gRPC服務與Brick的Handler對應表： (gRPC方法 -> Brick Handler)
-    - GetServiceInfo -> get_service_info
-    - Unary -> unary
-    - OutputStreaming -> output_streaming
+    以 common_grpc_wrapper.py 為基礎，統一異步方法的錯誤處理與型別檢查。
     """
 
     def __init__(self, brick: ComposeBrick):
@@ -37,16 +29,66 @@ class ComposeGrpcWrapper(compose_pb2_grpc.ComposeServiceServicer):
 
     async def GetServiceInfo(self, request, context):
         """異步獲取服務信息"""
-        return await self.brick.run_get_service_info()
-    
-    async def Unary(self, request, context):
-        """異步處理單次請求"""
-        return await self.brick.run_unary(request)
+        from llmbrick.protocols.grpc.common import common_pb2
+        from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse
+        result = await self.brick.run_get_service_info()
+        error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
+        if result is None:
+            context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+            context.set_details('Service info not implemented!')
+            error_data.code = grpc.StatusCode.UNIMPLEMENTED.value[0]
+            error_data.message = 'Service info not implemented!'
+            error_data.detail = 'The brick did not implement service info.'
+            response = common_pb2.ServiceInfoResponse(error=error_data)
+            return response
+        if not isinstance(result, ServiceInfoResponse):
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details('Invalid service info response type!')
+            error_data.code = grpc.StatusCode.INTERNAL.value[0]
+            error_data.message = 'Invalid service info response type!'
+            error_data.detail = 'The response from the brick is not of type ServiceInfoResponse.'
+            response = common_pb2.ServiceInfoResponse(error=error_data)
+            return response
+        response_dict = result.to_dict()
+        response_dict["error"] = error_data
+        response = common_pb2.ServiceInfoResponse(**response_dict)
+        return response
 
-    async def OutputStreaming(self, request, context):
+    async def Unary(self, request: compose_pb2.ComposeRequest, context):
+        """異步處理單次請求"""
+        from llmbrick.protocols.models.bricks.compose_types import ComposeRequest, ComposeResponse
+        req = ComposeRequest.from_pb2_model(request)
+        result = await self.brick.run_unary(req)
+        error_data = compose_pb2.ErrorDetail(code=0, message="", detail="")
+        if not isinstance(result, ComposeResponse):
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details('Invalid unary response type!')
+            error_data.code = grpc.StatusCode.INTERNAL.value[0]
+            error_data.message = 'Invalid unary response type!'
+            error_data.detail = 'The response from the brick is not of type ComposeResponse.'
+            return compose_pb2.ComposeResponse(error=error_data)
+        output = struct_pb2.Struct()
+        output.update(result.to_dict().get("output", {}))
+        response = compose_pb2.ComposeResponse(output=output, error=error_data)
+        return response
+
+    async def OutputStreaming(self, request: compose_pb2.ComposeRequest, context):
         """異步處理流式回應"""
-        async for response in self.brick.run_output_streaming(request):
-            yield response
+        from llmbrick.protocols.models.bricks.compose_types import ComposeRequest, ComposeResponse
+        req = ComposeRequest.from_pb2_model(request)
+        async for response in self.brick.run_output_streaming(req):
+            error_data = compose_pb2.ErrorDetail(code=0, message="", detail="")
+            if not isinstance(response, ComposeResponse):
+                context.set_code(grpc.StatusCode.INTERNAL)
+                context.set_details('Invalid output streaming response type!')
+                error_data.code = grpc.StatusCode.INTERNAL.value[0]
+                error_data.message = 'Invalid output streaming response type!'
+                error_data.detail = 'The response from the brick is not of type ComposeResponse.'
+                yield compose_pb2.ComposeResponse(error=error_data)
+                break
+            output = struct_pb2.Struct()
+            output.update(response.to_dict().get("output", {}))
+            yield compose_pb2.ComposeResponse(output=output, error=error_data)
 
     def register(self, server):
         compose_pb2_grpc.add_ComposeServiceServicer_to_server(self, server)

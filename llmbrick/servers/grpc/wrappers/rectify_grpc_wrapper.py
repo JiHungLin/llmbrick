@@ -19,13 +19,7 @@ from google.protobuf import struct_pb2
 class RectifyGrpcWrapper(rectify_pb2_grpc.RectifyServiceServicer):
     """
     RectifyGrpcWrapper: 異步 gRPC 服務包裝器，用於處理Rectify相關請求
-    此類別繼承自rectify_pb2_grpc.RectifyServiceServicer，並實現了以下異步方法：
-    - GetServiceInfo: 用於獲取服務信息。
-    - Unary: 用於處理Rectify請求。
-
-    gRPC服務與Brick的Handler對應表： (gRPC方法 -> Brick Handler)
-    - GetServiceInfo -> get_service_info
-    - Unary -> unary
+    以 common_grpc_wrapper.py 為基礎，統一異步方法的錯誤處理與型別檢查。
     """
 
     def __init__(self, brick: RectifyBrick):
@@ -34,12 +28,54 @@ class RectifyGrpcWrapper(rectify_pb2_grpc.RectifyServiceServicer):
         self.brick = brick
 
     async def GetServiceInfo(self, request, context):
-        """異步獲取服務信息"""
-        return await self.brick.run_get_service_info()
+        from llmbrick.protocols.grpc.common import common_pb2
+        from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse
+        result = await self.brick.run_get_service_info()
+        error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
+        if result is None:
+            context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+            context.set_details('Service info not implemented!')
+            error_data.code = grpc.StatusCode.UNIMPLEMENTED.value[0]
+            error_data.message = 'Service info not implemented!'
+            error_data.detail = 'The brick did not implement service info.'
+            response = common_pb2.ServiceInfoResponse(error=error_data)
+            return response
+        if not isinstance(result, ServiceInfoResponse):
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details('Invalid service info response type!')
+            error_data.code = grpc.StatusCode.INTERNAL.value[0]
+            error_data.message = 'Invalid service info response type!'
+            error_data.detail = 'The response from the brick is not of type ServiceInfoResponse.'
+            response = common_pb2.ServiceInfoResponse(error=error_data)
+            return response
+        response_dict = result.to_dict()
+        response_dict["error"] = error_data
+        response = common_pb2.ServiceInfoResponse(**response_dict)
+        return response
 
-    async def Unary(self, request, context):
-        """異步處理單次請求"""
-        return await self.brick.run_unary(request)
+    async def Unary(self, request: rectify_pb2.RectifyRequest, context):
+        from llmbrick.protocols.models.bricks.rectify_types import RectifyRequest, RectifyResponse
+        req = RectifyRequest(
+            text=request.text,
+            client_id=request.client_id,
+            session_id=request.session_id,
+            request_id=request.request_id,
+            source_language=request.source_language,
+        )
+        result = await self.brick.run_unary(req)
+        error_data = rectify_pb2.ErrorDetail(code=0, message="", detail="")
+        if not isinstance(result, RectifyResponse):
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details('Invalid unary response type!')
+            error_data.code = grpc.StatusCode.INTERNAL.value[0]
+            error_data.message = 'Invalid unary response type!'
+            error_data.detail = 'The response from the brick is not of type RectifyResponse.'
+            return rectify_pb2.RectifyResponse(error=error_data)
+        response = rectify_pb2.RectifyResponse(
+            corrected_text=result.corrected_text,
+            error=error_data
+        )
+        return response
 
     def register(self, server):
         rectify_pb2_grpc.add_RectifyServiceServicer_to_server(self, server)

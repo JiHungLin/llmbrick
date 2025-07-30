@@ -26,15 +26,7 @@ from google.protobuf import struct_pb2
 class LLMGrpcWrapper(llm_pb2_grpc.LLMServiceServicer):
     """
     LLMGrpcWrapper: 異步 gRPC 服務包裝器，用於處理LLM相關請求
-    此類別繼承自llm_pb2_grpc.LLMServiceServicer，並實現了以下異步方法：
-    - GetServiceInfo: 用於獲取服務信息。
-    - Unary: 用於生成模型回應。
-    - OutputStreaming: 用於生成模型回應的流式輸出。
-
-    gRPC服務與Brick的Handler對應表： (gRPC方法 -> Brick Handler)
-    - GetServiceInfo -> get_service_info
-    - Unary -> unary
-    - OutputStreaming -> output_streaming
+    以 common_grpc_wrapper.py 為基礎，統一異步方法的錯誤處理與型別檢查。
     """
 
     def __init__(self, brick: LLMBrick):
@@ -43,17 +35,70 @@ class LLMGrpcWrapper(llm_pb2_grpc.LLMServiceServicer):
         self.brick = brick
 
     async def GetServiceInfo(self, request, context):
-        """異步獲取服務信息"""
-        return await self.brick.run_get_service_info()
+        from llmbrick.protocols.grpc.common import common_pb2
+        from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse
+        result = await self.brick.run_get_service_info()
+        error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
+        if result is None:
+            context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+            context.set_details('Service info not implemented!')
+            error_data.code = grpc.StatusCode.UNIMPLEMENTED.value[0]
+            error_data.message = 'Service info not implemented!'
+            error_data.detail = 'The brick did not implement service info.'
+            response = common_pb2.ServiceInfoResponse(error=error_data)
+            return response
+        if not isinstance(result, ServiceInfoResponse):
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details('Invalid service info response type!')
+            error_data.code = grpc.StatusCode.INTERNAL.value[0]
+            error_data.message = 'Invalid service info response type!'
+            error_data.detail = 'The response from the brick is not of type ServiceInfoResponse.'
+            response = common_pb2.ServiceInfoResponse(error=error_data)
+            return response
+        response_dict = result.to_dict()
+        response_dict["error"] = error_data
+        response = common_pb2.ServiceInfoResponse(**response_dict)
+        return response
 
-    async def Unary(self, request, context):
-        """異步處理單次請求"""
-        return await self.brick.run_unary(request)
+    async def Unary(self, request: llm_pb2.LLMRequest, context):
+        from llmbrick.protocols.models.bricks.llm_types import LLMRequest, LLMResponse
+        req = LLMRequest.from_pb2_model(request)
+        result = await self.brick.run_unary(req)
+        error_data = llm_pb2.ErrorDetail(code=0, message="", detail="")
+        if not isinstance(result, LLMResponse):
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details('Invalid unary response type!')
+            error_data.code = grpc.StatusCode.INTERNAL.value[0]
+            error_data.message = 'Invalid unary response type!'
+            error_data.detail = 'The response from the brick is not of type LLMResponse.'
+            return llm_pb2.LLMResponse(error=error_data)
+        response = llm_pb2.LLMResponse(
+            text=result.text,
+            tokens=result.tokens,
+            is_final=result.is_final,
+            error=error_data
+        )
+        return response
 
-    async def OutputStreaming(self, request, context):
-        """異步處理流式回應"""
-        async for response in self.brick.run_output_streaming(request):
-            yield response
+    async def OutputStreaming(self, request: llm_pb2.LLMRequest, context):
+        from llmbrick.protocols.models.bricks.llm_types import LLMRequest, LLMResponse
+        req = LLMRequest.from_pb2_model(request)
+        async for response in self.brick.run_output_streaming(req):
+            error_data = llm_pb2.ErrorDetail(code=0, message="", detail="")
+            if not isinstance(response, LLMResponse):
+                context.set_code(grpc.StatusCode.INTERNAL)
+                context.set_details('Invalid output streaming response type!')
+                error_data.code = grpc.StatusCode.INTERNAL.value[0]
+                error_data.message = 'Invalid output streaming response type!'
+                error_data.detail = 'The response from the brick is not of type LLMResponse.'
+                yield llm_pb2.LLMResponse(error=error_data)
+                break
+            yield llm_pb2.LLMResponse(
+                text=response.text,
+                tokens=response.tokens,
+                is_final=response.is_final,
+                error=error_data
+            )
 
     def register(self, server):
         llm_pb2_grpc.add_LLMServiceServicer_to_server(self, server)
