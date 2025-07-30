@@ -4,7 +4,7 @@
 import grpc
 import asyncio
 from typing import Optional
-
+from llmbrick.utils.logging import logger
 from llmbrick.servers.grpc.wrappers import register_to_grpc_server as register_grpc_service
 
 class GrpcServer:
@@ -25,7 +25,7 @@ class GrpcServer:
         self.server.add_insecure_port(listen_addr)
         
         await self.server.start()
-        print(f"異步 gRPC server 已啟動，監聽端口 {self.port}")
+        logger.info(f"異步 gRPC server 已啟動，監聽端口 {self.port}")
         
         try:
             await self.server.wait_for_termination()
@@ -36,7 +36,7 @@ class GrpcServer:
     async def stop(self):
         if self.server:
             await self.server.stop(grace=5.0)
-            print("gRPC server 已停止")
+            logger.info("gRPC server 已停止")
 
     def run(self):
         """同步包裝器，用於向後相容"""
