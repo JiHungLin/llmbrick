@@ -1,6 +1,6 @@
 from dataclasses import dataclass, asdict
 from typing import Optional, Dict, Any
-from .common_types import ErrorDetail
+from llmbrick.protocols.models.bricks.common_types import ErrorDetail
 
 @dataclass
 class RectifyRequest:

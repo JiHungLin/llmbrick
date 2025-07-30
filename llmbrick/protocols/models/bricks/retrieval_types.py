@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field, asdict
 from typing import List, Dict, Any, Optional
-from .common_types import ErrorDetail
+from llmbrick.protocols.models.bricks.common_types import ErrorDetail
 
 @dataclass
 class RetrievalRequest:

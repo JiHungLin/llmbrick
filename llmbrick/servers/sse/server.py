@@ -4,10 +4,10 @@ from pydantic import ValidationError
 import uvicorn
 import json
 from typing import Callable, Awaitable, Dict, Any, AsyncGenerator, Optional
-from ...utils.logging import logger
-from ...core.exceptions import LLMBrickException
+from llmbrick.utils.logging import logger
+from llmbrick.core.exceptions import LLMBrickException
 
-from ...protocols.models.http.conversation import (
+from llmbrick.protocols.models.http.conversation import (
     ConversationSSERequest,
     ConversationSSEResponse,
 )

@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field, asdict
 from typing import List, Optional, Dict, Any
-from .common_types import ErrorDetail
+from llmbrick.protocols.models.bricks.common_types import ErrorDetail
 
 @dataclass
 class IntentionRequest:

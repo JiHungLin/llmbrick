@@ -29,7 +29,7 @@ def _brick_handler(call_type: str):
         setattr(func, "_brick_handler_type", call_type)
         return func
     return decorator
-from ..utils.logging import log_function
+from llmbrick.utils.logging import log_function
 
 InputT = TypeVar("InputT")
 OutputT = TypeVar("OutputT")
@@ -201,7 +201,7 @@ class BaseBrick(Generic[InputT, OutputT]):
         try:
             return await self._unary_handler(input_data)
         except Exception as e:
-            from ..utils.logging import logger
+            from llmbrick.utils.logging import logger
             logger.error(f"[{self.brick_name}] run_unary exception: {e}", exc_info=True)
             raise
 
@@ -210,7 +210,7 @@ class BaseBrick(Generic[InputT, OutputT]):
         try:
             return await self._get_service_info_handler()
         except Exception as e:
-            from ..utils.logging import logger
+            from llmbrick.utils.logging import logger
             logger.error(f"[{self.brick_name}] run_get_service_info exception: {e}", exc_info=True)
             raise
 
@@ -222,7 +222,7 @@ class BaseBrick(Generic[InputT, OutputT]):
             async for val in self._output_streaming_handler(input_data):
                 yield val
         except Exception as e:
-            from ..utils.logging import logger
+            from llmbrick.utils.logging import logger
             logger.error(f"[{self.brick_name}] run_output_streaming exception: {e}", exc_info=True)
             raise
 
@@ -233,7 +233,7 @@ class BaseBrick(Generic[InputT, OutputT]):
         try:
             return await self._input_streaming_handler(input_stream)
         except Exception as e:
-            from ..utils.logging import logger
+            from llmbrick.utils.logging import logger
             logger.error(f"[{self.brick_name}] run_input_streaming exception: {e}", exc_info=True)
             raise
 
@@ -245,7 +245,7 @@ class BaseBrick(Generic[InputT, OutputT]):
             async for val in self._bidi_streaming_handler(input_stream):
                 yield val
         except Exception as e:
-            from ..utils.logging import logger
+            from llmbrick.utils.logging import logger
             logger.error(f"[{self.brick_name}] run_bidi_streaming exception: {e}", exc_info=True)
             raise
 
