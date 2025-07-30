@@ -7,6 +7,7 @@ from llmbrick.servers.grpc.server import GrpcServer
 from llmbrick.bricks.guard.base_guard import GuardBrick
 from llmbrick.core.brick import unary_handler, get_service_info_handler
 from llmbrick.protocols.models.bricks.guard_types import GuardRequest, GuardResponse
+from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse, ErrorDetail
 import pytest_asyncio
 
 class _TestGuardBrick(GuardBrick):
@@ -19,23 +20,24 @@ class _TestGuardBrick(GuardBrick):
         from llmbrick.protocols.models.bricks.guard_types import GuardResult
         result = GuardResult(is_attack=False, confidence=0.99, detail=f"echo: {request.text}")
         return GuardResponse(
-            results=[result]
+            results=[result],
+            error=ErrorDetail(code=0, message="No error", detail="")
         )
 
     @get_service_info_handler
     async def get_service_info_handler(self):
         await asyncio.sleep(0.01)
-        return type("ServiceInfo", (), {
-            "service_name": "TestGuardBrick",
-            "version": "9.9.9",
-            "models": [{
+        return ServiceInfoResponse(
+            service_name="TestGuardBrick",
+            version="9.9.9",
+            models=[{
                 "model_id": "test",
                 "version": "1.0",
                 "supported_languages": ["zh", "en"],
-                "support_streaming": False,
+                "support_streaming": True,
                 "description": "test"
-            }]
-        })()
+            }], error=ErrorDetail(code=0, message="No error")
+        )
 
 @pytest.mark.asyncio
 async def test_async_grpc_server_startup():

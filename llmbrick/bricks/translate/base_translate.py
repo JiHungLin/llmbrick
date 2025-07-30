@@ -72,7 +72,7 @@ class TranslateBrick(BaseBrick[TranslateRequest, TranslateResponse]):
         # 建立 brick 實例
         brick = cls(**kwargs)
         
-        @brick.unary
+        @brick.unary()
         async def unary_handler(request: TranslateRequest) -> TranslateResponse:
             """異步單次請求處理器"""
             from llmbrick.protocols.grpc.translate import translate_pb2
@@ -102,7 +102,7 @@ class TranslateBrick(BaseBrick[TranslateRequest, TranslateResponse]):
                 ) if response.error else None
             )
 
-        @brick.output_streaming
+        @brick.output_streaming()
         async def output_streaming_handler(request: TranslateRequest):
             """異步流式輸出處理器"""
             from llmbrick.protocols.grpc.translate import translate_pb2

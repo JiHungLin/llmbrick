@@ -7,6 +7,7 @@ from llmbrick.servers.grpc.server import GrpcServer
 from llmbrick.bricks.retrieval.base_retrieval import RetrievalBrick
 from llmbrick.core.brick import unary_handler, get_service_info_handler
 from llmbrick.protocols.models.bricks.retrieval_types import RetrievalRequest, RetrievalResponse
+from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse, ErrorDetail
 import pytest_asyncio
 
 class _TestRetrievalBrick(RetrievalBrick):
@@ -19,23 +20,25 @@ class _TestRetrievalBrick(RetrievalBrick):
         from llmbrick.protocols.models.bricks.retrieval_types import Document
         doc = Document(doc_id="doc1", title="標題", snippet="片段", score=0.95)
         return RetrievalResponse(
-            documents=[doc]
+            documents=[doc],
+            error=ErrorDetail(code=0, message="No error", detail="")
         )
 
     @get_service_info_handler
     async def get_service_info_handler(self):
         await asyncio.sleep(0.01)
-        return type("ServiceInfo", (), {
-            "service_name": "TestRetrievalBrick",
-            "version": "9.9.9",
-            "models": [{
-                "model_id": "test",
-                "version": "1.0",
-                "supported_languages": ["zh", "en"],
-                "support_streaming": False,
-                "description": "test"
-            }]
-        })()
+        return ServiceInfoResponse(
+                service_name="TestRetrievalBrick",
+                version="9.9.9",
+                models=[{
+                    "model_id": "test",
+                    "version": "1.0",
+                    "supported_languages": ["zh", "en"],
+                    "support_streaming": True,
+                    "description": "test"
+                }], error=ErrorDetail(code=0, message="No error")
+            )
+
 
 @pytest.mark.asyncio
 async def test_async_grpc_server_startup():

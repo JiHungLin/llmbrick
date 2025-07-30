@@ -63,7 +63,7 @@ class TranslateGrpcWrapper(translate_pb2_grpc.TranslateServiceServicer):
     async def Unary(self, request: translate_pb2.TranslateRequest, context):
         req = TranslateRequest.from_pb2_model(request)
         result = await self.brick.run_unary(req)
-        error_data = translate_pb2.ErrorDetail(code=0, message="", detail="")
+        error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
         if not isinstance(result, TranslateResponse):
             # context.set_code(grpc.StatusCode.INTERNAL)
             # context.set_details('Invalid unary response type!')

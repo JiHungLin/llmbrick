@@ -7,6 +7,7 @@ from llmbrick.servers.grpc.server import GrpcServer
 from llmbrick.bricks.intention.base_intention import IntentionBrick
 from llmbrick.core.brick import unary_handler, get_service_info_handler
 from llmbrick.protocols.models.bricks.intention_types import IntentionRequest, IntentionResponse
+from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse, ErrorDetail
 import pytest_asyncio
 
 class _TestIntentionBrick(IntentionBrick):
@@ -19,23 +20,25 @@ class _TestIntentionBrick(IntentionBrick):
         from llmbrick.protocols.models.bricks.intention_types import IntentionResult
         result = IntentionResult(intent_category="test", confidence=0.88)
         return IntentionResponse(
-            results=[result]
+            results=[result],
+            error=ErrorDetail(code=0, message="No error", detail="")
         )
 
     @get_service_info_handler
     async def get_service_info_handler(self):
         await asyncio.sleep(0.01)
-        return type("ServiceInfo", (), {
-            "service_name": "TestIntentionBrick",
-            "version": "9.9.9",
-            "models": [{
-                "model_id": "test",
-                "version": "1.0",
-                "supported_languages": ["zh", "en"],
-                "support_streaming": False,
-                "description": "test"
-            }]
-        })()
+        return ServiceInfoResponse(
+                service_name="TestIntentionBrick",
+                version="9.9.9",
+                models=[{
+                    "model_id": "test",
+                    "version": "1.0",
+                    "supported_languages": ["zh", "en"],
+                    "support_streaming": True,
+                    "description": "test"
+                }], error=ErrorDetail(code=0, message="No error")
+            )
+
 
 @pytest.mark.asyncio
 async def test_async_grpc_server_startup():
