@@ -1,46 +1,39 @@
 """
-LLM Brick gRPC 功能測試
+Compose Brick gRPC 功能測試
 """
 import asyncio
 from typing import AsyncIterator
 import pytest
 from llmbrick.servers.grpc.server import GrpcServer
-from llmbrick.bricks.llm.base_llm import LLMBrick
+from llmbrick.bricks.compose.base_compose import ComposeBrick
 from llmbrick.core.brick import unary_handler, output_streaming_handler, get_service_info_handler
-from llmbrick.protocols.models.bricks.llm_types import LLMRequest, LLMResponse
+from llmbrick.protocols.models.bricks.compose_types import ComposeRequest, ComposeResponse
 import pytest_asyncio
 
-class _TestLLMBrick(LLMBrick):
-    """測試用的 LLM Brick"""
-    def __init__(self, **kwargs):
-        super().__init__(default_prompt="測試助手", **kwargs)
+class _TestComposeBrick(ComposeBrick):
+    """測試用的 Compose Brick"""
 
     @unary_handler
-    async def unary_handler(self, request: LLMRequest) -> LLMResponse:
+    async def unary_handler(self, request: ComposeRequest) -> ComposeResponse:
         await asyncio.sleep(0.1)
-        return LLMResponse(
-            text=f"回應: {request.prompt}",
-            tokens_used=10,
-            model="test-llm"
+        return ComposeResponse(
+            data={"echo": request.data, "processed": True}
         )
 
     @output_streaming_handler
-    async def output_streaming_handler(self, request: LLMRequest) -> AsyncIterator[LLMResponse]:
-        words = ["這", "是", "流式", "回應"]
-        for i, word in enumerate(words):
+    async def output_streaming_handler(self, request: ComposeRequest) -> AsyncIterator[ComposeResponse]:
+        count = request.data.get("count", 3) if request.data else 3
+        for i in range(int(count)):
             await asyncio.sleep(0.05)
-            yield LLMResponse(
-                text=word,
-                tokens_used=i + 1,
-                model="test-llm",
-                is_final=(i == len(words) - 1)
+            yield ComposeResponse(
+                data={"index": i, "message": f"Stream {i}"}
             )
 
     @get_service_info_handler
     async def get_service_info_handler(self):
         await asyncio.sleep(0.01)
         return type("ServiceInfo", (), {
-            "service_name": "TestLLMBrick",
+            "service_name": "TestComposeBrick",
             "version": "9.9.9",
             "models": [{
                 "model_id": "test",
@@ -54,17 +47,17 @@ class _TestLLMBrick(LLMBrick):
 @pytest.mark.asyncio
 async def test_async_grpc_server_startup():
     """測試異步 gRPC 伺服器啟動"""
-    llm_brick = _TestLLMBrick()
-    server = GrpcServer(port=50060)
+    llm_brick = _TestComposeBrick()
+    server = GrpcServer(port=50100)
     server.register_service(llm_brick)
     assert server.server is not None
-    assert server.port == 50060
+    assert server.port == 50100
 
 @pytest_asyncio.fixture
 async def grpc_server():
-    llm_brick = _TestLLMBrick()
-    server = GrpcServer(port=50061)
-    server.register_service(llm_brick)
+    compose_brick = _TestComposeBrick()
+    server = GrpcServer(port=50101)
+    server.register_service(compose_brick)
     server_task = asyncio.create_task(server.start())
     await asyncio.sleep(0.5)
     yield
@@ -77,28 +70,28 @@ async def grpc_server():
 
 @pytest_asyncio.fixture
 async def grpc_client(grpc_server):
-    client_brick = _TestLLMBrick.toGrpcClient(remote_address="127.0.0.1:50061")
+    client_brick = _TestComposeBrick.toGrpcClient(remote_address="127.0.0.1:50101")
     yield client_brick
     await client_brick._grpc_channel.close()
 
 @pytest.mark.asyncio
 async def test_unary(grpc_client):
-    request = LLMRequest(prompt="單一請求")
+    request = ComposeRequest(data={"test": "data"})
     response = await grpc_client.run_unary(request)
     assert response is not None
-    assert "回應" in response.text
+    assert response.data["processed"] is True
 
 @pytest.mark.asyncio
 async def test_output_streaming(grpc_client):
-    stream_req = LLMRequest(prompt="流式請求")
+    stream_req = ComposeRequest(data={"count": 2})
     results = []
     async for resp in grpc_client.run_output_streaming(stream_req):
-        results.append(resp.text)
-    assert results == ["這", "是", "流式", "回應"]
+        results.append(resp.data["index"])
+    assert results == [0, 1]
 
 @pytest.mark.asyncio
 async def test_get_service_info(grpc_client):
     info = await grpc_client.run_get_service_info()
-    assert info.service_name == "TestLLMBrick"
+    assert info.service_name == "TestComposeBrick"
     assert info.version == "9.9.9"
     assert isinstance(info.models, list)
