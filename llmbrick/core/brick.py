@@ -2,6 +2,8 @@ from typing import TypeVar, Generic, Callable, Awaitable, Optional, AsyncIterato
 from enum import Enum
 from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse
 import functools
+import grpc
+from google.protobuf import struct_pb2
 # --- 強型別 decorator，避免字串錯誤 ---
 def unary_handler(func):
     return _brick_handler("unary")(func)
@@ -27,7 +29,7 @@ def _brick_handler(call_type: str):
         setattr(func, "_brick_handler_type", call_type)
         return func
     return decorator
-from ..utils.logging import log_function
+from llmbrick.utils.logging import log_function
 
 InputT = TypeVar("InputT")
 OutputT = TypeVar("OutputT")
@@ -199,7 +201,7 @@ class BaseBrick(Generic[InputT, OutputT]):
         try:
             return await self._unary_handler(input_data)
         except Exception as e:
-            from ..utils.logging import logger
+            from llmbrick.utils.logging import logger
             logger.error(f"[{self.brick_name}] run_unary exception: {e}", exc_info=True)
             raise
 
@@ -208,7 +210,7 @@ class BaseBrick(Generic[InputT, OutputT]):
         try:
             return await self._get_service_info_handler()
         except Exception as e:
-            from ..utils.logging import logger
+            from llmbrick.utils.logging import logger
             logger.error(f"[{self.brick_name}] run_get_service_info exception: {e}", exc_info=True)
             raise
 
@@ -220,7 +222,7 @@ class BaseBrick(Generic[InputT, OutputT]):
             async for val in self._output_streaming_handler(input_data):
                 yield val
         except Exception as e:
-            from ..utils.logging import logger
+            from llmbrick.utils.logging import logger
             logger.error(f"[{self.brick_name}] run_output_streaming exception: {e}", exc_info=True)
             raise
 
@@ -231,7 +233,7 @@ class BaseBrick(Generic[InputT, OutputT]):
         try:
             return await self._input_streaming_handler(input_stream)
         except Exception as e:
-            from ..utils.logging import logger
+            from llmbrick.utils.logging import logger
             logger.error(f"[{self.brick_name}] run_input_streaming exception: {e}", exc_info=True)
             raise
 
@@ -243,6 +245,25 @@ class BaseBrick(Generic[InputT, OutputT]):
             async for val in self._bidi_streaming_handler(input_stream):
                 yield val
         except Exception as e:
-            from ..utils.logging import logger
+            from llmbrick.utils.logging import logger
             logger.error(f"[{self.brick_name}] run_bidi_streaming exception: {e}", exc_info=True)
             raise
+
+    @classmethod
+    def toGrpcClient(cls, remote_address: str, **kwargs):
+        """
+        將 Brick 轉換為異步 gRPC 客戶端。
+        這是一個通用方法，子類別可以覆寫以提供特定的實作。
+        
+        Args:
+            remote_address: gRPC 伺服器地址，格式為 "host:port"
+            **kwargs: 傳遞給 Brick 建構子的額外參數
+            
+        Returns:
+            配置為 gRPC 客戶端的 Brick 實例
+        """
+        # 這是一個基礎實作，子類別應該覆寫此方法
+        raise NotImplementedError(
+            f"{cls.__name__} 必須實作 toGrpcClient 方法。"
+            "請參考 CommonBrick.toGrpcClient 的實作範例。"
+        )

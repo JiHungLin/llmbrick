@@ -22,7 +22,7 @@ _runtime_version.ValidateProtobufRuntimeVersion(
 _sym_db = _symbol_database.Default()
 
 
-from protocols.grpc.common import common_pb2 as protocols_dot_grpc_dot_common_dot_common__pb2
+from llmbrick.protocols.grpc.common import common_pb2 as protocols_dot_grpc_dot_common_dot_common__pb2
 from google.protobuf import struct_pb2 as google_dot_protobuf_dot_struct__pb2
 
 

@@ -1,5 +1,5 @@
 import grpc
-from helloworld import helloworld_pb2, helloworld_pb2_grpc
+from pb2.helloworld import helloworld_pb2, helloworld_pb2_grpc
 import time
 from google.protobuf import struct_pb2
 
@@ -60,6 +60,34 @@ def run():
     s.update({"name": "StructUser", "age": 28})
     response = stub.SayHelloWithStruct(s)
     print("  ", response.message)
+
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    # SayComplexHello 範例
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    print("SayComplexHello 範例:")
+    complex_data = struct_pb2.Struct()
+    complex_data.update({"age": 30, "city": "Taipei", "is_member": True})
+    complex_req = helloworld_pb2.ComplexRequest(name="ComplexUser", data=complex_data)
+    response = stub.SayComplexHello(complex_req)
+    print("  ", response.message)
+
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    # SayComplexHelloStream 範例
+    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+    print("SayComplexHelloStream 範例:")
+    def complex_stream_messages():
+        from google.protobuf import struct_pb2
+        datas = [
+            {"name": "UserA", "data": {"age": 20, "city": "Taipei"}},
+            {"name": "UserB", "data": {"age": 25, "city": "Kaohsiung", "is_member": True}},
+            {"name": "UserC", "data": {"age": 30}}
+        ]
+        for item in datas:
+            s = struct_pb2.Struct()
+            s.update(item["data"])
+            yield helloworld_pb2.ComplexRequest(name=item["name"], data=s)
+    reply = stub.SayComplexHelloStream(complex_stream_messages())
+    print("  ", reply.message)
 
 if __name__ == '__main__':
     run()

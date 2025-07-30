@@ -4,7 +4,9 @@ from llmbrick.core.brick import BaseBrick, BrickType
 from llmbrick.protocols.models.bricks.intention_types import (
     IntentionRequest,
     IntentionResponse,
+    IntentionResult,
 )
+from llmbrick.protocols.models.bricks.common_types import ErrorDetail
 class IntentionBrick(BaseBrick[IntentionRequest, IntentionResponse]):
     """
     IntentionBrick: 基於 BaseBrick
@@ -50,3 +52,74 @@ class IntentionBrick(BaseBrick[IntentionRequest, IntentionResponse]):
         """
         warnings.warn("IntentionBrick does not support output_streaming handler.", DeprecationWarning)
         raise NotImplementedError("IntentionBrick does not support output_streaming handler.")
+
+    @classmethod
+    def toGrpcClient(cls, remote_address: str, **kwargs):
+        """
+        將 IntentionBrick 轉換為異步 gRPC 客戶端。
+        
+        Args:
+            remote_address: gRPC 伺服器地址，格式為 "host:port"
+            **kwargs: 傳遞給 IntentionBrick 建構子的額外參數
+            
+        Returns:
+            配置為異步 gRPC 客戶端的 IntentionBrick 實例
+        """
+        import grpc
+        from llmbrick.protocols.grpc.intention import intention_pb2_grpc
+        
+        # 建立異步 gRPC 通道和客戶端
+        channel = grpc.aio.insecure_channel(remote_address)
+        grpc_client = intention_pb2_grpc.IntentionServiceStub(channel)
+        
+        # 建立 brick 實例
+        brick = cls(**kwargs)
+        
+        @brick.unary
+        async def unary_handler(request: IntentionRequest) -> IntentionResponse:
+            """異步單次請求處理器"""
+            from llmbrick.protocols.grpc.intention import intention_pb2
+            
+            # 建立 gRPC 請求
+            grpc_request = intention_pb2.IntentionRequest()
+            grpc_request.text = request.text
+            grpc_request.client_id = request.client_id
+            grpc_request.session_id = request.session_id
+            grpc_request.request_id = request.request_id
+            grpc_request.source_language = request.source_language
+            
+            response = await grpc_client.Unary(grpc_request)
+            
+            # 將 protobuf 回應轉換為 IntentionResponse
+            results = []
+            for result in response.results:
+                results.append(IntentionResult(
+                    intent_category=result.intent_category,
+                    confidence=result.confidence
+                ))
+            
+            return IntentionResponse(
+                results=results,
+                error=ErrorDetail(
+                    code=response.error.code,
+                    message=response.error.message,
+                    detail=response.error.detail
+                ) if response.error else None
+            )
+
+        @brick.get_service_info
+        async def get_service_info_handler():
+            """異步服務信息處理器"""
+            from llmbrick.protocols.grpc.common import common_pb2
+            request = common_pb2.ServiceInfoRequest()
+            response = await grpc_client.GetServiceInfo(request)
+            return {
+                "service_name": response.service_name,
+                "version": response.version,
+                "models": list(response.models)
+            }
+
+        # 儲存通道引用以便後續清理
+        brick._grpc_channel = channel
+        
+        return brick

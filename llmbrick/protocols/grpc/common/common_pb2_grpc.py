@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-from protocols.grpc.common import common_pb2 as protocols_dot_grpc_dot_common_dot_common__pb2
+from llmbrick.protocols.grpc.common import common_pb2 as protocols_dot_grpc_dot_common_dot_common__pb2
 
 GRPC_GENERATED_VERSION = '1.73.1'
 GRPC_VERSION = grpc.__version__

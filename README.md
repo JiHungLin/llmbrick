@@ -78,28 +78,53 @@ brick = MyNewBrick(some_param="example")
 result = await brick.run_unary("What is your name? ") #直接調用就本機運算
 ```
 
-#### Brick轉換為gRPC Server
+#### Brick轉換為異步 gRPC Server
 
 ```python
+import asyncio
 from llmbrick.servers.grpc.server import GrpcServer
-from llmbrick.core.brick import LLMBrick
+from llmbrick.bricks.llm.base_llm import LLMBrick
 
+async def main():
+    # 建立 LLM Brick
+    brick = LLMBrick(default_prompt="你是一個有用的助手")
+    
+    # 建立異步 gRPC 伺服器
+    server = GrpcServer(port=50051)
+    server.register_service(brick)
+    
+    # 啟動異步伺服器
+    await server.start()
 
-brick = LLMBrick(default_prompt="hi")
-server = GrpcServer(port=50051)
-server.register_service(brick)
-server.start()
+# 運行伺服器
+asyncio.run(main())
 ```
 
-#### Brick轉換為gRPC Client
+#### Brick轉換為異步 gRPC Client
 
 ```python
-from llmbrick.servers.grpc.server import GrpcServer
-from llmbrick.core.brick import LLMBrick
+import asyncio
+from llmbrick.bricks.llm.base_llm import LLMBrick
+from llmbrick.protocols.models.bricks.llm_types import LLMRequest
 
+async def main():
+    # 建立異步 gRPC 客戶端
+    brick = LLMBrick.toGrpcClient(remote_address="127.0.0.1:50051")
+    
+    # 單次請求 - 跟本機調用的寫法一樣
+    request = LLMRequest(prompt="What is your name?")
+    result = await brick.run_unary(request)
+    print(result)
+    
+    # 流式請求
+    async for chunk in brick.run_output_streaming(request):
+        print(chunk)
+    
+    # 清理資源
+    await brick._grpc_channel.close()
 
-brick = LLMBrick.toGrpcClient(host="127.0.0.1:50051")
-result = await brick.run_unary("What is your name? ") # 跟本機調用的寫法一樣
+# 運行客戶端
+asyncio.run(main())
 ```
 
 #### 建立SSE接口
@@ -140,7 +165,7 @@ fast_app = server.fastapi_app # 這等同FastAPI的app
 # 等價 app = FastAPI()
 
 intention_brick = IntentionBrick()
-llm_brick = LLMBrick.toGrpcClient(host="192.168.1.100:50051")
+llm_brick = LLMBrick.toGrpcClient(remote_address="192.168.1.100:50051")
 
 @server.handler #使用Decorator自訂需要的邏輯，這邊就是整合所有LLM Brick的區塊
 async def simple_flow(request_body):
