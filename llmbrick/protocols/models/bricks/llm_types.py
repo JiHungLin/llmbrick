@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field, asdict
 from typing import List, Optional, Dict, Any
 from llmbrick.protocols.models.bricks.common_types import ErrorDetail
+from llmbrick.protocols.grpc.llm import llm_pb2
+from google.protobuf.json_format import MessageToDict
 
 @dataclass
 class Context:
@@ -31,6 +33,22 @@ class LLMRequest:
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
+    
+    @classmethod
+    def from_pb2_model(cls, model: llm_pb2.LLMRequest) -> 'LLMRequest':
+        context_data = [MessageToDict(ctx) for ctx in model.context]
+        context = [Context.from_dict(ctx) for ctx in context_data]
+        return cls(
+            temperature=model.temperature,
+            model_id=model.model_id,
+            prompt=model.prompt,
+            context=context,
+            client_id=model.client_id,
+            session_id=model.session_id,
+            request_id=model.request_id,
+            source_language=model.source_language,
+            max_tokens=model.max_tokens
+        )
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'LLMRequest':

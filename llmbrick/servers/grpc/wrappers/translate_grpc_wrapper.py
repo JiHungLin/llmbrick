@@ -1,5 +1,22 @@
+from typing import AsyncIterator
+import grpc
 from llmbrick.bricks.translate.base_translate import TranslateBrick
-from llmbrick.protocols.grpc.translate import translate_pb2_grpc
+from llmbrick.protocols.grpc.translate import translate_pb2_grpc, translate_pb2
+from llmbrick.protocols.models.bricks.translate_types import TranslateRequest, TranslateResponse
+from llmbrick.protocols.models.bricks.common_types import ErrorDetail, ServiceInfoResponse
+from google.protobuf import struct_pb2
+
+# /protocols/grpc/translate/translate.proto
+# translate_pb2
+# message TranslateRequest {
+#   string text = 1;              // 用戶輸入的文本
+#   string model_id = 2;         // 使用的翻譯模型ID
+#   string target_language = 3; // 目標語言代碼，如 "en", "zh", "ja"
+#   string client_id = 4;        // 識別呼叫系統
+#   string session_id = 5;       // 識別連續對話會話
+#   string request_id = 6;       // 唯一請求ID
+#   string source_language = 7;  // 輸入文本的原始語言
+# }
 
 class TranslateGrpcWrapper(translate_pb2_grpc.TranslateServiceServicer):
     """

@@ -1,6 +1,21 @@
+from typing import AsyncIterator
+import grpc
 from llmbrick.bricks.compose.base_compose import ComposeBrick
-from llmbrick.protocols.grpc.compose import compose_pb2_grpc
+from llmbrick.protocols.grpc.compose import compose_pb2_grpc, compose_pb2
+from llmbrick.protocols.models.bricks.compose_types import ComposeRequest, ComposeResponse
+from llmbrick.protocols.models.bricks.common_types import ErrorDetail, ServiceInfoResponse
+from google.protobuf import struct_pb2
 
+# /protocols/grpc/compose/compose.proto
+# compose_pb2
+# message ComposeRequest {
+#   repeated Document input_documents = 1;
+#   string target_format = 2;    // 例: "json", "html", "markdown"
+#   string client_id = 3;      // 識別呼叫系統/應用來源
+#   string session_id = 4;     // 識別連續對話會話
+#   string request_id = 5;     // 唯一請求ID，用於追蹤和除錯
+#   string source_language = 6; // 輸入文件原始語言，如未提供可視為 target_language 相同
+# }
 class ComposeGrpcWrapper(compose_pb2_grpc.ComposeServiceServicer):
     """
     ComposeGrpcWrapper: 異步 gRPC 服務包裝器，用於處理Compose相關請求

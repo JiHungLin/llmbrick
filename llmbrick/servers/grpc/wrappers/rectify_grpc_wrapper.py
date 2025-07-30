@@ -1,5 +1,20 @@
+from typing import AsyncIterator
+import grpc
 from llmbrick.bricks.rectify.base_rectify import RectifyBrick
-from llmbrick.protocols.grpc.rectify import rectify_pb2_grpc
+from llmbrick.protocols.grpc.rectify import rectify_pb2_grpc, rectify_pb2
+from llmbrick.protocols.models.bricks.rectify_types import RectifyRequest, RectifyResponse
+from llmbrick.protocols.models.bricks.common_types import ErrorDetail, ServiceInfoResponse
+from google.protobuf import struct_pb2
+
+# /protocols/grpc/rectify/rectify.proto
+# rectify_pb2
+# message RectifyRequest {
+#   string text = 1;              // 用戶輸入的文本
+#   string client_id = 2;         // 識別呼叫系統
+#   string session_id = 3;        // 識別連續對話會話
+#   string request_id = 4;        // 唯一請求ID
+#   string source_language = 5;   // 輸入文本的原始語言
+# }
 
 class RectifyGrpcWrapper(rectify_pb2_grpc.RectifyServiceServicer):
     """

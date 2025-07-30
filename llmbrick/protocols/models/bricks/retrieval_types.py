@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field, asdict
 from typing import List, Dict, Any, Optional
 from llmbrick.protocols.models.bricks.common_types import ErrorDetail
+from llmbrick.protocols.grpc.retrieval import retrieval_pb2
+from google.protobuf.json_format import MessageToDict
 
 @dataclass
 class RetrievalRequest:
@@ -13,6 +15,17 @@ class RetrievalRequest:
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
+
+    @classmethod
+    def from_pb2_model(cls, model: retrieval_pb2.RetrievalRequest) -> 'RetrievalRequest':
+        return cls(
+            query=model.query,
+            max_results=model.max_results,
+            client_id=model.client_id,
+            session_id=model.session_id,
+            request_id=model.request_id,
+            source_language=model.source_language
+        )
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'RetrievalRequest':

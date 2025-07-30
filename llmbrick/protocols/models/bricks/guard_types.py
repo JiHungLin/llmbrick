@@ -1,7 +1,8 @@
 from dataclasses import dataclass, field, asdict
 from typing import List, Optional, Dict, Any
 from llmbrick.protocols.models.bricks.common_types import ErrorDetail
-
+from llmbrick.protocols.grpc.guard import guard_pb2
+from google.protobuf.json_format import MessageToDict
 @dataclass
 class GuardRequest:
     text: str = ""
@@ -31,6 +32,14 @@ class GuardResult:
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
+    
+    @classmethod
+    def from_pb2_model(cls, model: guard_pb2.GuardResult) -> 'GuardResult':
+        return cls(
+            is_attack=model.is_attack,
+            confidence=model.confidence,
+            detail=model.detail
+        )
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'GuardResult':

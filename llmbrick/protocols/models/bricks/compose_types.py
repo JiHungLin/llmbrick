@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field, asdict
 from typing import List, Optional, Dict, Any
 from llmbrick.protocols.models.bricks.common_types import ErrorDetail
+from llmbrick.protocols.grpc.compose import compose_pb2
+from google.protobuf.json_format import MessageToDict
 
 @dataclass
 class Document:
@@ -34,6 +36,19 @@ class ComposeRequest:
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
+    
+    @classmethod
+    def from_pb2_model(cls, model: compose_pb2.ComposeRequest) -> 'ComposeRequest':
+        docs_data = [MessageToDict(doc) for doc in model.input_documents]
+        input_documents = [Document.from_dict(doc) for doc in docs_data]
+        return cls(
+            input_documents=input_documents,
+            target_format=model.target_format,
+            client_id=model.client_id,
+            session_id=model.session_id,
+            request_id=model.request_id,
+            source_language=model.source_language
+        )
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'ComposeRequest':

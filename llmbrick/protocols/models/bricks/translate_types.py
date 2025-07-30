@@ -1,7 +1,8 @@
 from dataclasses import dataclass, field, asdict
 from typing import List, Optional, Dict, Any
 from llmbrick.protocols.models.bricks.common_types import ErrorDetail
-
+from llmbrick.protocols.grpc.translate import translate_pb2
+from google.protobuf.json_format import MessageToDict
 @dataclass
 class TranslateRequest:
     text: str = ""
@@ -14,6 +15,18 @@ class TranslateRequest:
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
+
+    @classmethod
+    def from_pb2_model(cls, model: translate_pb2.TranslateRequest) -> 'TranslateRequest':
+        return cls(
+            text=model.text,
+            model_id=model.model_id,
+            target_language=model.target_language,
+            client_id=model.client_id,
+            session_id=model.session_id,
+            request_id=model.request_id,
+            source_language=model.source_language
+        )
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'TranslateRequest':

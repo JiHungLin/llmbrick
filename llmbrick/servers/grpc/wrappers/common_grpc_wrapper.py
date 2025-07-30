@@ -5,7 +5,7 @@ from llmbrick.protocols.grpc.common import common_pb2_grpc, common_pb2
 from llmbrick.protocols.models.bricks.common_types import CommonRequest, CommonResponse, ServiceInfoResponse
 from google.protobuf import struct_pb2
 
-
+# common_pb2
 # message CommonRequest {
 #   google.protobuf.Struct data = 1;
 # }

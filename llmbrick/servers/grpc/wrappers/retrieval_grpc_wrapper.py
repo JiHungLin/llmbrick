@@ -1,5 +1,21 @@
+from typing import AsyncIterator
+import grpc
 from llmbrick.bricks.retrieval.base_retrieval import RetrievalBrick
-from llmbrick.protocols.grpc.retrieval import retrieval_pb2_grpc
+from llmbrick.protocols.grpc.retrieval import retrieval_pb2_grpc, retrieval_pb2
+from llmbrick.protocols.models.bricks.retrieval_types import RetrievalRequest, RetrievalResponse
+from llmbrick.protocols.models.bricks.common_types import ErrorDetail, ServiceInfoResponse
+from google.protobuf import struct_pb2
+
+# /protocols/grpc/retrieval/retrieval.proto
+# retrieval_pb2
+# message RetrievalRequest {
+#   string query = 1;              // 用戶輸入的查詢文本
+#   int32 max_results = 2;        // 最大返回結果數量
+#   string client_id = 3;         // 識別呼叫系統
+#   string session_id = 4;        // 識別連續對話會話
+#   string request_id = 5;        // 唯一請求ID
+#   string source_language = 6;   // 輸入文本的原始語言
+# }
 
 class RetrievalGrpcWrapper(retrieval_pb2_grpc.RetrievalServiceServicer):
     """
