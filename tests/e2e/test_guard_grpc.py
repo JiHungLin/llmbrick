@@ -15,8 +15,11 @@ class _TestGuardBrick(GuardBrick):
     @unary_handler
     async def unary_handler(self, request: GuardRequest) -> GuardResponse:
         await asyncio.sleep(0.1)
+        # 回傳 results 欄位，模擬檢查結果
+        from llmbrick.protocols.models.bricks.guard_types import GuardResult
+        result = GuardResult(is_attack=False, confidence=0.99, detail=f"echo: {request.text}")
         return GuardResponse(
-            data={"echo": request.data, "checked": True}
+            results=[result]
         )
 
     @get_service_info_handler
@@ -66,10 +69,12 @@ async def grpc_client(grpc_server):
 
 @pytest.mark.asyncio
 async def test_unary(grpc_client):
-    request = GuardRequest(data={"test": "data"})
+    request = GuardRequest(text="測試內容", client_id="cid")
     response = await grpc_client.run_unary(request)
     assert response is not None
-    assert response.data["checked"] is True
+    assert isinstance(response.results, list)
+    assert response.results[0].detail.startswith("echo")
+    assert response.results[0].confidence > 0.9
 
 @pytest.mark.asyncio
 async def test_get_service_info(grpc_client):

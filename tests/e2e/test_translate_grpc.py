@@ -16,17 +16,24 @@ class _TestTranslateBrick(TranslateBrick):
     @unary_handler
     async def unary_handler(self, request: TranslateRequest) -> TranslateResponse:
         await asyncio.sleep(0.1)
+        # 回傳 text 欄位，模擬翻譯
         return TranslateResponse(
-            data={"echo": request.data, "translated": True}
+            text=f"翻譯: {request.text}",
+            language_code=request.target_language,
+            is_final=True
         )
 
     @output_streaming_handler
     async def output_streaming_handler(self, request: TranslateRequest) -> AsyncIterator[TranslateResponse]:
-        count = request.data.get("count", 3) if request.data else 3
-        for i in range(int(count)):
+        # 模擬流式翻譯，將 text 拆字逐步回傳
+        text = request.text or "流式翻譯"
+        for i, ch in enumerate(text):
             await asyncio.sleep(0.05)
             yield TranslateResponse(
-                data={"index": i, "message": f"Stream {i}"}
+                text=ch,
+                tokens=[ch],
+                language_code=request.target_language,
+                is_final=(i == len(text) - 1)
             )
 
     @get_service_info_handler
@@ -76,18 +83,20 @@ async def grpc_client(grpc_server):
 
 @pytest.mark.asyncio
 async def test_unary(grpc_client):
-    request = TranslateRequest(data={"test": "data"})
+    request = TranslateRequest(text="Hello", target_language="zh", client_id="cid")
     response = await grpc_client.run_unary(request)
     assert response is not None
-    assert response.data["translated"] is True
+    assert response.text.startswith("翻譯:")
+    assert response.language_code == "zh"
+    assert response.is_final is True
 
 @pytest.mark.asyncio
 async def test_output_streaming(grpc_client):
-    stream_req = TranslateRequest(data={"count": 2})
+    stream_req = TranslateRequest(text="Hi", target_language="en")
     results = []
     async for resp in grpc_client.run_output_streaming(stream_req):
-        results.append(resp.data["index"])
-    assert results == [0, 1]
+        results.append(resp.text)
+    assert results == list("Hi")
 
 @pytest.mark.asyncio
 async def test_get_service_info(grpc_client):

@@ -15,8 +15,11 @@ class _TestRetrievalBrick(RetrievalBrick):
     @unary_handler
     async def unary_handler(self, request: RetrievalRequest) -> RetrievalResponse:
         await asyncio.sleep(0.1)
+        # 回傳 documents 欄位，模擬檢索結果
+        from llmbrick.protocols.models.bricks.retrieval_types import Document
+        doc = Document(doc_id="doc1", title="標題", snippet="片段", score=0.95)
         return RetrievalResponse(
-            data={"echo": request.data, "retrieved": True}
+            documents=[doc]
         )
 
     @get_service_info_handler
@@ -66,10 +69,12 @@ async def grpc_client(grpc_server):
 
 @pytest.mark.asyncio
 async def test_unary(grpc_client):
-    request = RetrievalRequest(data={"test": "data"})
+    request = RetrievalRequest(query="檢索關鍵字", client_id="cid")
     response = await grpc_client.run_unary(request)
     assert response is not None
-    assert response.data["retrieved"] is True
+    assert isinstance(response.documents, list)
+    assert response.documents[0].doc_id == "doc1"
+    assert response.documents[0].score > 0.9
 
 @pytest.mark.asyncio
 async def test_get_service_info(grpc_client):

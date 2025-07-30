@@ -49,6 +49,13 @@ class ComposeGrpcWrapper(compose_pb2_grpc.ComposeServiceServicer):
             error_data.detail = 'The response from the brick is not of type ServiceInfoResponse.'
             response = common_pb2.ServiceInfoResponse(error=error_data)
             return response
+        if result.error and result.error.code != 0:
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(result.error.message)
+            error_data.code = result.error.code
+            error_data.message = result.error.message
+            error_data.detail = result.error.detail
+            return common_pb2.ServiceInfoResponse(error=error_data)
         response_dict = result.to_dict()
         response_dict["error"] = error_data
         response = common_pb2.ServiceInfoResponse(**response_dict)
@@ -67,6 +74,13 @@ class ComposeGrpcWrapper(compose_pb2_grpc.ComposeServiceServicer):
             error_data.message = 'Invalid unary response type!'
             error_data.detail = 'The response from the brick is not of type ComposeResponse.'
             return compose_pb2.ComposeResponse(error=error_data)
+        if result.error and result.error.code != 0:
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(result.error.message)
+            error_data.code = result.error.code
+            error_data.message = result.error.message
+            error_data.detail = result.error.detail
+            return compose_pb2.ComposeResponse(error=error_data)
         output = struct_pb2.Struct()
         output.update(result.to_dict().get("output", {}))
         response = compose_pb2.ComposeResponse(output=output, error=error_data)
@@ -84,6 +98,14 @@ class ComposeGrpcWrapper(compose_pb2_grpc.ComposeServiceServicer):
                 error_data.code = grpc.StatusCode.INTERNAL.value[0]
                 error_data.message = 'Invalid output streaming response type!'
                 error_data.detail = 'The response from the brick is not of type ComposeResponse.'
+                yield compose_pb2.ComposeResponse(error=error_data)
+                break
+            if response.error and response.error.code != 0:
+                context.set_code(grpc.StatusCode.INTERNAL)
+                context.set_details(response.error.message)
+                error_data.code = response.error.code
+                error_data.message = response.error.message
+                error_data.detail = response.error.detail
                 yield compose_pb2.ComposeResponse(error=error_data)
                 break
             output = struct_pb2.Struct()

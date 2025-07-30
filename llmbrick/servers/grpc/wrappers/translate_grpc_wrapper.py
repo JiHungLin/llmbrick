@@ -50,6 +50,14 @@ class TranslateGrpcWrapper(translate_pb2_grpc.TranslateServiceServicer):
             error_data.detail = 'The response from the brick is not of type ServiceInfoResponse.'
             response = common_pb2.ServiceInfoResponse(error=error_data)
             return response
+        if result.error and result.error.code != 0:
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(result.error.message)
+            error_data.code = result.error.code
+            error_data.message = result.error.message
+            error_data.detail = result.error.detail
+            response = common_pb2.ServiceInfoResponse(error=error_data)
+            return response
         response_dict = result.to_dict()
         response_dict["error"] = error_data
         response = common_pb2.ServiceInfoResponse(**response_dict)
@@ -66,6 +74,13 @@ class TranslateGrpcWrapper(translate_pb2_grpc.TranslateServiceServicer):
             error_data.code = grpc.StatusCode.INTERNAL.value[0]
             error_data.message = 'Invalid unary response type!'
             error_data.detail = 'The response from the brick is not of type TranslateResponse.'
+            return translate_pb2.TranslateResponse(error=error_data)
+        if result.error and result.error.code != 0:
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(result.error.message)
+            error_data.code = result.error.code
+            error_data.message = result.error.message
+            error_data.detail = result.error.detail
             return translate_pb2.TranslateResponse(error=error_data)
         response = translate_pb2.TranslateResponse(
             text=result.text,
@@ -87,6 +102,14 @@ class TranslateGrpcWrapper(translate_pb2_grpc.TranslateServiceServicer):
                 error_data.code = grpc.StatusCode.INTERNAL.value[0]
                 error_data.message = 'Invalid output streaming response type!'
                 error_data.detail = 'The response from the brick is not of type TranslateResponse.'
+                yield translate_pb2.TranslateResponse(error=error_data)
+                break
+            if response.error and response.error.code != 0:
+                context.set_code(grpc.StatusCode.INTERNAL)
+                context.set_details(response.error.message)
+                error_data.code = response.error.code
+                error_data.message = response.error.message
+                error_data.detail = response.error.detail
                 yield translate_pb2.TranslateResponse(error=error_data)
                 break
             yield translate_pb2.TranslateResponse(

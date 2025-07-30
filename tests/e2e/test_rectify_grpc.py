@@ -15,8 +15,9 @@ class _TestRectifyBrick(RectifyBrick):
     @unary_handler
     async def unary_handler(self, request: RectifyRequest) -> RectifyResponse:
         await asyncio.sleep(0.1)
+        # 回傳 corrected_text 欄位，模擬修正
         return RectifyResponse(
-            data={"echo": request.data, "rectified": True}
+            corrected_text=f"rectified: {request.text}"
         )
 
     @get_service_info_handler
@@ -66,10 +67,10 @@ async def grpc_client(grpc_server):
 
 @pytest.mark.asyncio
 async def test_unary(grpc_client):
-    request = RectifyRequest(data={"test": "data"})
+    request = RectifyRequest(text="原始句子", client_id="cid")
     response = await grpc_client.run_unary(request)
     assert response is not None
-    assert response.data["rectified"] is True
+    assert response.corrected_text.startswith("rectified:")
 
 @pytest.mark.asyncio
 async def test_get_service_info(grpc_client):

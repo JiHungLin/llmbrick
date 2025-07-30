@@ -15,8 +15,11 @@ class _TestIntentionBrick(IntentionBrick):
     @unary_handler
     async def unary_handler(self, request: IntentionRequest) -> IntentionResponse:
         await asyncio.sleep(0.1)
+        # 回傳 results 欄位，模擬意圖判斷
+        from llmbrick.protocols.models.bricks.intention_types import IntentionResult
+        result = IntentionResult(intent_category="test", confidence=0.88)
         return IntentionResponse(
-            data={"echo": request.data, "checked": True}
+            results=[result]
         )
 
     @get_service_info_handler
@@ -66,10 +69,12 @@ async def grpc_client(grpc_server):
 
 @pytest.mark.asyncio
 async def test_unary(grpc_client):
-    request = IntentionRequest(data={"test": "data"})
+    request = IntentionRequest(text="意圖測試", client_id="cid")
     response = await grpc_client.run_unary(request)
     assert response is not None
-    assert response.data["checked"] is True
+    assert isinstance(response.results, list)
+    assert response.results[0].intent_category == "test"
+    assert response.results[0].confidence > 0.8
 
 @pytest.mark.asyncio
 async def test_get_service_info(grpc_client):

@@ -16,17 +16,19 @@ class _TestComposeBrick(ComposeBrick):
     @unary_handler
     async def unary_handler(self, request: ComposeRequest) -> ComposeResponse:
         await asyncio.sleep(0.1)
+        # 回傳 output 欄位，echo 輸入的 input_documents
         return ComposeResponse(
-            data={"echo": request.data, "processed": True}
+            output={"echo": [doc.to_dict() for doc in request.input_documents], "processed": True}
         )
 
     @output_streaming_handler
     async def output_streaming_handler(self, request: ComposeRequest) -> AsyncIterator[ComposeResponse]:
-        count = request.data.get("count", 3) if request.data else 3
+        # 以 input_documents 數量為 count，若沒給則預設 3
+        count = len(request.input_documents) if request.input_documents else 3
         for i in range(int(count)):
             await asyncio.sleep(0.05)
             yield ComposeResponse(
-                data={"index": i, "message": f"Stream {i}"}
+                output={"index": i, "message": f"Stream {i}"}
             )
 
     @get_service_info_handler
@@ -76,17 +78,24 @@ async def grpc_client(grpc_server):
 
 @pytest.mark.asyncio
 async def test_unary(grpc_client):
-    request = ComposeRequest(data={"test": "data"})
+    # 測試 input_documents 欄位
+    from llmbrick.protocols.models.bricks.compose_types import Document
+    doc = Document(doc_id="1", title="t", snippet="s", score=1.0)
+    request = ComposeRequest(input_documents=[doc], target_format="txt")
     response = await grpc_client.run_unary(request)
     assert response is not None
-    assert response.data["processed"] is True
+    assert response.output["processed"] is True
+    assert isinstance(response.output["echo"], list)
 
 @pytest.mark.asyncio
 async def test_output_streaming(grpc_client):
-    stream_req = ComposeRequest(data={"count": 2})
+    # 測試 input_documents 數量決定 stream 次數
+    from llmbrick.protocols.models.bricks.compose_types import Document
+    docs = [Document(doc_id=str(i), title=f"t{i}", snippet=f"s{i}", score=1.0) for i in range(2)]
+    stream_req = ComposeRequest(input_documents=docs, target_format="txt")
     results = []
     async for resp in grpc_client.run_output_streaming(stream_req):
-        results.append(resp.data["index"])
+        results.append(resp.output["index"])
     assert results == [0, 1]
 
 @pytest.mark.asyncio

@@ -49,6 +49,13 @@ class GuardGrpcWrapper(guard_pb2_grpc.GuardServiceServicer):
             error_data.detail = 'The response from the brick is not of type ServiceInfoResponse.'
             response = common_pb2.ServiceInfoResponse(error=error_data)
             return response
+        if result.error and result.error.code != 0:
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(result.error.message)
+            error_data.code = result.error.code
+            error_data.message = result.error.message
+            error_data.detail = result.error.detail
+            return common_pb2.ServiceInfoResponse(error=error_data)
         response_dict = result.to_dict()
         response_dict["error"] = error_data
         response = common_pb2.ServiceInfoResponse(**response_dict)
@@ -71,6 +78,13 @@ class GuardGrpcWrapper(guard_pb2_grpc.GuardServiceServicer):
             error_data.code = grpc.StatusCode.INTERNAL.value[0]
             error_data.message = 'Invalid unary response type!'
             error_data.detail = 'The response from the brick is not of type GuardResponse.'
+            return guard_pb2.GuardResponse(error=error_data)
+        if result.error and result.error.code != 0:
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(result.error.message)
+            error_data.code = result.error.code
+            error_data.message = result.error.message
+            error_data.detail = result.error.detail
             return guard_pb2.GuardResponse(error=error_data)
         # results: List[GuardResult]
         results_pb = []
