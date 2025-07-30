@@ -49,8 +49,8 @@ class CommonBrick(BaseBrick[CommonRequest, CommonResponse]):
         # 建立 brick 實例
         brick = cls(**kwargs)
         
-        @brick.unary
-        async def unary_handler(request: CommonRequest) -> CommonResponse:
+        @brick.unary()
+        async def unary_handler(request: CommonRequest, context=None) -> CommonResponse:
             """異步單次請求處理器"""
             from llmbrick.protocols.grpc.common import common_pb2
             
@@ -72,8 +72,8 @@ class CommonBrick(BaseBrick[CommonRequest, CommonResponse]):
             
             return CommonResponse(data=response_data, error=error)
 
-        @brick.output_streaming
-        async def output_streaming_handler(request: CommonRequest):
+        @brick.output_streaming()
+        async def output_streaming_handler(request: CommonRequest, context=None):
             """異步流式輸出處理器"""
             from llmbrick.protocols.grpc.common import common_pb2
             
@@ -94,8 +94,8 @@ class CommonBrick(BaseBrick[CommonRequest, CommonResponse]):
                 
                 yield CommonResponse(data=response_data, error=error)
 
-        @brick.input_streaming
-        async def input_streaming_handler(request_stream) -> CommonResponse:
+        @brick.input_streaming()
+        async def input_streaming_handler(request_stream, context=None) -> CommonResponse:
             """異步流式輸入處理器"""
             from llmbrick.protocols.grpc.common import common_pb2
             
@@ -119,8 +119,8 @@ class CommonBrick(BaseBrick[CommonRequest, CommonResponse]):
             
             return CommonResponse(data=response_data, error=error)
 
-        @brick.bidi_streaming
-        async def bidi_streaming_handler(request_stream):
+        @brick.bidi_streaming()
+        async def bidi_streaming_handler(request_stream, context=None):
             """異步雙向流式處理器"""
             from llmbrick.protocols.grpc.common import common_pb2
             
@@ -143,8 +143,8 @@ class CommonBrick(BaseBrick[CommonRequest, CommonResponse]):
                 
                 yield CommonResponse(data=response_data, error=error)
 
-        @brick.get_service_info
-        async def get_service_info_handler():
+        @brick.get_service_info()
+        async def get_service_info_handler(_, context=None):
             """異步服務信息處理器"""
             from llmbrick.protocols.grpc.common import common_pb2
             request = common_pb2.ServiceInfoRequest()

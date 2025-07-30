@@ -72,11 +72,11 @@ class LLMBrick(BaseBrick[LLMRequest, LLMResponse]):
         # 建立 brick 實例
         brick = cls(default_prompt=default_prompt, **kwargs)
         
-        @brick.unary
-        async def unary_handler(request: LLMRequest) -> LLMResponse:
+        @brick.unary()
+        async def unary_handler(request: LLMRequest, context=None) -> LLMResponse:
             """異步單次請求處理器"""
             from llmbrick.protocols.grpc.llm import llm_pb2
-            
+
             # 轉換 Context 列表
             grpc_contexts = []
             for ctx in request.context:
@@ -84,7 +84,7 @@ class LLMBrick(BaseBrick[LLMRequest, LLMResponse]):
                 grpc_context.role = ctx.role
                 grpc_context.content = ctx.content
                 grpc_contexts.append(grpc_context)
-            
+
             # 建立 gRPC 請求
             grpc_request = llm_pb2.LLMRequest()
             grpc_request.model_id = request.model_id
@@ -96,9 +96,9 @@ class LLMBrick(BaseBrick[LLMRequest, LLMResponse]):
             grpc_request.source_language = request.source_language
             grpc_request.temperature = request.temperature
             grpc_request.max_tokens = request.max_tokens
-            
+
             response = await grpc_client.Unary(grpc_request)
-            
+
             # 將 protobuf 回應轉換為 LLMResponse
             return LLMResponse(
                 text=response.text,
@@ -111,8 +111,8 @@ class LLMBrick(BaseBrick[LLMRequest, LLMResponse]):
                 ) if response.error else None
             )
 
-        @brick.output_streaming
-        async def output_streaming_handler(request: LLMRequest):
+        @brick.output_streaming()
+        async def output_streaming_handler(request: LLMRequest, context=None):
             """異步流式輸出處理器"""
             from llmbrick.protocols.grpc.llm import llm_pb2
             
@@ -148,8 +148,8 @@ class LLMBrick(BaseBrick[LLMRequest, LLMResponse]):
                     ) if response.error else None
                 )
 
-        @brick.get_service_info
-        async def get_service_info_handler():
+        @brick.get_service_info()
+        async def get_service_info_handler(_, context):
             """異步服務信息處理器"""
             from llmbrick.protocols.grpc.common.common_pb2 import ServiceInfoRequest
             request = ServiceInfoRequest()

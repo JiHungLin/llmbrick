@@ -61,6 +61,8 @@ class TestCommonBrick(CommonBrick):
             })
 
 
+import pytest
+@pytest.mark.asyncio
 async def test_async_grpc_server_startup():
     """測試異步 gRPC 伺服器啟動"""
     print("測試異步 gRPC 伺服器啟動...")
@@ -79,6 +81,7 @@ async def test_async_grpc_server_startup():
     print("✓ 伺服器建立成功")
 
 
+@pytest.mark.asyncio
 async def test_llm_grpc_client():
     """測試 LLM gRPC 客戶端功能"""
     print("測試 LLM gRPC 客戶端...")
@@ -128,6 +131,7 @@ async def test_llm_grpc_client():
             pass
 
 
+@pytest.mark.asyncio
 async def test_common_grpc_client():
     """測試 Common gRPC 客戶端功能"""
     print("測試 Common gRPC 客戶端...")
@@ -175,6 +179,7 @@ async def test_common_grpc_client():
             pass
 
 
+@pytest.mark.asyncio
 async def test_performance():
     """測試異步性能"""
     print("測試異步性能...")
