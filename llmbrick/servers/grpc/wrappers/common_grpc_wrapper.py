@@ -5,6 +5,11 @@ from llmbrick.protocols.grpc.common import common_pb2_grpc, common_pb2
 from llmbrick.protocols.models.bricks.common_types import CommonRequest, CommonResponse, ServiceInfoResponse
 from google.protobuf import struct_pb2
 
+
+# message CommonRequest {
+#   google.protobuf.Struct data = 1;
+# }
+
 class CommonGrpcWrapper(common_pb2_grpc.CommonServiceServicer):
     """
     CommonGrpcWrapper: 異步 gRPC 服務包裝器，用於處理通用請求
@@ -31,7 +36,7 @@ class CommonGrpcWrapper(common_pb2_grpc.CommonServiceServicer):
     async def GetServiceInfo(self, request, context):
         """異步獲取服務信息"""
         result = await self.brick.run_get_service_info()
-        error_data = common_pb2.ErrorDetail()
+        error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
         if result is None:
             context.set_code(grpc.StatusCode.UNIMPLEMENTED)
             context.set_details('Service info not implemented!')
@@ -48,19 +53,16 @@ class CommonGrpcWrapper(common_pb2_grpc.CommonServiceServicer):
             error_data.detail = 'The response from the brick is not of type ServiceInfoResponse.'
             response = common_pb2.ServiceInfoResponse(error=error_data)
             return response
-        # 正常情況
-        error_data.code = 0
-        error_data.message = ""
-        error_data.detail = ""
         response_dict = result.to_dict()
         response_dict["error"] = error_data
         response = common_pb2.ServiceInfoResponse(**response_dict)
         return response
 
-    async def Unary(self, request: CommonRequest, context):
+    async def Unary(self, request: common_pb2.CommonRequest, context):
         """異步處理單次請求"""
+        request = CommonRequest(data=request.data.to_dict())
         result: CommonResponse = await self.brick.run_unary(request)
-        error_data = common_pb2.ErrorDetail()
+        error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
         if not isinstance(result, CommonResponse):
             context.set_code(grpc.StatusCode.INTERNAL)
             context.set_details('Invalid unary response type!')
@@ -71,18 +73,21 @@ class CommonGrpcWrapper(common_pb2_grpc.CommonServiceServicer):
 
         data = struct_pb2.Struct()
         data.update(result.to_dict().get("data", {}))
-
-        error_data.code = 0
-        error_data.message = ""
-        error_data.detail = ""
         response = common_pb2.CommonResponse(data=data, error=error_data)
 
         return response
 
-    async def OutputStreaming(self, request: CommonRequest, context):
+    # request is common_pb2.CommonRequest
+    # request.data is struct_pb2.Struct
+    async def OutputStreaming(self, request: common_pb2.CommonRequest, context):
         """異步處理流式回應"""
+        print("== Output Streaming Handler ==")
+        print(f"Received request: {request}")
+        print(f"Request data type: {type(request)}")
+        print(f"Request data type: {type(request.data)}")
+        request = CommonRequest.from_pb2_model(request)
         async for response in self.brick.run_output_streaming(request):
-            error_data = common_pb2.ErrorDetail()
+            error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
             if not isinstance(response, CommonResponse):
                 context.set_code(grpc.StatusCode.INTERNAL)
                 context.set_details('Invalid output streaming response type!')
@@ -93,12 +98,9 @@ class CommonGrpcWrapper(common_pb2_grpc.CommonServiceServicer):
                 break
             data = struct_pb2.Struct()
             data.update(response.to_dict().get("data", {}))
-            error_data.code = 0
-            error_data.message = ""
-            error_data.detail = ""
             yield common_pb2.CommonResponse(data=data, error=error_data)
 
-    async def InputStreaming(self, request_iterator: AsyncIterator[CommonRequest], context):
+    async def InputStreaming(self, request_iterator: AsyncIterator[common_pb2.CommonRequest], context):
         """異步處理流式輸入"""
         # 將同步迭代器轉換為異步迭代器
         async def async_request_iterator():
@@ -106,7 +108,7 @@ class CommonGrpcWrapper(common_pb2_grpc.CommonServiceServicer):
                 yield request
 
         result = await self.brick.run_input_streaming(async_request_iterator())
-        error_data = common_pb2.ErrorDetail()
+        error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
         if not isinstance(result, CommonResponse):
             context.set_code(grpc.StatusCode.INTERNAL)
             context.set_details('Invalid input streaming response type!')
@@ -116,12 +118,9 @@ class CommonGrpcWrapper(common_pb2_grpc.CommonServiceServicer):
             return common_pb2.CommonResponse(error=error_data)
         data = struct_pb2.Struct()
         data.update(result.to_dict().get("data", {}))
-        error_data.code = 0
-        error_data.message = ""
-        error_data.detail = ""
         return common_pb2.CommonResponse(data=data, error=error_data)
 
-    async def BidiStreaming(self, request_iterator: AsyncIterator[CommonRequest], context):
+    async def BidiStreaming(self, request_iterator: AsyncIterator[common_pb2.CommonRequest], context):
         """異步處理雙向流式請求"""
         # 將同步迭代器轉換為異步迭代器
         async def async_request_iterator():
@@ -129,7 +128,7 @@ class CommonGrpcWrapper(common_pb2_grpc.CommonServiceServicer):
                 yield request
 
         async for response in self.brick.run_bidi_streaming(async_request_iterator()):
-            error_data = common_pb2.ErrorDetail()
+            error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
             if not isinstance(response, CommonResponse):
                 context.set_code(grpc.StatusCode.INTERNAL)
                 context.set_details('Invalid bidi streaming response type!')
@@ -140,9 +139,6 @@ class CommonGrpcWrapper(common_pb2_grpc.CommonServiceServicer):
                 break
             data = struct_pb2.Struct()
             data.update(response.to_dict().get("data", {}))
-            error_data.code = 0
-            error_data.message = ""
-            error_data.detail = ""
             yield common_pb2.CommonResponse(data=data, error=error_data)
 
     def register(self, server):

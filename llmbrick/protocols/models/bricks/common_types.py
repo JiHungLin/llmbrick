@@ -1,5 +1,7 @@
 from dataclasses import dataclass, field, asdict
 from typing import List, Optional, Dict, Any
+from llmbrick.protocols.grpc.common import common_pb2
+from google.protobuf.json_format import MessageToDict
 
 @dataclass
 class ErrorDetail:
@@ -44,6 +46,13 @@ class CommonRequest:
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
+    
+    @classmethod
+    def from_pb2_model(cls, model: common_pb2.CommonRequest) -> 'CommonRequest':
+        data = MessageToDict(model.data)
+        return cls(
+            data=data
+        )
 
 @dataclass
 class CommonResponse:

@@ -51,7 +51,7 @@ class CommonBrick(BaseBrick[CommonRequest, CommonResponse]):
         brick = cls(**kwargs)
         
         @brick.unary()
-        async def unary_handler(request: CommonRequest) -> CommonResponse:
+        async def unary_handler(request: struct_pb2.Struct) -> CommonResponse:
             """異步單次請求處理器"""
             from llmbrick.protocols.grpc.common import common_pb2
             
@@ -74,7 +74,7 @@ class CommonBrick(BaseBrick[CommonRequest, CommonResponse]):
             return CommonResponse(data=response_data, error=error)
 
         @brick.output_streaming()
-        async def output_streaming_handler(request: CommonRequest):
+        async def output_streaming_handler(request: struct_pb2.Struct):
             """異步流式輸出處理器"""
             from llmbrick.protocols.grpc.common import common_pb2
             

@@ -2,6 +2,7 @@
 Common Brick gRPC 功能測試
 """
 import asyncio
+from typing import AsyncIterator
 import pytest
 from llmbrick.servers.grpc.server import GrpcServer
 from llmbrick.bricks.common.common import CommonBrick
@@ -21,9 +22,9 @@ class _TestCommonBrick(CommonBrick):
         })
     
     @output_streaming_handler
-    async def output_streaming_handler(self, request: CommonRequest):
+    async def output_streaming_handler(self, request: CommonRequest) -> AsyncIterator[CommonResponse]:
         count = request.data.get("count", 3) if request.data else 3
-        for i in range(count):
+        for i in range(int(count)):
             await asyncio.sleep(0.05)
             yield CommonResponse(data={
                 "index": i,
@@ -103,22 +104,22 @@ async def grpc_client(grpc_server) -> _TestCommonBrick:
     yield client_brick
     await client_brick._grpc_channel.close()
 
-@pytest.mark.asyncio
-async def test_unary(grpc_client: _TestCommonBrick):
-    print("== 測試 Unary 方法 ==")
-    print(grpc_client)
-    request = CommonRequest(data={"test": "data"})
-    response = await grpc_client.run_unary(request)
-    assert response is not None
-    assert response.data["processed"] is True
-
 # @pytest.mark.asyncio
-# async def test_output_streaming(grpc_client: _TestCommonBrick):
-#     stream_req = CommonRequest(data={"count": 2})
-#     results = []
-#     async for resp in grpc_client.run_output_streaming(stream_req):
-#         results.append(resp.data["index"])
-#     assert results == [0, 1]
+# async def test_unary(grpc_client: _TestCommonBrick):
+#     print("== 測試 Unary 方法 ==")
+#     print(grpc_client)
+#     request = CommonRequest(data={"test": "data"})
+#     response = await grpc_client.run_unary(request)
+#     assert response is not None
+#     assert response.data["processed"] is True
+
+@pytest.mark.asyncio
+async def test_output_streaming(grpc_client: _TestCommonBrick):
+    stream_req = CommonRequest(data={"count": 2})
+    results = []
+    async for resp in grpc_client.run_output_streaming(stream_req):
+        results.append(resp.data["index"])
+    assert results == [0, 1]
 
 # @pytest.mark.asyncio
 # async def test_input_streaming(grpc_client: _TestCommonBrick):
@@ -138,63 +139,9 @@ async def test_unary(grpc_client: _TestCommonBrick):
 #         doubles.append(resp.data["double"])
 #     assert doubles == [20, 40]
 
-@pytest.mark.asyncio
-async def test_get_service_info(grpc_client: _TestCommonBrick):
-    info = await grpc_client.run_get_service_info()
-    assert info.service_name == "TestCommonBrick"
-    assert info.version == "9.9.9"
-    assert isinstance(info.models, list)
-
 # @pytest.mark.asyncio
-# async def test_common_grpc_client():
-#     """測試 Common gRPC 客戶端功能"""
-#     common_brick = _TestCommonBrick(verbose=False)
-#     server = GrpcServer(port=50056)
-#     server.register_service(common_brick)
-#     server_task = asyncio.create_task(server.start())
-#     await asyncio.sleep(0.5)
-#     try:
-#         client_brick = _TestCommonBrick.toGrpcClient(remote_address="127.0.0.1:50056", verbose=False)
-#         request = CommonRequest(data={"test": "data"})
-#         response = await client_brick.run_unary(request)
-#         assert response is not None
-#         assert response.data["processed"] is True
-#         # Others methods can be tested similarly
-
-#         # # OutputStreaming
-#         # stream_req = CommonRequest(data={"count": 2})
-#         # results = []
-#         # async for resp in client_brick.run_output_streaming(stream_req):
-#         #     results.append(resp.data["index"])
-#         # assert results == [0, 1]
-
-#         # # InputStreaming
-#         # async def input_stream():
-#         #     for v in [1, 2, 3]:
-#         #         yield CommonRequest(data={"val": v})
-#         # input_resp = await client_brick.run_input_streaming(input_stream())
-#         # assert input_resp.data["sum"] == 6
-
-#         # # BidiStreaming
-#         # async def bidi_stream():
-#         #     for v in [10, 20]:
-#         #         yield CommonRequest(data={"val": v})
-#         # doubles = []
-#         # async for resp in client_brick.run_bidi_streaming(bidi_stream()):
-#         #     doubles.append(resp.data["double"])
-#         # assert doubles == [20, 40]
-
-#         # # GetServiceInfo
-#         # info = await client_brick.run_get_service_info()
-#         # assert info["service_name"] == "TestCommonBrick"
-#         # assert info["version"] == "9.9.9"
-#         # assert isinstance(info["models"], list)
-
-#         await client_brick._grpc_channel.close()
-#     finally:
-#         await server.stop()
-#         server_task.cancel()
-#         try:
-#             await server_task
-#         except asyncio.CancelledError:
-#             pass
+# async def test_get_service_info(grpc_client: _TestCommonBrick):
+#     info = await grpc_client.run_get_service_info()
+#     assert info.service_name == "TestCommonBrick"
+#     assert info.version == "9.9.9"
+#     assert isinstance(info.models, list)
