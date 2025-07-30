@@ -127,6 +127,15 @@ async def main():
 asyncio.run(main())
 ```
 
+## ⚠️ 注意事項：gRPC 與 Python 的整數型態傳輸問題
+
+在使用 gRPC 於 Python 進行開發時，需特別注意整數型態（如 int64）在傳輸過程中可能發生精度損失的問題。由於 Python 的 gRPC 實作會將超過 JavaScript Number 精度範圍的 int64 轉為 float，導致大整數無法正確還原。
+
+**建議：**
+- 若需傳遞大整數，請考慮將其以 string 型態傳遞，或於 proto 設計時特別標註與處理。
+- 請於前後端協定設計時，明確確認數值範圍與型態，避免資料遺失或錯誤。
+
+
 #### 建立SSE接口
 
 ```python
