@@ -22,7 +22,6 @@ sse-starlette>=1.6.5
 
 # Vector database and embeddings
 chromadb>=0.4.15
-sentence-transformers>=2.2.2
 
 # Utilities
 httpx>=0.25.0
