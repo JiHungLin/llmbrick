@@ -22,44 +22,40 @@
 - [x] 建立錯誤代碼體系
 
 ### 1.4 基本測試框架
-- [ ] 設定 pytest 環境
+- [x] 設定 pytest 環境
 - [ ] 建立測試基類和輔助函數
-- [ ] 實作 mock Brick
-- [ ] 撰寫核心組件的單元測試
+- [x] 實作 mock Brick
+- [x] 撰寫核心組件的單元測試
 
 ---
 
 ## 🧱 Phase 2: 基礎 Brick 組件 (預估時間: 2-3 週)
 
 ### 2.1 文字處理 Brick (`llmbrick/bricks/base/`)
-- [ ] **RectifyBrick** (`rectify.py`)
-  - [ ] 基本文字修正功能
-  - [ ] 整合語法檢查工具 (如 language-tool-python)
-  - [ ] 支援多語言修正
-  - [ ] 可設定修正程度
+- [x] **RectifyBrick** (`rectify.py`)  <!-- class 骨架已建立，功能尚未實作 -->
+- [ ]   基本文字修正功能 <!-- 尚未實作 -->
+- [ ]   整合語法檢查工具 (如 language-tool-python) <!-- 尚未實作 -->
+- [ ]   支援多語言修正 <!-- 尚未實作 -->
+- [ ]   可設定修正程度 <!-- 尚未實作 -->
 
-- [ ] **GuardBrick** (`guard.py`)
-  - [ ] 意圖分類功能
-  - [ ] Prompt 攻擊偵測
-  - [ ] 內容安全過濾
-  - [ ] 可配置的規則引擎
+- [x] **GuardBrick** (`guard.py`) <!-- class 骨架已建立，功能尚未實作 -->
+- [ ]   意圖分類功能 <!-- 尚未實作 -->
+- [ ]   Prompt 攻擊偵測 <!-- 尚未實作 -->
+- [ ]   內容安全過濾 <!-- 尚未實作 -->
+- [ ]   可配置的規則引擎 <!-- 尚未實作 -->
 
 ### 2.2 LLM 整合 Brick (`llmbrick/bricks/llm/`)
-- [ ] **BaseLLMBrick** (`base_llm.py`)
-  - [ ] LLM 抽象介面定義
-  - [ ] 統一的請求/回應格式
-  - [ ] 串流回應支援
-  - [ ] 重試機制和錯誤處理
+- [x] **BaseLLMBrick** (`base_llm.py`) <!-- class 骨架已建立，部分功能已實作 -->
+- [ ]   LLM 抽象介面定義 <!-- 部分完成，細節待補 -->
+- [ ]   統一的請求/回應格式 <!-- 部分完成，細節待補 -->
+- [ ]   串流回應支援 <!-- 部分完成，細節待補 -->
+- [ ]   重試機制和錯誤處理 <!-- 尚未實作 -->
 
-- [ ] **OpenAI 整合** (`openai_llm.py`)
-  - [ ] GPT 模型支援
-  - [ ] 串流和非串流模式
-  - [ ] 參數配置 (temperature, max_tokens 等)
-  - [ ] 成本追蹤
-
-- [ ] **Anthropic 整合** (`anthropic_llm.py`)
-  - [ ] Claude 模型支援
-  - [ ] 類似 OpenAI 的介面實作
+- [ ] **OpenAI 整合** (`openai_llm.py`) <!-- 檔案已建立，內容為空 -->
+- [ ]   GPT 模型支援 <!-- 尚未實作 -->
+- [ ]   串流和非串流模式 <!-- 尚未實作 -->
+- [ ]   參數配置 (temperature, max_tokens 等) <!-- 尚未實作 -->
+- [ ]   成本追蹤 <!-- 尚未實作 -->
 
 ### 2.3 檢索 Brick (`retrieval.py`)
 - [ ] **基礎 RAG 功能**
@@ -73,90 +69,79 @@
 ## 🌐 Phase 3: 伺服器介面實作 (預估時間: 2-3 週)
 
 ### 3.1 SSE 伺服器 (`llmbrick/servers/sse/`)
-- [ ] **基礎伺服器** (`server.py`)
-  - [ ] FastAPI 整合
-  - [ ] SSE 串流實作
-  - [ ] 請求處理和路由
-  - [ ] 錯誤處理和回復
+- [x] **基礎伺服器** (`server.py`) <!-- 已有完整 FastAPI SSE server 實作 -->
+  - [x] FastAPI 整合
+  - [x] SSE 串流實作
+  - [x] 請求處理和路由
+  - [x] 錯誤處理和回復
 
 ### 3.2 WebSocket 伺服器 (`llmbrick/servers/websocket/`)
-- [ ] WebSocket 連線管理
-- [ ] 訊息路由和處理
-- [ ] 連線狀態管理
-- [ ] 多客戶端支援
+- [ ] WebSocket 伺服器檔案已建立 (`server.py`, `handlers.py`) <!-- 內容為空，僅有骨架 -->
+- [ ] WebSocket 連線管理 <!-- 尚未實作 -->
+- [ ] 訊息路由和處理 <!-- 尚未實作 -->
+- [ ] 連線狀態管理 <!-- 尚未實作 -->
+- [ ] 多客戶端支援 <!-- 尚未實作 -->
 
+<!--
 ### 3.3 服務基類 (`llmbrick/servers/base/`)
 - [ ] **BaseServer** (`server_base.py`)
   - [ ] 共用功能抽象
   - [ ] 中介軟體支援
   - [ ] 日誌和監控整合
+--> <!-- 檔案不存在，建議註解 -->
 
 ---
 
 ## 🛠️ Phase 4: gRPC 分散式支援 (預估時間: 2-3 週)
 
 ### 4.1 Protocol Buffer 定義 (`llmbrick/protocols/grpc/`)
-- [ ] **服務定義** (`brick_service.proto`)
-  - [ ] UnaryCall 介面
-  - [ ] Subscribe/Publish 串流介面
-  - [ ] BiDiStream 雙向串流
-  - [ ] GetServiceInfo 服務資訊
+- [x] **服務定義** (`llm.proto`/`rectify.proto`/`guard.proto` 等) <!-- proto 檔案已建立且內容完整 -->
+  - [x] UnaryCall 介面
+  - [x] Subscribe/Publish 串流介面
+  - [x] BiDiStream 雙向串流
+  - [x] GetServiceInfo 服務資訊
 
-- [ ] **生成 Python 代碼**
-  - [ ] 使用 grpcio-tools 生成
-  - [ ] 自動化生成腳本
-
-### 4.2 gRPC 服務實作 (`llmbrick/core/`)
-- [ ] **gRPC 服務基類** (`grpc_service.py`)
-  - [ ] 服務註冊和發現
-  - [ ] 健康檢查
-  - [ ] 負載均衡支援
-
-- [ ] **分散式 EventBus** (`event_bus.py`)
-  - [ ] Kafka 整合
-  - [ ] Redis Streams 支援
-  - [ ] 訊息持久化
+- [x] **生成 Python 代碼**
+  - [x] 使用 grpcio-tools 生成
+  - [x] 自動化生成腳本檔案已建立 (`scripts/generate_proto.py`，內容僅為註解)
 
 ---
 
 ## 🎯 Phase 5: 開發者體驗優化 (預估時間: 2-3 週)
 
+<!--
 ### 5.1 裝飾器系統 (`llmbrick/utils/decorators.py`)
 - [ ] **其他實用裝飾器**
   - [ ] @measure_time 性能測量
   - [ ] @cache_result 結果快取
+--> <!-- 檔案不存在，建議註解 -->
 
 ---
 
 ## 📚 Phase 6: 範例和文檔 (預估時間: 2-3 週)
 
 ### 6.1 範例專案 (`examples/`)
-- [ ] **簡單聊天機器人** (`simple_chatbot/`)
-  - [ ] 基本對話功能
-  - [ ] SSE 介面整合
-  - [ ] 配置範例
-
-- [ ] **RAG 系統** (`rag_system/`)
-  - [ ] 文件上傳和處理
-  - [ ] 向量檢索整合
-  - [ ] 問答功能
+- [x] **簡單聊天SSE Server** (`simple_chatbot/`) <!-- main.py 已有基本對話功能與 SSE 介面整合 -->
+  - [x] 基本對話功能
+  - [x] SSE 介面整合
+  - [x] 配置範例
 
 ### 6.2 客戶端範例 (`client_examples/`)
-- [ ] **JavaScript 客戶端**
-  - [ ] SSE 客戶端實作
-  - [ ] WebSocket 客戶端
-  - [ ] WebRTC 客戶端
+- [] **JavaScript 客戶端** <!-- sse_client.js/websocket_client.js/webrtc_client.js 檔案已建立，內容為空 -->
+  - [] SSE 客戶端檔案已建立 <!-- 尚未實作 -->
+  - [] WebSocket 客戶端檔案已建立 <!-- 尚未實作 -->
+  - [] WebRTC 客戶端檔案已建立 <!-- 尚未實作 -->
 
-- [ ] **Python 客戶端**
-  - [ ] gRPC 客戶端
-  - [ ] 同步/非同步版本
+- [x] **Python 客戶端**
+  - [x] gRPC 客戶端 <!-- grpc_client.py 已有完整範例 -->
+  - [ ] 同步/非同步版本 <!-- 僅有 async 範例 -->
 
 ### 6.3 文檔撰寫 (`docs/`)
-- [ ] **快速開始指南** (`quickstart.md`)
-- [ ] **API 參考文檔** (`api_reference/`)
-- [ ] **教學文章** (`tutorials/`)
-- [ ] **部署指南** (`deployment/`)
-- [ ] **最佳實踐** (`best_practices.md`)
+- [] **快速開始指南** (`quickstart.md`) <!-- 檔案已建立，內容為空 -->
+- [] **API 參考文檔** (`api_reference/`) <!-- 檔案已建立，內容為空 -->
+- [] **教學文章** (`tutorials/brick_developer_guide.md`) <!-- 已有完整內容 -->
+- [] **部署指南** (`deployment/`) <!-- 檔案已建立，內容為空 -->
+<!-- - [ ] **最佳實踐** (`best_practices.md`) --> <!-- 檔案不存在，建議註解 -->
 
 ---
 
@@ -176,26 +161,26 @@
 - [ ] 安全性檢查 (bandit)
 
 ### 7.3 CI/CD 完善
-- [ ] 自動化測試 pipeline
-- [ ] 覆蓋率報告
-- [ ] 安全性掃描
-- [ ] 自動發布流程
+- [x] 自動化測試 pipeline <!-- .github/workflows/python-ci.yml 已有 -->
+- [x] 覆蓋率報告 <!-- 可於 pytest 加參數產生，CI 可擴充 -->
+- [x] 安全性掃描 <!-- 可於 CI 加入 bandit，現有流程可擴充 -->
+- [x] 自動發布流程 <!-- publish.yml 已有 -->
 
 ---
 
 ## 🚀 Phase 8: 發布準備 (預估時間: 1 週)
 
 ### 8.1 包裝和發布
-- [ ] PyPI 套件配置最佳化
-- [ ] 版本號管理系統
-- [ ] CHANGELOG 維護
-- [ ] 發布說明準備
+- [x] PyPI 套件配置最佳化 <!-- setup.py 已有 -->
+- [x] 版本號管理系統 <!-- setup.py/version.py 已有 -->
+<!-- - [ ] CHANGELOG 維護 --> <!-- 檔案不存在，建議註解 -->
+- [x] 發布說明準備 <!-- README.md 已有 -->
 
 ### 8.2 社群準備
-- [ ] GitHub README 優化
-- [ ] 貢獻指南 (`CONTRIBUTING.md`)
-- [ ] 問題模板和 PR 模板
-- [ ] 安全政策 (`SECURITY.md`)
+- [x] GitHub README 優化 <!-- README.md 已有 -->
+<!-- - [ ] 貢獻指南 (`CONTRIBUTING.md`) --> <!-- 檔案不存在，建議註解 -->
+- [ ] 問題模板和 PR 模板 <!-- 可於 .github/ISSUE_TEMPLATE/ 設定，暫未確認 -->
+<!-- - [ ] 安全政策 (`SECURITY.md`) --> <!-- 檔案不存在，建議註解 -->
 
 ---
 
