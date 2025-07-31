@@ -4,6 +4,10 @@ on:
   release:
     types: [published]
 
+permissions:
+  contents: write    # 需要寫入 release assets
+  # packages: write  # 若未來有發佈 GitHub Packages 再加
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
