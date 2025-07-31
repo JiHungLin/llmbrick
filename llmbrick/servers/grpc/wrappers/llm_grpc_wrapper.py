@@ -3,9 +3,7 @@ import grpc
 from llmbrick.bricks.llm.base_llm import LLMBrick
 from llmbrick.protocols.grpc.common import common_pb2
 from llmbrick.protocols.grpc.llm import llm_pb2, llm_pb2_grpc
-from llmbrick.protocols.models.bricks.common_types import (
-    ServiceInfoResponse,
-)
+from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse
 from llmbrick.protocols.models.bricks.llm_types import LLMRequest, LLMResponse
 
 

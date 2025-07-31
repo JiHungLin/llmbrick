@@ -3,9 +3,7 @@ import warnings
 from deprecated import deprecated
 
 from llmbrick.core.brick import BaseBrick, BrickType
-from llmbrick.protocols.models.bricks.common_types import (
-    ServiceInfoResponse,
-)
+from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse
 from llmbrick.protocols.models.bricks.llm_types import LLMRequest, LLMResponse
 
 

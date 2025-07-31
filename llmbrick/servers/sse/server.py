@@ -17,7 +17,9 @@ from llmbrick.utils.logging import logger
 class SSEServer:
     def __init__(
         self,
-        handler: Optional[Callable[[Dict[str, Any]], AsyncGenerator[Dict[str, Any], None]]] = None,
+        handler: Optional[
+            Callable[[Dict[str, Any]], AsyncGenerator[Dict[str, Any], None]]
+        ] = None,
         chat_completions_path: str = "/chat/completions",
         prefix: str = "",
     ):
@@ -25,7 +27,9 @@ class SSEServer:
 
         # 註冊 LLMBrickException handler
         @self.app.exception_handler(LLMBrickException)
-        async def llmbrick_exception_handler(_: Any, exc: LLMBrickException) -> JSONResponse:
+        async def llmbrick_exception_handler(
+            _: Any, exc: LLMBrickException
+        ) -> JSONResponse:
             logger.error(f"LLMBrickException: {exc}")
             raise HTTPException(status_code=400, detail=exc.to_dict())
 

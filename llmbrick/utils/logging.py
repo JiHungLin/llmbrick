@@ -7,7 +7,7 @@ Pretty-Loguru 封裝，提供全域 logger、decorator 與動態配置功能。
 
 import functools
 import inspect
-from typing import Callable, Any
+from typing import Any, Callable
 
 from pretty_loguru import ConfigTemplates, EnhancedLogger, LoggerConfig, create_logger
 from pretty_loguru import get_logger as _get_logger
@@ -51,7 +51,9 @@ def configure_logger(
         config.update(compression=compression)
 
 
-def apply_template(name: str = "llmbrick", template: str = "production") -> EnhancedLogger:
+def apply_template(
+    name: str = "llmbrick", template: str = "production"
+) -> EnhancedLogger:
     """
     使用 ConfigTemplates 內建模板建立 logger。
     template: "development" | "production" | "testing" | "debug" | "performance" | "minimal"
@@ -75,7 +77,6 @@ def apply_template(name: str = "llmbrick", template: str = "production") -> Enha
     global logger
     logger = config.apply_to(name)
     return logger
-
 
 
 def log_function(

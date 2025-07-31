@@ -18,7 +18,6 @@ _runtime_version.ValidateProtobufRuntimeVersion(
 _sym_db = _symbol_database.Default()
 
 
-
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
     b'\n$protocols/grpc/rectify/rectify.proto\x12\x16protocols.grpc.rectify\x1a"protocols/grpc/common/common.proto"r\n\x0eRectifyRequest\x12\x0c\n\x04text\x18\x01 \x01(\t\x12\x11\n\tclient_id\x18\x02 \x01(\t\x12\x12\n\nsession_id\x18\x03 \x01(\t\x12\x12\n\nrequest_id\x18\x04 \x01(\t\x12\x17\n\x0fsource_language\x18\x05 \x01(\t"\\\n\x0fRectifyResponse\x12\x16\n\x0e\x63orrected_text\x18\x01 \x01(\t\x12\x31\n\x05\x65rror\x18\x02 \x01(\x0b\x32".protocols.grpc.common.ErrorDetail2\xd3\x01\n\x0eRectifyService\x12g\n\x0eGetServiceInfo\x12).protocols.grpc.common.ServiceInfoRequest\x1a*.protocols.grpc.common.ServiceInfoResponse\x12X\n\x05Unary\x12&.protocols.grpc.rectify.RectifyRequest\x1a\'.protocols.grpc.rectify.RectifyResponseb\x06proto3'
 )

@@ -12,8 +12,8 @@ from llmbrick.bricks.retrieval.base_retrieval import RetrievalBrick
 from llmbrick.core.brick import get_service_info_handler, unary_handler
 from llmbrick.protocols.models.bricks.common_types import (
     ErrorDetail,
+    ModelInfo,
     ServiceInfoResponse,
-    ModelInfo
 )
 from llmbrick.protocols.models.bricks.retrieval_types import (
     RetrievalRequest,
@@ -82,7 +82,9 @@ async def grpc_server() -> AsyncIterator[None]:
 
 
 @pytest_asyncio.fixture
-async def grpc_client(grpc_server: AsyncIterator[None]) -> AsyncIterator[_TestRetrievalBrick]:
+async def grpc_client(
+    grpc_server: AsyncIterator[None],
+) -> AsyncIterator[_TestRetrievalBrick]:
     client_brick = _TestRetrievalBrick.toGrpcClient(remote_address="127.0.0.1:50141")
     yield client_brick
     await client_brick._grpc_channel.close()

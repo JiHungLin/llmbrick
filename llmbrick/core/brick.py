@@ -2,7 +2,6 @@ import functools
 from enum import Enum
 from typing import AsyncIterator, Awaitable, Callable, Generic, Optional, TypeVar
 
-
 from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse
 from llmbrick.utils.logging import log_function
 
@@ -39,7 +38,6 @@ def _brick_handler(call_type: str):
         return func
 
     return decorator
-
 
 
 InputT = TypeVar("InputT")

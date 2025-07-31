@@ -16,8 +16,8 @@ from llmbrick.core.brick import (
 )
 from llmbrick.protocols.models.bricks.common_types import (
     ErrorDetail,
+    ModelInfo,
     ServiceInfoResponse,
-    ModelInfo
 )
 from llmbrick.protocols.models.bricks.translate_types import (
     TranslateRequest,
@@ -103,7 +103,9 @@ async def grpc_server() -> AsyncIterator[None]:
 
 
 @pytest_asyncio.fixture
-async def grpc_client(grpc_server: AsyncIterator[None]) -> AsyncIterator[_TestTranslateBrick]:
+async def grpc_client(
+    grpc_server: AsyncIterator[None],
+) -> AsyncIterator[_TestTranslateBrick]:
     client_brick = _TestTranslateBrick.toGrpcClient(remote_address="127.0.0.1:50151")
     yield client_brick
     await client_brick._grpc_channel.close()

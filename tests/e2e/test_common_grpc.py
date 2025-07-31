@@ -20,8 +20,8 @@ from llmbrick.protocols.models.bricks.common_types import (
     CommonRequest,
     CommonResponse,
     ErrorDetail,
+    ModelInfo,
     ServiceInfoResponse,
-    ModelInfo
 )
 from llmbrick.servers.grpc.server import GrpcServer
 
@@ -50,7 +50,9 @@ class _TestCommonBrick(CommonBrick):
             )
 
     @input_streaming_handler
-    async def input_streaming_handler(self, request_stream: AsyncIterator[CommonRequest]) -> CommonResponse:
+    async def input_streaming_handler(
+        self, request_stream: AsyncIterator[CommonRequest]
+    ) -> CommonResponse:
         # 將所有 request.data["val"] 相加
         total = 0
         error = ErrorDetail(code=0, message="No error")
@@ -60,7 +62,9 @@ class _TestCommonBrick(CommonBrick):
         return CommonResponse(data={"sum": total}, error=error)
 
     @bidi_streaming_handler
-    async def bidi_streaming_handler(self, request_stream: AsyncIterator[CommonRequest]) -> AsyncIterator[CommonResponse]:
+    async def bidi_streaming_handler(
+        self, request_stream: AsyncIterator[CommonRequest]
+    ) -> AsyncIterator[CommonResponse]:
         # 每收到一個 request，回傳其 data["val"]*2
         async for req in request_stream:
             val = int(req.data.get("val", 0)) if req.data else 0

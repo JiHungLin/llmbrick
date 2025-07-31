@@ -12,8 +12,8 @@ from llmbrick.bricks.guard.base_guard import GuardBrick
 from llmbrick.core.brick import get_service_info_handler, unary_handler
 from llmbrick.protocols.models.bricks.common_types import (
     ErrorDetail,
+    ModelInfo,
     ServiceInfoResponse,
-    ModelInfo
 )
 from llmbrick.protocols.models.bricks.guard_types import GuardRequest, GuardResponse
 from llmbrick.servers.grpc.server import GrpcServer

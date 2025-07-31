@@ -16,8 +16,8 @@ from llmbrick.core.brick import (
 )
 from llmbrick.protocols.models.bricks.common_types import (
     ErrorDetail,
+    ModelInfo,
     ServiceInfoResponse,
-    ModelInfo
 )
 from llmbrick.protocols.models.bricks.compose_types import (
     ComposeRequest,

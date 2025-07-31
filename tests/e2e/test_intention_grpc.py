@@ -12,8 +12,8 @@ from llmbrick.bricks.intention.base_intention import IntentionBrick
 from llmbrick.core.brick import get_service_info_handler, unary_handler
 from llmbrick.protocols.models.bricks.common_types import (
     ErrorDetail,
+    ModelInfo,
     ServiceInfoResponse,
-    ModelInfo
 )
 from llmbrick.protocols.models.bricks.intention_types import (
     IntentionRequest,
@@ -82,7 +82,9 @@ async def grpc_server() -> AsyncIterator[None]:
 
 
 @pytest_asyncio.fixture
-async def grpc_client(grpc_server: AsyncIterator[None]) -> AsyncIterator[_TestIntentionBrick]:
+async def grpc_client(
+    grpc_server: AsyncIterator[None],
+) -> AsyncIterator[_TestIntentionBrick]:
     client_brick = _TestIntentionBrick.toGrpcClient(remote_address="127.0.0.1:50121")
     yield client_brick
     await client_brick._grpc_channel.close()

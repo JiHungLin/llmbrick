@@ -8,7 +8,9 @@ server = SSEServer()
 
 
 @server.handler
-async def simple_flow(request_body: Dict[str, Any]) -> AsyncGenerator[Dict[str, Any], None]:
+async def simple_flow(
+    request_body: Dict[str, Any]
+) -> AsyncGenerator[Dict[str, Any], None]:
     # 模擬訊息處理與回應
     yield {
         "id": "1",

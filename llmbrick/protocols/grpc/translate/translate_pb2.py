@@ -23,8 +23,6 @@ _runtime_version.ValidateProtobufRuntimeVersion(
 _sym_db = _symbol_database.Default()
 
 
-
-
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
     b'\n(protocols/grpc/translate/translate.proto\x12\x18protocols.grpc.translate\x1a"protocols/grpc/common/common.proto\x1a\x1cgoogle/protobuf/struct.proto"\x9f\x01\n\x10TranslateRequest\x12\x0c\n\x04text\x18\x01 \x01(\t\x12\x10\n\x08model_id\x18\x02 \x01(\t\x12\x17\n\x0ftarget_language\x18\x03 \x01(\t\x12\x11\n\tclient_id\x18\x04 \x01(\t\x12\x12\n\nsession_id\x18\x05 \x01(\t\x12\x12\n\nrequest_id\x18\x06 \x01(\t\x12\x17\n\x0fsource_language\x18\x07 \x01(\t"\x8d\x01\n\x11TranslateResponse\x12\x0c\n\x04text\x18\x01 \x01(\t\x12\x0e\n\x06tokens\x18\x02 \x03(\t\x12\x15\n\rlanguage_code\x18\x03 \x01(\t\x12\x10\n\x08is_final\x18\x04 \x01(\x08\x12\x31\n\x05\x65rror\x18\x05 \x01(\x0b\x32".protocols.grpc.common.ErrorDetail2\xcb\x02\n\x10TranslateService\x12g\n\x0eGetServiceInfo\x12).protocols.grpc.common.ServiceInfoRequest\x1a*.protocols.grpc.common.ServiceInfoResponse\x12`\n\x05Unary\x12*.protocols.grpc.translate.TranslateRequest\x1a+.protocols.grpc.translate.TranslateResponse\x12l\n\x0fOutputStreaming\x12*.protocols.grpc.translate.TranslateRequest\x1a+.protocols.grpc.translate.TranslateResponse0\x01\x62\x06proto3'
 )

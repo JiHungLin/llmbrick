@@ -32,7 +32,9 @@ class ExampleLLMBrick(LLMBrick):
             error=None,
         )
 
-    async def output_streaming_handler(self, request: LLMRequest) -> AsyncIterator[LLMResponse]:
+    async def output_streaming_handler(
+        self, request: LLMRequest
+    ) -> AsyncIterator[LLMResponse]:
         """處理流式 LLM 請求"""
         prompt = request.prompt or self.default_prompt
         words = f"[流式回應] 針對 '{prompt}' 的逐字回應".split()
@@ -61,7 +63,9 @@ class ExampleCommonBrick(CommonBrick):
 
         return CommonResponse(data=response_data)
 
-    async def output_streaming_handler(self, request: CommonRequest) -> AsyncIterator[CommonResponse]:
+    async def output_streaming_handler(
+        self, request: CommonRequest
+    ) -> AsyncIterator[CommonResponse]:
         """處理流式輸出"""
         count = request.data.get("count", 3) if request.data else 3
 
@@ -71,7 +75,9 @@ class ExampleCommonBrick(CommonBrick):
                 data={"index": i, "message": f"Stream message {i + 1}", "total": count}
             )
 
-    async def input_streaming_handler(self, request_stream: AsyncIterator[CommonRequest]) -> CommonResponse:
+    async def input_streaming_handler(
+        self, request_stream: AsyncIterator[CommonRequest]
+    ) -> CommonResponse:
         """處理流式輸入"""
         messages = []
         async for request in request_stream:
@@ -86,7 +92,9 @@ class ExampleCommonBrick(CommonBrick):
             }
         )
 
-    async def bidi_streaming_handler(self, request_stream: AsyncIterator[CommonRequest]) -> AsyncIterator[CommonResponse]:
+    async def bidi_streaming_handler(
+        self, request_stream: AsyncIterator[CommonRequest]
+    ) -> AsyncIterator[CommonResponse]:
         """處理雙向流式"""
         async for request in request_stream:
             if request.data:

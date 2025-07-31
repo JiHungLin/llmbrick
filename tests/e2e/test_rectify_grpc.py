@@ -12,8 +12,8 @@ from llmbrick.bricks.rectify.base_rectify import RectifyBrick
 from llmbrick.core.brick import get_service_info_handler, unary_handler
 from llmbrick.protocols.models.bricks.common_types import (
     ErrorDetail,
+    ModelInfo,
     ServiceInfoResponse,
-    ModelInfo
 )
 from llmbrick.protocols.models.bricks.rectify_types import (
     RectifyRequest,
@@ -80,7 +80,9 @@ async def grpc_server() -> AsyncIterator[None]:
 
 
 @pytest_asyncio.fixture
-async def grpc_client(grpc_server: AsyncIterator[None]) -> AsyncIterator[_TestRectifyBrick]:
+async def grpc_client(
+    grpc_server: AsyncIterator[None],
+) -> AsyncIterator[_TestRectifyBrick]:
     client_brick = _TestRectifyBrick.toGrpcClient(remote_address="127.0.0.1:50131")
     yield client_brick
     await client_brick._grpc_channel.close()
