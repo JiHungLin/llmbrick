@@ -1,15 +1,18 @@
-from deprecated import deprecated
 import warnings
 
+from deprecated import deprecated
+
+from llmbrick.core.brick import BaseBrick, BrickType
+from llmbrick.protocols.models.bricks.common_types import (
+    ErrorDetail,
+    ServiceInfoResponse,
+)
 from llmbrick.protocols.models.bricks.compose_types import (
     ComposeRequest,
     ComposeResponse,
     Document,
 )
-from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse
-from llmbrick.protocols.models.bricks.common_types import ErrorDetail
 
-from llmbrick.core.brick import BaseBrick, BrickType
 
 class ComposeBrick(BaseBrick[ComposeRequest, ComposeResponse]):
     """
@@ -27,6 +30,7 @@ class ComposeBrick(BaseBrick[ComposeRequest, ComposeResponse]):
     - OutputStreaming -> output_streaming
 
     """
+
     brick_type = BrickType.COMPOSE
 
     # 僅允許這三種 handler
@@ -40,45 +44,55 @@ class ComposeBrick(BaseBrick[ComposeRequest, ComposeResponse]):
         """
         Deprecated: ComposeBrick only supports unary and output_streaming handlers, input_streaming and bidi_streaming are not applicable.
         """
-        warnings.warn("ComposeBrick does not support bidi_streaming handler.", PendingDeprecationWarning)
-        raise NotImplementedError("ComposeBrick does not support bidi_streaming handler.")
-    
+        warnings.warn(
+            "ComposeBrick does not support bidi_streaming handler.",
+            PendingDeprecationWarning,
+        )
+        raise NotImplementedError(
+            "ComposeBrick does not support bidi_streaming handler."
+        )
+
     @deprecated(reason="ComposeBrick does not support input_streaming handler.")
     def input_streaming(self):
         """
         Deprecated: ComposeBrick only supports unary and output_streaming handlers, input_streaming is not applicable.
         """
-        warnings.warn("ComposeBrick does not support input_streaming handler.", DeprecationWarning)
-        raise NotImplementedError("ComposeBrick does not support input_streaming handler.")
+        warnings.warn(
+            "ComposeBrick does not support input_streaming handler.", DeprecationWarning
+        )
+        raise NotImplementedError(
+            "ComposeBrick does not support input_streaming handler."
+        )
 
     @classmethod
     def toGrpcClient(cls, remote_address: str, **kwargs):
         """
         將 ComposeBrick 轉換為異步 gRPC 客戶端。
-        
+
         Args:
             remote_address: gRPC 伺服器地址，格式為 "host:port"
             **kwargs: 傳遞給 ComposeBrick 建構子的額外參數
-            
+
         Returns:
             配置為異步 gRPC 客戶端的 ComposeBrick 實例
         """
         import grpc
         from google.protobuf import struct_pb2
+
         from llmbrick.protocols.grpc.compose import compose_pb2_grpc
-        
+
         # 建立異步 gRPC 通道和客戶端
         channel = grpc.aio.insecure_channel(remote_address)
         grpc_client = compose_pb2_grpc.ComposeServiceStub(channel)
-        
+
         # 建立 brick 實例
         brick = cls(**kwargs)
-        
+
         @brick.unary()
         async def unary_handler(request: ComposeRequest) -> ComposeResponse:
             """異步單次請求處理器"""
             from llmbrick.protocols.grpc.compose import compose_pb2
-            
+
             # 轉換 Document 列表
             grpc_documents = []
             for doc in request.input_documents:
@@ -90,7 +104,7 @@ class ComposeBrick(BaseBrick[ComposeRequest, ComposeResponse]):
                 # metadata 是 google.protobuf.Struct
                 grpc_doc.metadata.update(doc.metadata)
                 grpc_documents.append(grpc_doc)
-            
+
             # 建立 gRPC 請求
             grpc_request = compose_pb2.ComposeRequest()
             grpc_request.input_documents.extend(grpc_documents)
@@ -99,16 +113,16 @@ class ComposeBrick(BaseBrick[ComposeRequest, ComposeResponse]):
             grpc_request.session_id = request.session_id
             grpc_request.request_id = request.request_id
             grpc_request.source_language = request.source_language
-            
+
             response = await grpc_client.Unary(grpc_request)
-            
+
             return ComposeResponse.from_pb2_model(response)
 
         @brick.output_streaming()
         async def output_streaming_handler(request: ComposeRequest):
             """異步流式輸出處理器"""
             from llmbrick.protocols.grpc.compose import compose_pb2
-            
+
             # 轉換 Document 列表
             grpc_documents = []
             for doc in request.input_documents:
@@ -120,7 +134,7 @@ class ComposeBrick(BaseBrick[ComposeRequest, ComposeResponse]):
                 # metadata 是 google.protobuf.Struct
                 grpc_doc.metadata.update(doc.metadata)
                 grpc_documents.append(grpc_doc)
-            
+
             # 建立 gRPC 請求
             grpc_request = compose_pb2.ComposeRequest()
             grpc_request.input_documents.extend(grpc_documents)
@@ -129,40 +143,48 @@ class ComposeBrick(BaseBrick[ComposeRequest, ComposeResponse]):
             grpc_request.session_id = request.session_id
             grpc_request.request_id = request.request_id
             grpc_request.source_language = request.source_language
-            
+
             async for response in grpc_client.OutputStreaming(grpc_request):
                 # 將 protobuf 回應轉換為 ComposeResponse
                 output_dict = {}
                 if response.output:
                     output_dict = dict(response.output)
-                
+
                 yield ComposeResponse(
                     output=output_dict,
-                    error=ErrorDetail(
-                        code=response.error.code,
-                        message=response.error.message,
-                        detail=response.error.detail
-                    ) if response.error else None
+                    error=(
+                        ErrorDetail(
+                            code=response.error.code,
+                            message=response.error.message,
+                            detail=response.error.detail,
+                        )
+                        if response.error
+                        else None
+                    ),
                 )
-                
+
         @brick.get_service_info()
         async def get_service_info_handler() -> ServiceInfoResponse:
             """異步服務信息處理器"""
             from llmbrick.protocols.grpc.common import common_pb2
+
             request = common_pb2.ServiceInfoRequest()
             response = await grpc_client.GetServiceInfo(request)
             return ServiceInfoResponse(
                 service_name=response.service_name,
                 version=response.version,
-                models=[{
-                    "model_id": model.model_id,
-                    "version": model.version,
-                    "supported_languages": list(model.supported_languages),
-                    "support_streaming": model.support_streaming
-                } for model in response.models]
+                models=[
+                    {
+                        "model_id": model.model_id,
+                        "version": model.version,
+                        "supported_languages": list(model.supported_languages),
+                        "support_streaming": model.support_streaming,
+                    }
+                    for model in response.models
+                ],
             )
 
         # 儲存通道引用以便後續清理
         brick._grpc_channel = channel
-        
+
         return brick

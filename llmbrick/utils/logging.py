@@ -8,25 +8,21 @@ Pretty-Loguru 封裝，提供全域 logger、decorator 與動態配置功能。
 import functools
 import inspect
 
-from pretty_loguru import create_logger, get_logger as _get_logger, \
-    ConfigTemplates, \
-    LoggerConfig, \
-    EnhancedLogger
+from pretty_loguru import ConfigTemplates, EnhancedLogger, LoggerConfig, create_logger
+from pretty_loguru import get_logger as _get_logger
 
-config = LoggerConfig(
-    level="INFO",
-    rotation="1 day",
-    retention="7 days"
-)
+config = LoggerConfig(level="INFO", rotation="1 day", retention="7 days")
 
 # 預設全域 logger
 logger: EnhancedLogger = create_logger("llmbrick", config=config)
+
 
 def get_logger(name: str = "llmbrick"):
     """
     取得指定名稱的 logger，預設為 llmbrick。
     """
     return _get_logger(name)
+
 
 def configure_logger(
     name: str = None,
@@ -79,6 +75,7 @@ def apply_template(name: str = "llmbrick", template: str = "production"):
     logger = config.apply_to(name)
     return logger
 
+
 def log_function(
     _func=None,
     *,
@@ -87,13 +84,14 @@ def log_function(
     log_output=True,
     log_exception=True,
     level="info",
-    service_name=None
+    service_name=None,
 ):
     """
     Decorator: 自動 log 函式的輸入、輸出、例外。
     支援 async/sync 函式。
     service_name: 於 log 訊息前加上 [service_name] 標籤
     """
+
     def decorator_log_function(func):
         is_async = inspect.iscoroutinefunction(func)
         log: EnhancedLogger = logger_instance or logger
@@ -101,11 +99,13 @@ def log_function(
         log_method = getattr(log, str(level).lower(), None)
         if not callable(log_method):
             log_method = log.info
-        
+
         @functools.wraps(func)
         async def async_wrapper(*args, **kwargs):
             if log_input:
-                log_method(f"{prefix}[{func.__name__}] input: args={args}, kwargs={kwargs}")
+                log_method(
+                    f"{prefix}[{func.__name__}] input: args={args}, kwargs={kwargs}"
+                )
             try:
                 result = await func(*args, **kwargs)
                 if log_output:
@@ -113,13 +113,17 @@ def log_function(
                 return result
             except Exception as e:
                 if log_exception:
-                    log.error(f"{prefix}[{func.__name__}] exception: {e}", exc_info=True)
+                    log.error(
+                        f"{prefix}[{func.__name__}] exception: {e}", exc_info=True
+                    )
                 raise
 
         @functools.wraps(func)
         def sync_wrapper(*args, **kwargs):
             if log_input:
-                log_method(f"{prefix}[{func.__name__}] input: args={args}, kwargs={kwargs}")
+                log_method(
+                    f"{prefix}[{func.__name__}] input: args={args}, kwargs={kwargs}"
+                )
             try:
                 result = func(*args, **kwargs)
                 if log_output:
@@ -127,7 +131,9 @@ def log_function(
                 return result
             except Exception as e:
                 if log_exception:
-                    log.error(f"{prefix}[{func.__name__}] exception: {e}", exc_info=True)
+                    log.error(
+                        f"{prefix}[{func.__name__}] exception: {e}", exc_info=True
+                    )
                 raise
 
         return async_wrapper if is_async else sync_wrapper
@@ -136,6 +142,7 @@ def log_function(
         return decorator_log_function
     else:
         return decorator_log_function(_func)
+
 
 # =========================
 # Decorator 使用範例

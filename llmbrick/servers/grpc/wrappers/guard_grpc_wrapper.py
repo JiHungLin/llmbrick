@@ -1,9 +1,10 @@
 import grpc
+
 from llmbrick.bricks.guard.base_guard import GuardBrick
-from llmbrick.protocols.grpc.guard import guard_pb2_grpc, guard_pb2
 from llmbrick.protocols.grpc.common import common_pb2
-from llmbrick.protocols.models.bricks.guard_types import GuardRequest, GuardResponse
+from llmbrick.protocols.grpc.guard import guard_pb2, guard_pb2_grpc
 from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse
+from llmbrick.protocols.models.bricks.guard_types import GuardRequest, GuardResponse
 
 # /protocols/grpc/guard/guard.proto
 # guard_pb2
@@ -34,16 +35,18 @@ class GuardGrpcWrapper(guard_pb2_grpc.GuardServiceServicer):
             # context.set_code(grpc.StatusCode.UNIMPLEMENTED)
             # context.set_details('Service info not implemented!')
             error_data.code = grpc.StatusCode.UNIMPLEMENTED.value[0]
-            error_data.message = 'Service info not implemented!'
-            error_data.detail = 'The brick did not implement service info.'
+            error_data.message = "Service info not implemented!"
+            error_data.detail = "The brick did not implement service info."
             response = common_pb2.ServiceInfoResponse(error=error_data)
             return response
         if not isinstance(result, ServiceInfoResponse):
             # context.set_code(grpc.StatusCode.INTERNAL)
             # context.set_details('Invalid service info response type!')
             error_data.code = grpc.StatusCode.INTERNAL.value[0]
-            error_data.message = 'Invalid service info response type!'
-            error_data.detail = 'The response from the brick is not of type ServiceInfoResponse.'
+            error_data.message = "Invalid service info response type!"
+            error_data.detail = (
+                "The response from the brick is not of type ServiceInfoResponse."
+            )
             response = common_pb2.ServiceInfoResponse(error=error_data)
             return response
         if result.error and result.error.code != 0:
@@ -72,8 +75,10 @@ class GuardGrpcWrapper(guard_pb2_grpc.GuardServiceServicer):
             # context.set_code(grpc.StatusCode.INTERNAL)
             # context.set_details('Invalid unary response type!')
             error_data.code = grpc.StatusCode.INTERNAL.value[0]
-            error_data.message = 'Invalid unary response type!'
-            error_data.detail = 'The response from the brick is not of type GuardResponse.'
+            error_data.message = "Invalid unary response type!"
+            error_data.detail = (
+                "The response from the brick is not of type GuardResponse."
+            )
             return guard_pb2.GuardResponse(error=error_data)
         if result.error and result.error.code != 0:
             # context.set_code(grpc.StatusCode.INTERNAL)
@@ -86,9 +91,7 @@ class GuardGrpcWrapper(guard_pb2_grpc.GuardServiceServicer):
         results_pb = []
         for r in result.results:
             res_pb = guard_pb2.GuardResult(
-                is_attack=r.is_attack,
-                confidence=r.confidence,
-                detail=r.detail
+                is_attack=r.is_attack, confidence=r.confidence, detail=r.detail
             )
             results_pb.append(res_pb)
         response = guard_pb2.GuardResponse(results=results_pb, error=error_data)

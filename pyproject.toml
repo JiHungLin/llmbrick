@@ -66,6 +66,7 @@ dev = [
 
 [project.scripts]
 llmbrick = "llmbrick.cli:main"
+check-quality = "pre-commit run --all-files"
 
 [project.urls]
 Homepage = "https://github.com/llmbrick/llmbrick"

@@ -17,6 +17,7 @@ class LLMBrickException(Exception):
     """
     框架基礎異常類別，所有自訂異常皆應繼承此類。
     """
+
     def __init__(
         self,
         code: ErrorCode = ErrorCode.UNKNOWN_ERROR,

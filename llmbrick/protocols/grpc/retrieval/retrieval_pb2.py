@@ -9,36 +9,41 @@ from google.protobuf import descriptor_pool as _descriptor_pool
 from google.protobuf import runtime_version as _runtime_version
 from google.protobuf import symbol_database as _symbol_database
 from google.protobuf.internal import builder as _builder
+
 _runtime_version.ValidateProtobufRuntimeVersion(
     _runtime_version.Domain.PUBLIC,
     6,
     31,
     0,
-    '',
-    'protocols/grpc/retrieval/retrieval.proto'
+    "",
+    "protocols/grpc/retrieval/retrieval.proto",
 )
 # @@protoc_insertion_point(imports)
 
 _sym_db = _symbol_database.Default()
 
 
-from llmbrick.protocols.grpc.common import common_pb2
 from google.protobuf import struct_pb2
 
+from llmbrick.protocols.grpc.common import common_pb2
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n(protocols/grpc/retrieval/retrieval.proto\x12\x18protocols.grpc.retrieval\x1a\"protocols/grpc/common/common.proto\x1a\x1cgoogle/protobuf/struct.proto\"\x8a\x01\n\x10RetrievalRequest\x12\r\n\x05query\x18\x01 \x01(\t\x12\x13\n\x0bmax_results\x18\x02 \x01(\x05\x12\x11\n\tclient_id\x18\x03 \x01(\t\x12\x12\n\nsession_id\x18\x04 \x01(\t\x12\x12\n\nrequest_id\x18\x05 \x01(\t\x12\x17\n\x0fsource_language\x18\x06 \x01(\t\"t\n\x08\x44ocument\x12\x0e\n\x06\x64oc_id\x18\x01 \x01(\t\x12\r\n\x05title\x18\x02 \x01(\t\x12\x0f\n\x07snippet\x18\x03 \x01(\t\x12\r\n\x05score\x18\x04 \x01(\x02\x12)\n\x08metadata\x18\x05 \x01(\x0b\x32\x17.google.protobuf.Struct\"}\n\x11RetrievalResponse\x12\x35\n\tdocuments\x18\x01 \x03(\x0b\x32\".protocols.grpc.retrieval.Document\x12\x31\n\x05\x65rror\x18\x02 \x01(\x0b\x32\".protocols.grpc.common.ErrorDetail2\xdd\x01\n\x10RetrievalService\x12g\n\x0eGetServiceInfo\x12).protocols.grpc.common.ServiceInfoRequest\x1a*.protocols.grpc.common.ServiceInfoResponse\x12`\n\x05Unary\x12*.protocols.grpc.retrieval.RetrievalRequest\x1a+.protocols.grpc.retrieval.RetrievalResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
+    b'\n(protocols/grpc/retrieval/retrieval.proto\x12\x18protocols.grpc.retrieval\x1a"protocols/grpc/common/common.proto\x1a\x1cgoogle/protobuf/struct.proto"\x8a\x01\n\x10RetrievalRequest\x12\r\n\x05query\x18\x01 \x01(\t\x12\x13\n\x0bmax_results\x18\x02 \x01(\x05\x12\x11\n\tclient_id\x18\x03 \x01(\t\x12\x12\n\nsession_id\x18\x04 \x01(\t\x12\x12\n\nrequest_id\x18\x05 \x01(\t\x12\x17\n\x0fsource_language\x18\x06 \x01(\t"t\n\x08\x44ocument\x12\x0e\n\x06\x64oc_id\x18\x01 \x01(\t\x12\r\n\x05title\x18\x02 \x01(\t\x12\x0f\n\x07snippet\x18\x03 \x01(\t\x12\r\n\x05score\x18\x04 \x01(\x02\x12)\n\x08metadata\x18\x05 \x01(\x0b\x32\x17.google.protobuf.Struct"}\n\x11RetrievalResponse\x12\x35\n\tdocuments\x18\x01 \x03(\x0b\x32".protocols.grpc.retrieval.Document\x12\x31\n\x05\x65rror\x18\x02 \x01(\x0b\x32".protocols.grpc.common.ErrorDetail2\xdd\x01\n\x10RetrievalService\x12g\n\x0eGetServiceInfo\x12).protocols.grpc.common.ServiceInfoRequest\x1a*.protocols.grpc.common.ServiceInfoResponse\x12`\n\x05Unary\x12*.protocols.grpc.retrieval.RetrievalRequest\x1a+.protocols.grpc.retrieval.RetrievalResponseb\x06proto3'
+)
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
-_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'protocols.grpc.retrieval.retrieval_pb2', _globals)
+_builder.BuildTopDescriptorsAndMessages(
+    DESCRIPTOR, "protocols.grpc.retrieval.retrieval_pb2", _globals
+)
 if not _descriptor._USE_C_DESCRIPTORS:
-  DESCRIPTOR._loaded_options = None
-  _globals['_RETRIEVALREQUEST']._serialized_start=137
-  _globals['_RETRIEVALREQUEST']._serialized_end=275
-  _globals['_DOCUMENT']._serialized_start=277
-  _globals['_DOCUMENT']._serialized_end=393
-  _globals['_RETRIEVALRESPONSE']._serialized_start=395
-  _globals['_RETRIEVALRESPONSE']._serialized_end=520
-  _globals['_RETRIEVALSERVICE']._serialized_start=523
-  _globals['_RETRIEVALSERVICE']._serialized_end=744
+    DESCRIPTOR._loaded_options = None
+    _globals["_RETRIEVALREQUEST"]._serialized_start = 137
+    _globals["_RETRIEVALREQUEST"]._serialized_end = 275
+    _globals["_DOCUMENT"]._serialized_start = 277
+    _globals["_DOCUMENT"]._serialized_end = 393
+    _globals["_RETRIEVALRESPONSE"]._serialized_start = 395
+    _globals["_RETRIEVALRESPONSE"]._serialized_end = 520
+    _globals["_RETRIEVALSERVICE"]._serialized_start = 523
+    _globals["_RETRIEVALSERVICE"]._serialized_end = 744
 # @@protoc_insertion_point(module_scope)

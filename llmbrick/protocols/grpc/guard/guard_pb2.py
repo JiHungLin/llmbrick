@@ -9,13 +9,9 @@ from google.protobuf import descriptor_pool as _descriptor_pool
 from google.protobuf import runtime_version as _runtime_version
 from google.protobuf import symbol_database as _symbol_database
 from google.protobuf.internal import builder as _builder
+
 _runtime_version.ValidateProtobufRuntimeVersion(
-    _runtime_version.Domain.PUBLIC,
-    6,
-    31,
-    0,
-    '',
-    'protocols/grpc/guard/guard.proto'
+    _runtime_version.Domain.PUBLIC, 6, 31, 0, "", "protocols/grpc/guard/guard.proto"
 )
 # @@protoc_insertion_point(imports)
 
@@ -24,20 +20,23 @@ _sym_db = _symbol_database.Default()
 
 from llmbrick.protocols.grpc.common import common_pb2
 
-
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n protocols/grpc/guard/guard.proto\x12\x14protocols.grpc.guard\x1a\"protocols/grpc/common/common.proto\"p\n\x0cGuardRequest\x12\x0c\n\x04text\x18\x01 \x01(\t\x12\x11\n\tclient_id\x18\x02 \x01(\t\x12\x12\n\nsession_id\x18\x03 \x01(\t\x12\x12\n\nrequest_id\x18\x04 \x01(\t\x12\x17\n\x0fsource_language\x18\x05 \x01(\t\"D\n\x0bGuardResult\x12\x11\n\tis_attack\x18\x01 \x01(\x08\x12\x12\n\nconfidence\x18\x02 \x01(\x02\x12\x0e\n\x06\x64\x65tail\x18\x03 \x01(\t\"v\n\rGuardResponse\x12\x32\n\x07results\x18\x01 \x03(\x0b\x32!.protocols.grpc.guard.GuardResult\x12\x31\n\x05\x65rror\x18\x02 \x01(\x0b\x32\".protocols.grpc.common.ErrorDetail2\xc9\x01\n\x0cGuardService\x12g\n\x0eGetServiceInfo\x12).protocols.grpc.common.ServiceInfoRequest\x1a*.protocols.grpc.common.ServiceInfoResponse\x12P\n\x05Unary\x12\".protocols.grpc.guard.GuardRequest\x1a#.protocols.grpc.guard.GuardResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
+    b'\n protocols/grpc/guard/guard.proto\x12\x14protocols.grpc.guard\x1a"protocols/grpc/common/common.proto"p\n\x0cGuardRequest\x12\x0c\n\x04text\x18\x01 \x01(\t\x12\x11\n\tclient_id\x18\x02 \x01(\t\x12\x12\n\nsession_id\x18\x03 \x01(\t\x12\x12\n\nrequest_id\x18\x04 \x01(\t\x12\x17\n\x0fsource_language\x18\x05 \x01(\t"D\n\x0bGuardResult\x12\x11\n\tis_attack\x18\x01 \x01(\x08\x12\x12\n\nconfidence\x18\x02 \x01(\x02\x12\x0e\n\x06\x64\x65tail\x18\x03 \x01(\t"v\n\rGuardResponse\x12\x32\n\x07results\x18\x01 \x03(\x0b\x32!.protocols.grpc.guard.GuardResult\x12\x31\n\x05\x65rror\x18\x02 \x01(\x0b\x32".protocols.grpc.common.ErrorDetail2\xc9\x01\n\x0cGuardService\x12g\n\x0eGetServiceInfo\x12).protocols.grpc.common.ServiceInfoRequest\x1a*.protocols.grpc.common.ServiceInfoResponse\x12P\n\x05Unary\x12".protocols.grpc.guard.GuardRequest\x1a#.protocols.grpc.guard.GuardResponseb\x06proto3'
+)
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
-_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'protocols.grpc.guard.guard_pb2', _globals)
+_builder.BuildTopDescriptorsAndMessages(
+    DESCRIPTOR, "protocols.grpc.guard.guard_pb2", _globals
+)
 if not _descriptor._USE_C_DESCRIPTORS:
-  DESCRIPTOR._loaded_options = None
-  _globals['_GUARDREQUEST']._serialized_start=94
-  _globals['_GUARDREQUEST']._serialized_end=206
-  _globals['_GUARDRESULT']._serialized_start=208
-  _globals['_GUARDRESULT']._serialized_end=276
-  _globals['_GUARDRESPONSE']._serialized_start=278
-  _globals['_GUARDRESPONSE']._serialized_end=396
-  _globals['_GUARDSERVICE']._serialized_start=399
-  _globals['_GUARDSERVICE']._serialized_end=600
+    DESCRIPTOR._loaded_options = None
+    _globals["_GUARDREQUEST"]._serialized_start = 94
+    _globals["_GUARDREQUEST"]._serialized_end = 206
+    _globals["_GUARDRESULT"]._serialized_start = 208
+    _globals["_GUARDRESULT"]._serialized_end = 276
+    _globals["_GUARDRESPONSE"]._serialized_start = 278
+    _globals["_GUARDRESPONSE"]._serialized_end = 396
+    _globals["_GUARDSERVICE"]._serialized_start = 399
+    _globals["_GUARDSERVICE"]._serialized_end = 600
 # @@protoc_insertion_point(module_scope)

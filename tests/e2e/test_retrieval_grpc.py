@@ -1,14 +1,24 @@
 """
 Retrieval Brick gRPC 功能測試
 """
+
 import asyncio
+
 import pytest
-from llmbrick.servers.grpc.server import GrpcServer
-from llmbrick.bricks.retrieval.base_retrieval import RetrievalBrick
-from llmbrick.core.brick import unary_handler, get_service_info_handler
-from llmbrick.protocols.models.bricks.retrieval_types import RetrievalRequest, RetrievalResponse
-from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse, ErrorDetail
 import pytest_asyncio
+
+from llmbrick.bricks.retrieval.base_retrieval import RetrievalBrick
+from llmbrick.core.brick import get_service_info_handler, unary_handler
+from llmbrick.protocols.models.bricks.common_types import (
+    ErrorDetail,
+    ServiceInfoResponse,
+)
+from llmbrick.protocols.models.bricks.retrieval_types import (
+    RetrievalRequest,
+    RetrievalResponse,
+)
+from llmbrick.servers.grpc.server import GrpcServer
+
 
 class _TestRetrievalBrick(RetrievalBrick):
     """測試用的 Retrieval Brick"""
@@ -18,26 +28,29 @@ class _TestRetrievalBrick(RetrievalBrick):
         await asyncio.sleep(0.1)
         # 回傳 documents 欄位，模擬檢索結果
         from llmbrick.protocols.models.bricks.retrieval_types import Document
+
         doc = Document(doc_id="doc1", title="標題", snippet="片段", score=0.95)
         return RetrievalResponse(
-            documents=[doc],
-            error=ErrorDetail(code=0, message="No error", detail="")
+            documents=[doc], error=ErrorDetail(code=0, message="No error", detail="")
         )
 
     @get_service_info_handler
     async def get_service_info_handler(self):
         await asyncio.sleep(0.01)
         return ServiceInfoResponse(
-                service_name="TestRetrievalBrick",
-                version="9.9.9",
-                models=[{
+            service_name="TestRetrievalBrick",
+            version="9.9.9",
+            models=[
+                {
                     "model_id": "test",
                     "version": "1.0",
                     "supported_languages": ["zh", "en"],
                     "support_streaming": True,
-                    "description": "test"
-                }], error=ErrorDetail(code=0, message="No error")
-            )
+                    "description": "test",
+                }
+            ],
+            error=ErrorDetail(code=0, message="No error"),
+        )
 
 
 @pytest.mark.asyncio
@@ -48,6 +61,7 @@ async def test_async_grpc_server_startup():
     server.register_service(retrieval_brick)
     assert server.server is not None
     assert server.port == 50140
+
 
 @pytest_asyncio.fixture
 async def grpc_server():
@@ -64,11 +78,13 @@ async def grpc_server():
     except asyncio.CancelledError:
         pass
 
+
 @pytest_asyncio.fixture
 async def grpc_client(grpc_server):
     client_brick = _TestRetrievalBrick.toGrpcClient(remote_address="127.0.0.1:50141")
     yield client_brick
     await client_brick._grpc_channel.close()
+
 
 @pytest.mark.asyncio
 async def test_unary(grpc_client):
@@ -78,6 +94,7 @@ async def test_unary(grpc_client):
     assert isinstance(response.documents, list)
     assert response.documents[0].doc_id == "doc1"
     assert response.documents[0].score > 0.9
+
 
 @pytest.mark.asyncio
 async def test_get_service_info(grpc_client):

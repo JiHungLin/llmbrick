@@ -1,33 +1,34 @@
-from fastapi import FastAPI, Request, HTTPException
-from fastapi.responses import StreamingResponse, JSONResponse
-from pydantic import ValidationError
-import uvicorn
 import json
-from typing import Callable, Awaitable, Dict, Any, AsyncGenerator, Optional
-from llmbrick.utils.logging import logger
-from llmbrick.core.exceptions import LLMBrickException
+from typing import Any, AsyncGenerator, Awaitable, Callable, Dict, Optional
 
+import uvicorn
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import JSONResponse, StreamingResponse
+from pydantic import ValidationError
+
+from llmbrick.core.exceptions import LLMBrickException
 from llmbrick.protocols.models.http.conversation import (
     ConversationSSERequest,
     ConversationSSEResponse,
 )
+from llmbrick.utils.logging import logger
+
 
 class SSEServer:
     def __init__(
         self,
         handler=None,
         chat_completions_path: str = "/chat/completions",
-        prefix: str = ""
+        prefix: str = "",
     ):
         self.app = FastAPI()
+
         # 註冊 LLMBrickException handler
         @self.app.exception_handler(LLMBrickException)
         async def llmbrick_exception_handler(request, exc: LLMBrickException):
             logger.error(f"LLMBrickException: {exc}")
-            return JSONResponse(
-                status_code=400,
-                content=exc.to_dict()
-            )
+            return JSONResponse(status_code=400, content=exc.to_dict())
+
         # 處理 prefix 格式，確保開頭有 /，結尾無 /
         if prefix and not prefix.startswith("/"):
             prefix = "/" + prefix
@@ -46,14 +47,18 @@ class SSEServer:
     def fastapi_app(self) -> FastAPI:
         return self.app
 
-    def set_handler(self, func: Callable[[Dict[str, Any]], AsyncGenerator[Dict[str, Any], None]]):
+    def set_handler(
+        self, func: Callable[[Dict[str, Any]], AsyncGenerator[Dict[str, Any], None]]
+    ):
         """
         直接設定主 handler，handler 必須為 async generator，yield event dict
         """
         self._handler = func
         self.setup_routes()
 
-    def handler(self, func: Callable[[Dict[str, Any]], AsyncGenerator[Dict[str, Any], None]]):
+    def handler(
+        self, func: Callable[[Dict[str, Any]], AsyncGenerator[Dict[str, Any], None]]
+    ):
         """
         Decorator 註冊主 handler，handler 必須為 async generator，yield event dict
         用法：
@@ -67,6 +72,7 @@ class SSEServer:
     def _validate_event(self, event: Dict[str, Any]) -> bool:
         # 使用 pydantic v2 model_validate 進行型別驗證
         from pydantic import ValidationError
+
         try:
             ConversationSSEResponse.model_validate(event)
             return True
@@ -75,18 +81,22 @@ class SSEServer:
 
     def setup_routes(self):
         full_path = self.prefix + self.chat_completions_path
-        @self.app.post(full_path,
-                       response_description="SSE response stream",
-                       response_model=ConversationSSEResponse,
-                       response_model_by_alias=True
-                       )
+
+        @self.app.post(
+            full_path,
+            response_description="SSE response stream",
+            response_model=ConversationSSEResponse,
+            response_model_by_alias=True,
+        )
         async def chat_completions(request: Request):
             # 檢查 Accept header 是否包含 text/event-stream
             accept_header = request.headers.get("accept", "")
             if "text/event-stream" not in accept_header:
                 return JSONResponse(
                     status_code=406,
-                    content={"error": "Accept header must include 'text/event-stream' for SSE"}
+                    content={
+                        "error": "Accept header must include 'text/event-stream' for SSE"
+                    },
                 )
             try:
                 # 先檢查 body 是否為空
@@ -96,8 +106,8 @@ class SSEServer:
                         status_code=400,
                         content={
                             "error": "Empty request body",
-                            "details": "Request body is empty. Please provide a valid JSON object."
-                        }
+                            "details": "Request body is empty. Please provide a valid JSON object.",
+                        },
                     )
                 body_json = await request.json()
                 req = ConversationSSERequest.model_validate(body_json)
@@ -108,8 +118,8 @@ class SSEServer:
                         "error": "Invalid request",
                         "details": ve.errors(),
                         "input": body_json,
-                        "message": "Request body does not conform to ConversationSSERequest schema. See 'details' for field errors."
-                    }
+                        "message": "Request body does not conform to ConversationSSERequest schema. See 'details' for field errors.",
+                    },
                 )
             except Exception as e:
                 return JSONResponse(
@@ -117,13 +127,13 @@ class SSEServer:
                     content={
                         "error": "Malformed request",
                         "details": str(e),
-                    }
+                    },
                 )
             if not hasattr(self, "_handler") or self._handler is None:
                 return JSONResponse(
-                    status_code=404,
-                    content={"error": "Handler not set"}
+                    status_code=404, content={"error": "Handler not set"}
                 )
+
             async def event_stream():
                 try:
                     async for event in self._handler(body_json):
@@ -133,6 +143,7 @@ class SSEServer:
                         yield f"event: message\ndata: {json.dumps(event)}\n\n"
                 except Exception as e:
                     yield f"event: error\ndata: {json.dumps({'error': 'Handler exception', 'details': str(e)})}\n\n"
+
             return StreamingResponse(event_stream(), media_type="text/event-stream")
 
     def run(self, host="0.0.0.0", port=8000):
@@ -140,5 +151,7 @@ class SSEServer:
         啟動 FastAPI SSE 服務
         """
         full_path = self.prefix + self.chat_completions_path
-        logger.info(f"SSE Server endpoint: http://{host}:{port}{full_path} (Press CTRL+C to quit)")
+        logger.info(
+            f"SSE Server endpoint: http://{host}:{port}{full_path} (Press CTRL+C to quit)"
+        )
         uvicorn.run(self.app, host=host, port=port)

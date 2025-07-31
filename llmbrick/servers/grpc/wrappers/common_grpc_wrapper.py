@@ -1,14 +1,21 @@
 from typing import AsyncIterator
+
 import grpc
-from llmbrick.bricks.common.common import CommonBrick
-from llmbrick.protocols.grpc.common import common_pb2_grpc, common_pb2
-from llmbrick.protocols.models.bricks.common_types import CommonRequest, CommonResponse, ServiceInfoResponse
 from google.protobuf import struct_pb2
+
+from llmbrick.bricks.common.common import CommonBrick
+from llmbrick.protocols.grpc.common import common_pb2, common_pb2_grpc
+from llmbrick.protocols.models.bricks.common_types import (
+    CommonRequest,
+    CommonResponse,
+    ServiceInfoResponse,
+)
 
 # common_pb2
 # message CommonRequest {
 #   google.protobuf.Struct data = 1;
 # }
+
 
 class CommonGrpcWrapper(common_pb2_grpc.CommonServiceServicer):
     """
@@ -41,16 +48,18 @@ class CommonGrpcWrapper(common_pb2_grpc.CommonServiceServicer):
             # context.set_code(grpc.StatusCode.UNIMPLEMENTED)
             # context.set_details('Service info not implemented!')
             error_data.code = grpc.StatusCode.UNIMPLEMENTED.value[0]
-            error_data.message = 'Service info not implemented!'
-            error_data.detail = 'The brick did not implement service info.'
+            error_data.message = "Service info not implemented!"
+            error_data.detail = "The brick did not implement service info."
             response = common_pb2.ServiceInfoResponse(error=error_data)
             return response
         if not isinstance(result, ServiceInfoResponse):
             # context.set_code(grpc.StatusCode.INTERNAL)
             # context.set_details('Invalid service info response type!')
             error_data.code = grpc.StatusCode.INTERNAL.value[0]
-            error_data.message = 'Invalid service info response type!'
-            error_data.detail = 'The response from the brick is not of type ServiceInfoResponse.'
+            error_data.message = "Invalid service info response type!"
+            error_data.detail = (
+                "The response from the brick is not of type ServiceInfoResponse."
+            )
             response = common_pb2.ServiceInfoResponse(error=error_data)
             return response
         if result.error and result.error.code != 0:
@@ -75,8 +84,10 @@ class CommonGrpcWrapper(common_pb2_grpc.CommonServiceServicer):
             # context.set_code(grpc.StatusCode.INTERNAL)
             # context.set_details('Invalid unary response type!')
             error_data.code = grpc.StatusCode.INTERNAL.value[0]
-            error_data.message = 'Invalid unary response type!'
-            error_data.detail = 'The response from the brick is not of type CommonResponse.'
+            error_data.message = "Invalid unary response type!"
+            error_data.detail = (
+                "The response from the brick is not of type CommonResponse."
+            )
             return common_pb2.CommonResponse(error=error_data)
         if result.error and result.error.code != 0:
             # context.set_code(grpc.StatusCode.INTERNAL)
@@ -103,8 +114,10 @@ class CommonGrpcWrapper(common_pb2_grpc.CommonServiceServicer):
                 # context.set_code(grpc.StatusCode.INTERNAL)
                 # context.set_details('Invalid output streaming response type!')
                 error_data.code = grpc.StatusCode.INTERNAL.value[0]
-                error_data.message = 'Invalid output streaming response type!'
-                error_data.detail = 'The response from the brick is not of type CommonResponse.'
+                error_data.message = "Invalid output streaming response type!"
+                error_data.detail = (
+                    "The response from the brick is not of type CommonResponse."
+                )
                 yield common_pb2.CommonResponse(error=error_data)
                 break
             if response.error and response.error.code != 0:
@@ -119,8 +132,11 @@ class CommonGrpcWrapper(common_pb2_grpc.CommonServiceServicer):
             data.update(response.to_dict().get("data", {}))
             yield common_pb2.CommonResponse(data=data, error=error_data)
 
-    async def InputStreaming(self, request_iterator: AsyncIterator[common_pb2.CommonRequest], context):
+    async def InputStreaming(
+        self, request_iterator: AsyncIterator[common_pb2.CommonRequest], context
+    ):
         """異步處理流式輸入"""
+
         # 將同步迭代器轉換為異步迭代器
         async def async_request_iterator():
             async for request in request_iterator:
@@ -132,8 +148,10 @@ class CommonGrpcWrapper(common_pb2_grpc.CommonServiceServicer):
             # context.set_code(grpc.StatusCode.INTERNAL)
             # context.set_details('Invalid input streaming response type!')
             error_data.code = grpc.StatusCode.INTERNAL.value[0]
-            error_data.message = 'Invalid input streaming response type!'
-            error_data.detail = 'The response from the brick is not of type CommonResponse.'
+            error_data.message = "Invalid input streaming response type!"
+            error_data.detail = (
+                "The response from the brick is not of type CommonResponse."
+            )
             return common_pb2.CommonResponse(error=error_data)
         if result.error and result.error.code != 0:
             # context.set_code(grpc.StatusCode.INTERNAL)
@@ -146,8 +164,11 @@ class CommonGrpcWrapper(common_pb2_grpc.CommonServiceServicer):
         data.update(result.to_dict().get("data", {}))
         return common_pb2.CommonResponse(data=data, error=error_data)
 
-    async def BidiStreaming(self, request_iterator: AsyncIterator[common_pb2.CommonRequest], context):
+    async def BidiStreaming(
+        self, request_iterator: AsyncIterator[common_pb2.CommonRequest], context
+    ):
         """異步處理雙向流式請求"""
+
         # 將同步迭代器轉換為異步迭代器
         async def async_request_iterator():
             async for request in request_iterator:
@@ -159,8 +180,10 @@ class CommonGrpcWrapper(common_pb2_grpc.CommonServiceServicer):
                 # context.set_code(grpc.StatusCode.INTERNAL)
                 # context.set_details('Invalid bidi streaming response type!')
                 error_data.code = grpc.StatusCode.INTERNAL.value[0]
-                error_data.message = 'Invalid bidi streaming response type!'
-                error_data.detail = 'The response from the brick is not of type CommonResponse.'
+                error_data.message = "Invalid bidi streaming response type!"
+                error_data.detail = (
+                    "The response from the brick is not of type CommonResponse."
+                )
                 yield common_pb2.CommonResponse(error=error_data)
                 break
             if response.error and response.error.code != 0:

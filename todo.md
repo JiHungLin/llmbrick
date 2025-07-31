@@ -107,26 +107,15 @@
 
 ---
 
-## 🎯 Phase 5: 開發者體驗優化 (預估時間: 2-3 週)
+## 📚 Phase 5: 範例和文檔 (預估時間: 2-3 週)
 
-<!--
-### 5.1 裝飾器系統 (`llmbrick/utils/decorators.py`)
-- [ ] **其他實用裝飾器**
-  - [ ] @measure_time 性能測量
-  - [ ] @cache_result 結果快取
---> <!-- 檔案不存在，建議註解 -->
-
----
-
-## 📚 Phase 6: 範例和文檔 (預估時間: 2-3 週)
-
-### 6.1 範例專案 (`examples/`)
+### 5.1 範例專案 (`examples/`)
 - [x] **簡單聊天SSE Server** (`simple_chatbot/`) <!-- main.py 已有基本對話功能與 SSE 介面整合 -->
   - [x] 基本對話功能
   - [x] SSE 介面整合
   - [x] 配置範例
 
-### 6.2 客戶端範例 (`client_examples/`)
+### 5.2 客戶端範例 (`client_examples/`)
 - [] **JavaScript 客戶端** <!-- sse_client.js/websocket_client.js/webrtc_client.js 檔案已建立，內容為空 -->
   - [] SSE 客戶端檔案已建立 <!-- 尚未實作 -->
   - [] WebSocket 客戶端檔案已建立 <!-- 尚未實作 -->
@@ -136,7 +125,7 @@
   - [x] gRPC 客戶端 <!-- grpc_client.py 已有完整範例 -->
   - [ ] 同步/非同步版本 <!-- 僅有 async 範例 -->
 
-### 6.3 文檔撰寫 (`docs/`)
+### 5.3 文檔撰寫 (`docs/`)
 - [] **快速開始指南** (`quickstart.md`) <!-- 檔案已建立，內容為空 -->
 - [] **API 參考文檔** (`api_reference/`) <!-- 檔案已建立，內容為空 -->
 - [] **教學文章** (`tutorials/brick_developer_guide.md`) <!-- 已有完整內容 -->
@@ -145,22 +134,22 @@
 
 ---
 
-## 🧪 Phase 7: 測試和品質保證 (預估時間: 1-2 週)
+## 🧪 Phase 6: 測試和品質保證 (預估時間: 1-2 週)
 
-### 7.1 測試覆蓋率提升
+### 6.1 測試覆蓋率提升
 - [ ] 單元測試覆蓋率 > 80%
 - [ ] 整合測試完善
 - [x] 端到端測試依 Brick 拆分（test_llm_grpc.py、test_common_grpc.py 已建立）
 - [ ] 端到端測試場景
 - [ ] 性能測試基準
 
-### 7.2 程式碼品質
-- [ ] 代碼風格統一 (Black, isort)
+### 6.2 程式碼品質
+- [x] 代碼風格統一 (Black, isort)
 - [ ] 型別註解完整 (mypy)
 - [ ] 文檔字符串規範 (Google style)
 - [ ] 安全性檢查 (bandit)
 
-### 7.3 CI/CD 完善
+### 6.3 CI/CD 完善
 - [x] 自動化測試 pipeline <!-- .github/workflows/python-ci.yml 已有 -->
 - [x] 覆蓋率報告 <!-- 可於 pytest 加參數產生，CI 可擴充 -->
 - [x] 安全性掃描 <!-- 可於 CI 加入 bandit，現有流程可擴充 -->
@@ -168,15 +157,15 @@
 
 ---
 
-## 🚀 Phase 8: 發布準備 (預估時間: 1 週)
+## 🚀 Phase 7: 發布準備 (預估時間: 1 週)
 
-### 8.1 包裝和發布
+### 7.1 包裝和發布
 - [x] PyPI 套件配置最佳化 <!-- setup.py 已有 -->
 - [x] 版本號管理系統 <!-- setup.py/version.py 已有 -->
 <!-- - [ ] CHANGELOG 維護 --> <!-- 檔案不存在，建議註解 -->
 - [x] 發布說明準備 <!-- README.md 已有 -->
 
-### 8.2 社群準備
+### 7.2 社群準備
 - [x] GitHub README 優化 <!-- README.md 已有 -->
 <!-- - [ ] 貢獻指南 (`CONTRIBUTING.md`) --> <!-- 檔案不存在，建議註解 -->
 - [ ] 問題模板和 PR 模板 <!-- 可於 .github/ISSUE_TEMPLATE/ 設定，暫未確認 -->

@@ -1,9 +1,13 @@
 import grpc
+
 from llmbrick.bricks.intention.base_intention import IntentionBrick
-from llmbrick.protocols.grpc.intention import intention_pb2_grpc, intention_pb2
 from llmbrick.protocols.grpc.common import common_pb2
-from llmbrick.protocols.models.bricks.intention_types import IntentionRequest, IntentionResponse
+from llmbrick.protocols.grpc.intention import intention_pb2, intention_pb2_grpc
 from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse
+from llmbrick.protocols.models.bricks.intention_types import (
+    IntentionRequest,
+    IntentionResponse,
+)
 
 # /protocols/grpc/intention/intention.proto
 # intention_pb2
@@ -14,6 +18,7 @@ from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse
 #   string request_id = 4;        // 唯一請求ID
 #   string source_language = 5;   // 輸入文本的原始語言
 # }
+
 
 class IntentionGrpcWrapper(intention_pb2_grpc.IntentionServiceServicer):
     """
@@ -33,16 +38,18 @@ class IntentionGrpcWrapper(intention_pb2_grpc.IntentionServiceServicer):
             # context.set_code(grpc.StatusCode.UNIMPLEMENTED)
             # context.set_details('Service info not implemented!')
             error_data.code = grpc.StatusCode.UNIMPLEMENTED.value[0]
-            error_data.message = 'Service info not implemented!'
-            error_data.detail = 'The brick did not implement service info.'
+            error_data.message = "Service info not implemented!"
+            error_data.detail = "The brick did not implement service info."
             response = common_pb2.ServiceInfoResponse(error=error_data)
             return response
         if not isinstance(result, ServiceInfoResponse):
             # context.set_code(grpc.StatusCode.INTERNAL)
             # context.set_details('Invalid service info response type!')
             error_data.code = grpc.StatusCode.INTERNAL.value[0]
-            error_data.message = 'Invalid service info response type!'
-            error_data.detail = 'The response from the brick is not of type ServiceInfoResponse.'
+            error_data.message = "Invalid service info response type!"
+            error_data.detail = (
+                "The response from the brick is not of type ServiceInfoResponse."
+            )
             response = common_pb2.ServiceInfoResponse(error=error_data)
             return response
         if result.error and result.error.code != 0:
@@ -72,8 +79,10 @@ class IntentionGrpcWrapper(intention_pb2_grpc.IntentionServiceServicer):
             # context.set_code(grpc.StatusCode.INTERNAL)
             # context.set_details('Invalid unary response type!')
             error_data.code = grpc.StatusCode.INTERNAL.value[0]
-            error_data.message = 'Invalid unary response type!'
-            error_data.detail = 'The response from the brick is not of type IntentionResponse.'
+            error_data.message = "Invalid unary response type!"
+            error_data.detail = (
+                "The response from the brick is not of type IntentionResponse."
+            )
             return intention_pb2.IntentionResponse(error=error_data)
         if result.error and result.error.code != 0:
             # context.set_code(grpc.StatusCode.INTERNAL)
@@ -87,8 +96,7 @@ class IntentionGrpcWrapper(intention_pb2_grpc.IntentionServiceServicer):
         results_pb = []
         for r in result.results:
             res_pb = intention_pb2.IntentionResult(
-                intent_category=r.intent_category,
-                confidence=r.confidence
+                intent_category=r.intent_category, confidence=r.confidence
             )
             results_pb.append(res_pb)
         response = intention_pb2.IntentionResponse(results=results_pb, error=error_data)

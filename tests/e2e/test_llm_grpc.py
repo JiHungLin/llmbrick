@@ -1,19 +1,31 @@
 """
 LLM Brick gRPC 功能測試
 """
+
 import asyncio
 from typing import AsyncIterator
+
 import pytest
-from llmbrick.servers.grpc.server import GrpcServer
-from llmbrick.bricks.llm.base_llm import LLMBrick
-from llmbrick.core.brick import unary_handler, output_streaming_handler, get_service_info_handler
-from llmbrick.protocols.models.bricks.llm_types import LLMRequest, LLMResponse
-from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse, ErrorDetail
 import pytest_asyncio
+
+from llmbrick.bricks.llm.base_llm import LLMBrick
+from llmbrick.core.brick import (
+    get_service_info_handler,
+    output_streaming_handler,
+    unary_handler,
+)
+from llmbrick.protocols.models.bricks.common_types import (
+    ErrorDetail,
+    ServiceInfoResponse,
+)
+from llmbrick.protocols.models.bricks.llm_types import LLMRequest, LLMResponse
+from llmbrick.servers.grpc.server import GrpcServer
+
 
 class _TestLLMBrick(LLMBrick):
     """測試用的 LLM Brick"""
-    def __init__(self, default_prompt:str , **kwargs):
+
+    def __init__(self, default_prompt: str, **kwargs):
         super().__init__(default_prompt=default_prompt, **kwargs)
 
     @unary_handler
@@ -23,14 +35,13 @@ class _TestLLMBrick(LLMBrick):
         tokens = list(request.prompt) if request.prompt else []
         error = ErrorDetail(code=0, message="No error")
         return LLMResponse(
-            text=f"回應: {request.prompt}",
-            tokens=tokens,
-            is_final=True,
-            error=error
+            text=f"回應: {request.prompt}", tokens=tokens, is_final=True, error=error
         )
 
     @output_streaming_handler
-    async def output_streaming_handler(self, request: LLMRequest) -> AsyncIterator[LLMResponse]:
+    async def output_streaming_handler(
+        self, request: LLMRequest
+    ) -> AsyncIterator[LLMResponse]:
         words = ["這", "是", "流式", "回應"]
         for i, word in enumerate(words):
             await asyncio.sleep(0.05)
@@ -38,7 +49,7 @@ class _TestLLMBrick(LLMBrick):
                 text=word,
                 tokens=[word],
                 is_final=(i == len(words) - 1),
-                error=ErrorDetail(code=0, message="No error")
+                error=ErrorDetail(code=0, message="No error"),
             )
 
     @get_service_info_handler
@@ -47,15 +58,18 @@ class _TestLLMBrick(LLMBrick):
         return ServiceInfoResponse(
             service_name="TestLLMBrick",
             version="9.9.9",
-            models=[{
-                "model_id": "test",
-                "version": "1.0",
-                "supported_languages": ["zh", "en"],
-                "support_streaming": True,
-                "description": "test"
-            }],
-            error=ErrorDetail(code=0, message="No error")
+            models=[
+                {
+                    "model_id": "test",
+                    "version": "1.0",
+                    "supported_languages": ["zh", "en"],
+                    "support_streaming": True,
+                    "description": "test",
+                }
+            ],
+            error=ErrorDetail(code=0, message="No error"),
         )
+
 
 @pytest.mark.asyncio
 async def test_async_grpc_server_startup():
@@ -65,6 +79,7 @@ async def test_async_grpc_server_startup():
     server.register_service(llm_brick)
     assert server.server is not None
     assert server.port == 50060
+
 
 @pytest_asyncio.fixture
 async def grpc_server():
@@ -81,11 +96,13 @@ async def grpc_server():
     except asyncio.CancelledError:
         pass
 
+
 @pytest_asyncio.fixture
 async def grpc_client(grpc_server):
     client_brick = _TestLLMBrick.toGrpcClient(remote_address="127.0.0.1:50061")
     yield client_brick
     await client_brick._grpc_channel.close()
+
 
 @pytest.mark.asyncio
 async def test_unary(grpc_client: _TestLLMBrick):
@@ -96,6 +113,7 @@ async def test_unary(grpc_client: _TestLLMBrick):
     assert isinstance(response.tokens, list)
     assert response.is_final is True
 
+
 @pytest.mark.asyncio
 async def test_output_streaming(grpc_client: _TestLLMBrick):
     stream_req = LLMRequest(prompt="流式請求")
@@ -104,6 +122,7 @@ async def test_output_streaming(grpc_client: _TestLLMBrick):
         results.append(resp.text)
         assert isinstance(resp.tokens, list)
     assert results == ["這", "是", "流式", "回應"]
+
 
 @pytest.mark.asyncio
 async def test_get_service_info(grpc_client: _TestLLMBrick):

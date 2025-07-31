@@ -1,9 +1,14 @@
 import grpc
+
 from llmbrick.bricks.llm.base_llm import LLMBrick
-from llmbrick.protocols.grpc.llm import llm_pb2_grpc, llm_pb2
-from llmbrick.protocols.models.bricks.llm_types import LLMRequest, LLMResponse
 from llmbrick.protocols.grpc.common import common_pb2
-from llmbrick.protocols.models.bricks.common_types import ErrorDetail, ServiceInfoResponse
+from llmbrick.protocols.grpc.llm import llm_pb2, llm_pb2_grpc
+from llmbrick.protocols.models.bricks.common_types import (
+    ErrorDetail,
+    ServiceInfoResponse,
+)
+from llmbrick.protocols.models.bricks.llm_types import LLMRequest, LLMResponse
+
 
 # /protocols/grpc/llm/llm.proto
 # llm_pb2
@@ -40,16 +45,18 @@ class LLMGrpcWrapper(llm_pb2_grpc.LLMServiceServicer):
             # context.set_code(grpc.StatusCode.UNIMPLEMENTED)
             # context.set_details('Service info not implemented!')
             error_data.code = grpc.StatusCode.UNIMPLEMENTED.value[0]
-            error_data.message = 'Service info not implemented!'
-            error_data.detail = 'The brick did not implement service info.'
+            error_data.message = "Service info not implemented!"
+            error_data.detail = "The brick did not implement service info."
             response = common_pb2.ServiceInfoResponse(error=error_data)
             return response
         if not isinstance(result, ServiceInfoResponse):
             # context.set_code(grpc.StatusCode.INTERNAL)
             # context.set_details('Invalid service info response type!')
             error_data.code = grpc.StatusCode.INTERNAL.value[0]
-            error_data.message = 'Invalid service info response type!'
-            error_data.detail = 'The response from the brick is not of type ServiceInfoResponse.'
+            error_data.message = "Invalid service info response type!"
+            error_data.detail = (
+                "The response from the brick is not of type ServiceInfoResponse."
+            )
             response = common_pb2.ServiceInfoResponse(error=error_data)
             return response
         if result.error and result.error.code != 0:
@@ -74,8 +81,10 @@ class LLMGrpcWrapper(llm_pb2_grpc.LLMServiceServicer):
             # context.set_code(grpc.StatusCode.INTERNAL)
             # context.set_details('Invalid unary response type!')
             error_data.code = grpc.StatusCode.INTERNAL.value[0]
-            error_data.message = 'Invalid unary response type!'
-            error_data.detail = 'The response from the brick is not of type LLMResponse.'
+            error_data.message = "Invalid unary response type!"
+            error_data.detail = (
+                "The response from the brick is not of type LLMResponse."
+            )
             return llm_pb2.LLMResponse(error=error_data)
         if result.error and result.error.code != 0:
             # context.set_code(grpc.StatusCode.INTERNAL)
@@ -88,7 +97,7 @@ class LLMGrpcWrapper(llm_pb2_grpc.LLMServiceServicer):
             text=result.text,
             tokens=result.tokens,
             is_final=result.is_final,
-            error=error_data
+            error=error_data,
         )
         return response
 
@@ -100,8 +109,10 @@ class LLMGrpcWrapper(llm_pb2_grpc.LLMServiceServicer):
                 # context.set_code(grpc.StatusCode.INTERNAL)
                 # context.set_details('Invalid output streaming response type!')
                 error_data.code = grpc.StatusCode.INTERNAL.value[0]
-                error_data.message = 'Invalid output streaming response type!'
-                error_data.detail = 'The response from the brick is not of type LLMResponse.'
+                error_data.message = "Invalid output streaming response type!"
+                error_data.detail = (
+                    "The response from the brick is not of type LLMResponse."
+                )
                 yield llm_pb2.LLMResponse(error=error_data)
                 break
             if response.error and response.error.code != 0:
@@ -116,7 +127,7 @@ class LLMGrpcWrapper(llm_pb2_grpc.LLMServiceServicer):
                 text=response.text,
                 tokens=response.tokens,
                 is_final=response.is_final,
-                error=error_data
+                error=error_data,
             )
 
     def register(self, server):

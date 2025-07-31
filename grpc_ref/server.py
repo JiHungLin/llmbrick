@@ -1,8 +1,10 @@
-import grpc
-from concurrent import futures
-from pb2.helloworld import helloworld_pb2, helloworld_pb2_grpc
 import time
+from concurrent import futures
+
+import grpc
 from google.protobuf import struct_pb2
+from pb2.helloworld import helloworld_pb2, helloworld_pb2_grpc
+
 
 class Greeter(helloworld_pb2_grpc.GreeterServicer):
     def SayHelloBidirectional(self, request_iterator, context):
@@ -13,12 +15,14 @@ class Greeter(helloworld_pb2_grpc.GreeterServicer):
             yield helloworld_pb2.HelloReply(message=msg)
 
     def SayHello(self, request, context):
-        return helloworld_pb2.HelloReply(message=f'Hello, {request.name}!')
+        return helloworld_pb2.HelloReply(message=f"Hello, {request.name}!")
 
     def SayHelloManyTimes(self, request, context):
         # Server streaming: 回傳多個 HelloReply
         for i in range(5):
-            yield helloworld_pb2.HelloReply(message=f'Hello {request.name}, message {i+1}')
+            yield helloworld_pb2.HelloReply(
+                message=f"Hello {request.name}, message {i+1}"
+            )
             # 模擬延遲
             if i == 4:
                 context.abort(grpc.StatusCode.CANCELLED, "Server stopped streaming.")
@@ -30,12 +34,14 @@ class Greeter(helloworld_pb2_grpc.GreeterServicer):
         for req in request_iterator:
             names.append(req.name)
             print(f"Received name: {req.name}")
-        joined = ', '.join(names)
-        return helloworld_pb2.HelloReply(message=f'Hello to: {joined}')
+        joined = ", ".join(names)
+        return helloworld_pb2.HelloReply(message=f"Hello to: {joined}")
 
     def SayHelloWithStruct(self, request, context):
         # request 為 google.protobuf.Struct
-        name = request.fields.get("name", struct_pb2.Value(string_value="匿名")).string_value
+        name = request.fields.get(
+            "name", struct_pb2.Value(string_value="匿名")
+        ).string_value
         age = request.fields.get("age", struct_pb2.Value(number_value=0)).number_value
         msg = f"Hello, {name}! 你的年齡是 {int(age)}"
         return helloworld_pb2.HelloReply(message=msg)
@@ -75,16 +81,21 @@ class Greeter(helloworld_pb2_grpc.GreeterServicer):
                     data_fields.append(f"{k}: {v.bool_value}")
                 else:
                     data_fields.append(f"{k}: (complex type)")
-            all_data.append(f"[{req.name}] " + ("; ".join(data_fields) if data_fields else "無附加資料"))
+            all_data.append(
+                f"[{req.name}] "
+                + ("; ".join(data_fields) if data_fields else "無附加資料")
+            )
         msg = f"收到 {len(names)} 筆 ComplexHello：\n" + "\n".join(all_data)
         return helloworld_pb2.HelloReply(message=msg)
+
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     helloworld_pb2_grpc.add_GreeterServicer_to_server(Greeter(), server)
-    server.add_insecure_port('[::]:50051')
+    server.add_insecure_port("[::]:50051")
     server.start()
     server.wait_for_termination()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     serve()

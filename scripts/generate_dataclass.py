@@ -12,10 +12,11 @@ PROTO_TYPE_MAP = {
     "google.protobuf.Struct": "Dict[str, Any]",
 }
 
-HEADER = '''from dataclasses import dataclass, field
+HEADER = """from dataclasses import dataclass, field
 from typing import List, Optional, Dict, Any
 
-'''
+"""
+
 
 def parse_proto(proto_path):
     with open(proto_path, "r", encoding="utf-8") as f:
@@ -41,11 +42,13 @@ def parse_proto(proto_path):
                 current["fields"].append((fname, typ, is_repeated))
     return messages
 
+
 def proto_type_to_py(typ, is_repeated):
     py_type = PROTO_TYPE_MAP.get(typ, typ)
     if is_repeated:
         return f"List[{py_type}]"
     return py_type
+
 
 def gen_dataclass_code(messages):
     code = HEADER
@@ -71,6 +74,7 @@ def gen_dataclass_code(messages):
         code += "\n"
     return code
 
+
 def main():
     if len(sys.argv) < 3:
         print("用法: python generate_dataclass.py <proto檔路徑> <輸出py路徑>")
@@ -81,6 +85,7 @@ def main():
     code = gen_dataclass_code(messages)
     Path(out_path).write_text(code, encoding="utf-8")
     print(f"已產生: {out_path}")
+
 
 if __name__ == "__main__":
     main()

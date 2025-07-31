@@ -1,14 +1,17 @@
-from deprecated import deprecated
 import warnings
 
+from deprecated import deprecated
+
+from llmbrick.core.brick import BaseBrick, BrickType
+from llmbrick.protocols.models.bricks.common_types import (
+    ErrorDetail,
+    ServiceInfoResponse,
+)
 from llmbrick.protocols.models.bricks.translate_types import (
     TranslateRequest,
     TranslateResponse,
 )
-from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse
-from llmbrick.protocols.models.bricks.common_types import ErrorDetail
 
-from llmbrick.core.brick import BaseBrick, BrickType
 
 class TranslateBrick(BaseBrick[TranslateRequest, TranslateResponse]):
     """
@@ -26,6 +29,7 @@ class TranslateBrick(BaseBrick[TranslateRequest, TranslateResponse]):
     - OutputStreaming -> output_streaming
 
     """
+
     brick_type = BrickType.TRANSLATE
 
     # 僅允許這三種 handler
@@ -39,44 +43,55 @@ class TranslateBrick(BaseBrick[TranslateRequest, TranslateResponse]):
         """
         Deprecated: TranslateBrick only supports unary and output_streaming handlers, input_streaming and bidi_streaming are not applicable.
         """
-        warnings.warn("TranslateBrick does not support bidi_streaming handler.", PendingDeprecationWarning)
-        raise NotImplementedError("TranslateBrick does not support bidi_streaming handler.")
-    
+        warnings.warn(
+            "TranslateBrick does not support bidi_streaming handler.",
+            PendingDeprecationWarning,
+        )
+        raise NotImplementedError(
+            "TranslateBrick does not support bidi_streaming handler."
+        )
+
     @deprecated(reason="TranslateBrick does not support input_streaming handler.")
     def input_streaming(self):
         """
         Deprecated: TranslateBrick only supports unary and output_streaming handlers, input_streaming is not applicable.
         """
-        warnings.warn("TranslateBrick does not support input_streaming handler.", DeprecationWarning)
-        raise NotImplementedError("TranslateBrick does not support input_streaming handler.")
+        warnings.warn(
+            "TranslateBrick does not support input_streaming handler.",
+            DeprecationWarning,
+        )
+        raise NotImplementedError(
+            "TranslateBrick does not support input_streaming handler."
+        )
 
     @classmethod
     def toGrpcClient(cls, remote_address: str, **kwargs):
         """
         將 TranslateBrick 轉換為異步 gRPC 客戶端。
-        
+
         Args:
             remote_address: gRPC 伺服器地址，格式為 "host:port"
             **kwargs: 傳遞給 TranslateBrick 建構子的額外參數
-            
+
         Returns:
             配置為異步 gRPC 客戶端的 TranslateBrick 實例
         """
         import grpc
+
         from llmbrick.protocols.grpc.translate import translate_pb2_grpc
-        
+
         # 建立異步 gRPC 通道和客戶端
         channel = grpc.aio.insecure_channel(remote_address)
         grpc_client = translate_pb2_grpc.TranslateServiceStub(channel)
-        
+
         # 建立 brick 實例
         brick = cls(**kwargs)
-        
+
         @brick.unary()
         async def unary_handler(request: TranslateRequest) -> TranslateResponse:
             """異步單次請求處理器"""
             from llmbrick.protocols.grpc.translate import translate_pb2
-            
+
             # 建立 gRPC 請求
             grpc_request = translate_pb2.TranslateRequest()
             grpc_request.text = request.text
@@ -86,27 +101,31 @@ class TranslateBrick(BaseBrick[TranslateRequest, TranslateResponse]):
             grpc_request.session_id = request.session_id
             grpc_request.request_id = request.request_id
             grpc_request.source_language = request.source_language
-            
+
             response = await grpc_client.Unary(grpc_request)
-            
+
             # 將 protobuf 回應轉換為 TranslateResponse
             return TranslateResponse(
                 text=response.text,
                 tokens=list(response.tokens),
                 language_code=response.language_code,
                 is_final=response.is_final,
-                error=ErrorDetail(
-                    code=response.error.code,
-                    message=response.error.message,
-                    detail=response.error.detail
-                ) if response.error else None
+                error=(
+                    ErrorDetail(
+                        code=response.error.code,
+                        message=response.error.message,
+                        detail=response.error.detail,
+                    )
+                    if response.error
+                    else None
+                ),
             )
 
         @brick.output_streaming()
         async def output_streaming_handler(request: TranslateRequest):
             """異步流式輸出處理器"""
             from llmbrick.protocols.grpc.translate import translate_pb2
-            
+
             # 建立 gRPC 請求
             grpc_request = translate_pb2.TranslateRequest()
             grpc_request.text = request.text
@@ -116,38 +135,46 @@ class TranslateBrick(BaseBrick[TranslateRequest, TranslateResponse]):
             grpc_request.session_id = request.session_id
             grpc_request.request_id = request.request_id
             grpc_request.source_language = request.source_language
-            
+
             async for response in grpc_client.OutputStreaming(grpc_request):
                 yield TranslateResponse(
                     text=response.text,
                     tokens=list(response.tokens),
                     language_code=response.language_code,
                     is_final=response.is_final,
-                    error=ErrorDetail(
-                        code=response.error.code,
-                        message=response.error.message,
-                        detail=response.error.detail
-                    ) if response.error else None
+                    error=(
+                        ErrorDetail(
+                            code=response.error.code,
+                            message=response.error.message,
+                            detail=response.error.detail,
+                        )
+                        if response.error
+                        else None
+                    ),
                 )
 
         @brick.get_service_info()
         async def get_service_info_handler() -> ServiceInfoResponse:
             """異步服務信息處理器"""
             from llmbrick.protocols.grpc.common import common_pb2
+
             request = common_pb2.ServiceInfoRequest()
             response = await grpc_client.GetServiceInfo(request)
             return ServiceInfoResponse(
                 service_name=response.service_name,
                 version=response.version,
-                models=[{
-                    "model_id": model.model_id,
-                    "version": model.version,
-                    "supported_languages": list(model.supported_languages),
-                    "support_streaming": model.support_streaming
-                } for model in response.models]
+                models=[
+                    {
+                        "model_id": model.model_id,
+                        "version": model.version,
+                        "supported_languages": list(model.supported_languages),
+                        "support_streaming": model.support_streaming,
+                    }
+                    for model in response.models
+                ],
             )
 
         # 儲存通道引用以便後續清理
         brick._grpc_channel = channel
-        
+
         return brick

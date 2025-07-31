@@ -1,14 +1,21 @@
 """
 Guard Brick gRPC 功能測試
 """
+
 import asyncio
+
 import pytest
-from llmbrick.servers.grpc.server import GrpcServer
-from llmbrick.bricks.guard.base_guard import GuardBrick
-from llmbrick.core.brick import unary_handler, get_service_info_handler
-from llmbrick.protocols.models.bricks.guard_types import GuardRequest, GuardResponse
-from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse, ErrorDetail
 import pytest_asyncio
+
+from llmbrick.bricks.guard.base_guard import GuardBrick
+from llmbrick.core.brick import get_service_info_handler, unary_handler
+from llmbrick.protocols.models.bricks.common_types import (
+    ErrorDetail,
+    ServiceInfoResponse,
+)
+from llmbrick.protocols.models.bricks.guard_types import GuardRequest, GuardResponse
+from llmbrick.servers.grpc.server import GrpcServer
+
 
 class _TestGuardBrick(GuardBrick):
     """測試用的 Guard Brick"""
@@ -18,10 +25,12 @@ class _TestGuardBrick(GuardBrick):
         await asyncio.sleep(0.1)
         # 回傳 results 欄位，模擬檢查結果
         from llmbrick.protocols.models.bricks.guard_types import GuardResult
-        result = GuardResult(is_attack=False, confidence=0.99, detail=f"echo: {request.text}")
+
+        result = GuardResult(
+            is_attack=False, confidence=0.99, detail=f"echo: {request.text}"
+        )
         return GuardResponse(
-            results=[result],
-            error=ErrorDetail(code=0, message="No error", detail="")
+            results=[result], error=ErrorDetail(code=0, message="No error", detail="")
         )
 
     @get_service_info_handler
@@ -30,14 +39,18 @@ class _TestGuardBrick(GuardBrick):
         return ServiceInfoResponse(
             service_name="TestGuardBrick",
             version="9.9.9",
-            models=[{
-                "model_id": "test",
-                "version": "1.0",
-                "supported_languages": ["zh", "en"],
-                "support_streaming": True,
-                "description": "test"
-            }], error=ErrorDetail(code=0, message="No error")
+            models=[
+                {
+                    "model_id": "test",
+                    "version": "1.0",
+                    "supported_languages": ["zh", "en"],
+                    "support_streaming": True,
+                    "description": "test",
+                }
+            ],
+            error=ErrorDetail(code=0, message="No error"),
         )
+
 
 @pytest.mark.asyncio
 async def test_async_grpc_server_startup():
@@ -47,6 +60,7 @@ async def test_async_grpc_server_startup():
     server.register_service(guard_brick)
     assert server.server is not None
     assert server.port == 50110
+
 
 @pytest_asyncio.fixture
 async def grpc_server():
@@ -63,11 +77,13 @@ async def grpc_server():
     except asyncio.CancelledError:
         pass
 
+
 @pytest_asyncio.fixture
 async def grpc_client(grpc_server):
     client_brick = _TestGuardBrick.toGrpcClient(remote_address="127.0.0.1:50111")
     yield client_brick
     await client_brick._grpc_channel.close()
+
 
 @pytest.mark.asyncio
 async def test_unary(grpc_client):
@@ -77,6 +93,7 @@ async def test_unary(grpc_client):
     assert isinstance(response.results, list)
     assert response.results[0].detail.startswith("echo")
     assert response.results[0].confidence > 0.9
+
 
 @pytest.mark.asyncio
 async def test_get_service_info(grpc_client):

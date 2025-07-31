@@ -1,14 +1,24 @@
 """
 Intention Brick gRPC 功能測試
 """
+
 import asyncio
+
 import pytest
-from llmbrick.servers.grpc.server import GrpcServer
-from llmbrick.bricks.intention.base_intention import IntentionBrick
-from llmbrick.core.brick import unary_handler, get_service_info_handler
-from llmbrick.protocols.models.bricks.intention_types import IntentionRequest, IntentionResponse
-from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse, ErrorDetail
 import pytest_asyncio
+
+from llmbrick.bricks.intention.base_intention import IntentionBrick
+from llmbrick.core.brick import get_service_info_handler, unary_handler
+from llmbrick.protocols.models.bricks.common_types import (
+    ErrorDetail,
+    ServiceInfoResponse,
+)
+from llmbrick.protocols.models.bricks.intention_types import (
+    IntentionRequest,
+    IntentionResponse,
+)
+from llmbrick.servers.grpc.server import GrpcServer
+
 
 class _TestIntentionBrick(IntentionBrick):
     """測試用的 Intention Brick"""
@@ -18,26 +28,29 @@ class _TestIntentionBrick(IntentionBrick):
         await asyncio.sleep(0.1)
         # 回傳 results 欄位，模擬意圖判斷
         from llmbrick.protocols.models.bricks.intention_types import IntentionResult
+
         result = IntentionResult(intent_category="test", confidence=0.88)
         return IntentionResponse(
-            results=[result],
-            error=ErrorDetail(code=0, message="No error", detail="")
+            results=[result], error=ErrorDetail(code=0, message="No error", detail="")
         )
 
     @get_service_info_handler
     async def get_service_info_handler(self):
         await asyncio.sleep(0.01)
         return ServiceInfoResponse(
-                service_name="TestIntentionBrick",
-                version="9.9.9",
-                models=[{
+            service_name="TestIntentionBrick",
+            version="9.9.9",
+            models=[
+                {
                     "model_id": "test",
                     "version": "1.0",
                     "supported_languages": ["zh", "en"],
                     "support_streaming": True,
-                    "description": "test"
-                }], error=ErrorDetail(code=0, message="No error")
-            )
+                    "description": "test",
+                }
+            ],
+            error=ErrorDetail(code=0, message="No error"),
+        )
 
 
 @pytest.mark.asyncio
@@ -48,6 +61,7 @@ async def test_async_grpc_server_startup():
     server.register_service(intention_brick)
     assert server.server is not None
     assert server.port == 50120
+
 
 @pytest_asyncio.fixture
 async def grpc_server():
@@ -64,11 +78,13 @@ async def grpc_server():
     except asyncio.CancelledError:
         pass
 
+
 @pytest_asyncio.fixture
 async def grpc_client(grpc_server):
     client_brick = _TestIntentionBrick.toGrpcClient(remote_address="127.0.0.1:50121")
     yield client_brick
     await client_brick._grpc_channel.close()
+
 
 @pytest.mark.asyncio
 async def test_unary(grpc_client):
@@ -78,6 +94,7 @@ async def test_unary(grpc_client):
     assert isinstance(response.results, list)
     assert response.results[0].intent_category == "test"
     assert response.results[0].confidence > 0.8
+
 
 @pytest.mark.asyncio
 async def test_get_service_info(grpc_client):

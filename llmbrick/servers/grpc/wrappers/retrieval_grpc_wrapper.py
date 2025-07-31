@@ -1,9 +1,13 @@
 import grpc
+
 from llmbrick.bricks.retrieval.base_retrieval import RetrievalBrick
-from llmbrick.protocols.grpc.retrieval import retrieval_pb2_grpc, retrieval_pb2
 from llmbrick.protocols.grpc.common import common_pb2
-from llmbrick.protocols.models.bricks.retrieval_types import RetrievalRequest, RetrievalResponse
+from llmbrick.protocols.grpc.retrieval import retrieval_pb2, retrieval_pb2_grpc
 from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse
+from llmbrick.protocols.models.bricks.retrieval_types import (
+    RetrievalRequest,
+    RetrievalResponse,
+)
 
 # /protocols/grpc/retrieval/retrieval.proto
 # retrieval_pb2
@@ -15,6 +19,7 @@ from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse
 #   string request_id = 5;        // 唯一請求ID
 #   string source_language = 6;   // 輸入文本的原始語言
 # }
+
 
 class RetrievalGrpcWrapper(retrieval_pb2_grpc.RetrievalServiceServicer):
     """
@@ -34,16 +39,18 @@ class RetrievalGrpcWrapper(retrieval_pb2_grpc.RetrievalServiceServicer):
             # context.set_code(grpc.StatusCode.UNIMPLEMENTED)
             # context.set_details('Service info not implemented!')
             error_data.code = grpc.StatusCode.UNIMPLEMENTED.value[0]
-            error_data.message = 'Service info not implemented!'
-            error_data.detail = 'The brick did not implement service info.'
+            error_data.message = "Service info not implemented!"
+            error_data.detail = "The brick did not implement service info."
             response = common_pb2.ServiceInfoResponse(error=error_data)
             return response
         if not isinstance(result, ServiceInfoResponse):
             # context.set_code(grpc.StatusCode.INTERNAL)
             # context.set_details('Invalid service info response type!')
             error_data.code = grpc.StatusCode.INTERNAL.value[0]
-            error_data.message = 'Invalid service info response type!'
-            error_data.detail = 'The response from the brick is not of type ServiceInfoResponse.'
+            error_data.message = "Invalid service info response type!"
+            error_data.detail = (
+                "The response from the brick is not of type ServiceInfoResponse."
+            )
             response = common_pb2.ServiceInfoResponse(error=error_data)
             return response
         if result.error and result.error.code != 0:
@@ -67,8 +74,10 @@ class RetrievalGrpcWrapper(retrieval_pb2_grpc.RetrievalServiceServicer):
             # context.set_code(grpc.StatusCode.INTERNAL)
             # context.set_details('Invalid unary response type!')
             error_data.code = grpc.StatusCode.INTERNAL.value[0]
-            error_data.message = 'Invalid unary response type!'
-            error_data.detail = 'The response from the brick is not of type RetrievalResponse.'
+            error_data.message = "Invalid unary response type!"
+            error_data.detail = (
+                "The response from the brick is not of type RetrievalResponse."
+            )
             return retrieval_pb2.RetrievalResponse(error=error_data)
         if result.error and result.error.code != 0:
             # context.set_code(grpc.StatusCode.INTERNAL)
@@ -86,10 +95,12 @@ class RetrievalGrpcWrapper(retrieval_pb2_grpc.RetrievalServiceServicer):
                 title=d.title,
                 snippet=d.snippet,
                 score=d.score,
-                metadata=d.metadata
+                metadata=d.metadata,
             )
             documents_pb.append(doc_pb)
-        response = retrieval_pb2.RetrievalResponse(documents=documents_pb, error=error_data)
+        response = retrieval_pb2.RetrievalResponse(
+            documents=documents_pb, error=error_data
+        )
         return response
 
     def register(self, server):

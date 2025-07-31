@@ -1,9 +1,13 @@
 import grpc
+
 from llmbrick.bricks.rectify.base_rectify import RectifyBrick
-from llmbrick.protocols.grpc.rectify import rectify_pb2_grpc, rectify_pb2
 from llmbrick.protocols.grpc.common import common_pb2
-from llmbrick.protocols.models.bricks.rectify_types import RectifyRequest, RectifyResponse
+from llmbrick.protocols.grpc.rectify import rectify_pb2, rectify_pb2_grpc
 from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse
+from llmbrick.protocols.models.bricks.rectify_types import (
+    RectifyRequest,
+    RectifyResponse,
+)
 
 # /protocols/grpc/rectify/rectify.proto
 # rectify_pb2
@@ -14,6 +18,7 @@ from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse
 #   string request_id = 4;        // 唯一請求ID
 #   string source_language = 5;   // 輸入文本的原始語言
 # }
+
 
 class RectifyGrpcWrapper(rectify_pb2_grpc.RectifyServiceServicer):
     """
@@ -33,16 +38,18 @@ class RectifyGrpcWrapper(rectify_pb2_grpc.RectifyServiceServicer):
             # context.set_code(grpc.StatusCode.UNIMPLEMENTED)
             # context.set_details('Service info not implemented!')
             error_data.code = grpc.StatusCode.UNIMPLEMENTED.value[0]
-            error_data.message = 'Service info not implemented!'
-            error_data.detail = 'The brick did not implement service info.'
+            error_data.message = "Service info not implemented!"
+            error_data.detail = "The brick did not implement service info."
             response = common_pb2.ServiceInfoResponse(error=error_data)
             return response
         if not isinstance(result, ServiceInfoResponse):
             # context.set_code(grpc.StatusCode.INTERNAL)
             # context.set_details('Invalid service info response type!')
             error_data.code = grpc.StatusCode.INTERNAL.value[0]
-            error_data.message = 'Invalid service info response type!'
-            error_data.detail = 'The response from the brick is not of type ServiceInfoResponse.'
+            error_data.message = "Invalid service info response type!"
+            error_data.detail = (
+                "The response from the brick is not of type ServiceInfoResponse."
+            )
             response = common_pb2.ServiceInfoResponse(error=error_data)
             return response
         if result.error and result.error.code != 0:
@@ -72,8 +79,10 @@ class RectifyGrpcWrapper(rectify_pb2_grpc.RectifyServiceServicer):
             # context.set_code(grpc.StatusCode.INTERNAL)
             # context.set_details('Invalid unary response type!')
             error_data.code = grpc.StatusCode.INTERNAL.value[0]
-            error_data.message = 'Invalid unary response type!'
-            error_data.detail = 'The response from the brick is not of type RectifyResponse.'
+            error_data.message = "Invalid unary response type!"
+            error_data.detail = (
+                "The response from the brick is not of type RectifyResponse."
+            )
             return rectify_pb2.RectifyResponse(error=error_data)
         if result.error and result.error.code != 0:
             # context.set_code(grpc.StatusCode.INTERNAL)
@@ -84,8 +93,7 @@ class RectifyGrpcWrapper(rectify_pb2_grpc.RectifyServiceServicer):
             response = rectify_pb2.RectifyResponse(error=error_data)
             return response
         response = rectify_pb2.RectifyResponse(
-            corrected_text=result.corrected_text,
-            error=error_data
+            corrected_text=result.corrected_text, error=error_data
         )
         return response
 

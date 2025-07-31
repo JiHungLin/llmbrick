@@ -1,9 +1,13 @@
 import grpc
+
 from llmbrick.bricks.translate.base_translate import TranslateBrick
-from llmbrick.protocols.grpc.translate import translate_pb2_grpc, translate_pb2
 from llmbrick.protocols.grpc.common import common_pb2
-from llmbrick.protocols.models.bricks.translate_types import TranslateRequest, TranslateResponse
+from llmbrick.protocols.grpc.translate import translate_pb2, translate_pb2_grpc
 from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse
+from llmbrick.protocols.models.bricks.translate_types import (
+    TranslateRequest,
+    TranslateResponse,
+)
 
 # /protocols/grpc/translate/translate.proto
 # translate_pb2
@@ -16,6 +20,7 @@ from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse
 #   string request_id = 6;       // 唯一請求ID
 #   string source_language = 7;  // 輸入文本的原始語言
 # }
+
 
 class TranslateGrpcWrapper(translate_pb2_grpc.TranslateServiceServicer):
     """
@@ -35,16 +40,18 @@ class TranslateGrpcWrapper(translate_pb2_grpc.TranslateServiceServicer):
             # context.set_code(grpc.StatusCode.UNIMPLEMENTED)
             # context.set_details('Service info not implemented!')
             error_data.code = grpc.StatusCode.UNIMPLEMENTED.value[0]
-            error_data.message = 'Service info not implemented!'
-            error_data.detail = 'The brick did not implement service info.'
+            error_data.message = "Service info not implemented!"
+            error_data.detail = "The brick did not implement service info."
             response = common_pb2.ServiceInfoResponse(error=error_data)
             return response
         if not isinstance(result, ServiceInfoResponse):
             # context.set_code(grpc.StatusCode.INTERNAL)
             # context.set_details('Invalid service info response type!')
             error_data.code = grpc.StatusCode.INTERNAL.value[0]
-            error_data.message = 'Invalid service info response type!'
-            error_data.detail = 'The response from the brick is not of type ServiceInfoResponse.'
+            error_data.message = "Invalid service info response type!"
+            error_data.detail = (
+                "The response from the brick is not of type ServiceInfoResponse."
+            )
             response = common_pb2.ServiceInfoResponse(error=error_data)
             return response
         if result.error and result.error.code != 0:
@@ -68,8 +75,10 @@ class TranslateGrpcWrapper(translate_pb2_grpc.TranslateServiceServicer):
             # context.set_code(grpc.StatusCode.INTERNAL)
             # context.set_details('Invalid unary response type!')
             error_data.code = grpc.StatusCode.INTERNAL.value[0]
-            error_data.message = 'Invalid unary response type!'
-            error_data.detail = 'The response from the brick is not of type TranslateResponse.'
+            error_data.message = "Invalid unary response type!"
+            error_data.detail = (
+                "The response from the brick is not of type TranslateResponse."
+            )
             return translate_pb2.TranslateResponse(error=error_data)
         if result.error and result.error.code != 0:
             # context.set_code(grpc.StatusCode.INTERNAL)
@@ -83,7 +92,7 @@ class TranslateGrpcWrapper(translate_pb2_grpc.TranslateServiceServicer):
             tokens=result.tokens,
             language_code=result.language_code,
             is_final=result.is_final,
-            error=error_data
+            error=error_data,
         )
         return response
 
@@ -95,8 +104,10 @@ class TranslateGrpcWrapper(translate_pb2_grpc.TranslateServiceServicer):
                 # context.set_code(grpc.StatusCode.INTERNAL)
                 # context.set_details('Invalid output streaming response type!')
                 error_data.code = grpc.StatusCode.INTERNAL.value[0]
-                error_data.message = 'Invalid output streaming response type!'
-                error_data.detail = 'The response from the brick is not of type TranslateResponse.'
+                error_data.message = "Invalid output streaming response type!"
+                error_data.detail = (
+                    "The response from the brick is not of type TranslateResponse."
+                )
                 yield translate_pb2.TranslateResponse(error=error_data)
                 break
             if response.error and response.error.code != 0:
@@ -112,7 +123,7 @@ class TranslateGrpcWrapper(translate_pb2_grpc.TranslateServiceServicer):
                 tokens=response.tokens,
                 language_code=response.language_code,
                 is_final=response.is_final,
-                error=error_data
+                error=error_data,
             )
 
     def register(self, server):

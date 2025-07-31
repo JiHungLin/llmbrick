@@ -9,13 +9,9 @@ from google.protobuf import descriptor_pool as _descriptor_pool
 from google.protobuf import runtime_version as _runtime_version
 from google.protobuf import symbol_database as _symbol_database
 from google.protobuf.internal import builder as _builder
+
 _runtime_version.ValidateProtobufRuntimeVersion(
-    _runtime_version.Domain.PUBLIC,
-    6,
-    31,
-    0,
-    '',
-    'protocols/grpc/common/common.proto'
+    _runtime_version.Domain.PUBLIC, 6, 31, 0, "", "protocols/grpc/common/common.proto"
 )
 # @@protoc_insertion_point(imports)
 
@@ -24,26 +20,29 @@ _sym_db = _symbol_database.Default()
 
 from google.protobuf import struct_pb2
 
-
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\"protocols/grpc/common/common.proto\x12\x15protocols.grpc.common\x1a\x1cgoogle/protobuf/struct.proto\"<\n\x0b\x45rrorDetail\x12\x0c\n\x04\x63ode\x18\x01 \x01(\x05\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x0e\n\x06\x64\x65tail\x18\x03 \x01(\t\"6\n\rCommonRequest\x12%\n\x04\x64\x61ta\x18\x01 \x01(\x0b\x32\x17.google.protobuf.Struct\"j\n\x0e\x43ommonResponse\x12%\n\x04\x64\x61ta\x18\x01 \x01(\x0b\x32\x17.google.protobuf.Struct\x12\x31\n\x05\x65rror\x18\x02 \x01(\x0b\x32\".protocols.grpc.common.ErrorDetail\"\x14\n\x12ServiceInfoRequest\"{\n\tModelInfo\x12\x10\n\x08model_id\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\t\x12\x1b\n\x13supported_languages\x18\x03 \x03(\t\x12\x19\n\x11support_streaming\x18\x04 \x01(\x08\x12\x13\n\x0b\x64\x65scription\x18\x05 \x01(\t\"\xa1\x01\n\x13ServiceInfoResponse\x12\x14\n\x0cservice_name\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\t\x12\x30\n\x06models\x18\x03 \x03(\x0b\x32 .protocols.grpc.common.ModelInfo\x12\x31\n\x05\x65rror\x18\x04 \x01(\x0b\x32\".protocols.grpc.common.ErrorDetail2\xfb\x03\n\rCommonService\x12g\n\x0eGetServiceInfo\x12).protocols.grpc.common.ServiceInfoRequest\x1a*.protocols.grpc.common.ServiceInfoResponse\x12V\n\x05Unary\x12$.protocols.grpc.common.CommonRequest\x1a%.protocols.grpc.common.CommonResponse\"\x00\x12\x62\n\x0fOutputStreaming\x12$.protocols.grpc.common.CommonRequest\x1a%.protocols.grpc.common.CommonResponse\"\x00\x30\x01\x12\x61\n\x0eInputStreaming\x12$.protocols.grpc.common.CommonRequest\x1a%.protocols.grpc.common.CommonResponse\"\x00(\x01\x12\x62\n\rBidiStreaming\x12$.protocols.grpc.common.CommonRequest\x1a%.protocols.grpc.common.CommonResponse\"\x00(\x01\x30\x01\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
+    b'\n"protocols/grpc/common/common.proto\x12\x15protocols.grpc.common\x1a\x1cgoogle/protobuf/struct.proto"<\n\x0b\x45rrorDetail\x12\x0c\n\x04\x63ode\x18\x01 \x01(\x05\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x0e\n\x06\x64\x65tail\x18\x03 \x01(\t"6\n\rCommonRequest\x12%\n\x04\x64\x61ta\x18\x01 \x01(\x0b\x32\x17.google.protobuf.Struct"j\n\x0e\x43ommonResponse\x12%\n\x04\x64\x61ta\x18\x01 \x01(\x0b\x32\x17.google.protobuf.Struct\x12\x31\n\x05\x65rror\x18\x02 \x01(\x0b\x32".protocols.grpc.common.ErrorDetail"\x14\n\x12ServiceInfoRequest"{\n\tModelInfo\x12\x10\n\x08model_id\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\t\x12\x1b\n\x13supported_languages\x18\x03 \x03(\t\x12\x19\n\x11support_streaming\x18\x04 \x01(\x08\x12\x13\n\x0b\x64\x65scription\x18\x05 \x01(\t"\xa1\x01\n\x13ServiceInfoResponse\x12\x14\n\x0cservice_name\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\t\x12\x30\n\x06models\x18\x03 \x03(\x0b\x32 .protocols.grpc.common.ModelInfo\x12\x31\n\x05\x65rror\x18\x04 \x01(\x0b\x32".protocols.grpc.common.ErrorDetail2\xfb\x03\n\rCommonService\x12g\n\x0eGetServiceInfo\x12).protocols.grpc.common.ServiceInfoRequest\x1a*.protocols.grpc.common.ServiceInfoResponse\x12V\n\x05Unary\x12$.protocols.grpc.common.CommonRequest\x1a%.protocols.grpc.common.CommonResponse"\x00\x12\x62\n\x0fOutputStreaming\x12$.protocols.grpc.common.CommonRequest\x1a%.protocols.grpc.common.CommonResponse"\x00\x30\x01\x12\x61\n\x0eInputStreaming\x12$.protocols.grpc.common.CommonRequest\x1a%.protocols.grpc.common.CommonResponse"\x00(\x01\x12\x62\n\rBidiStreaming\x12$.protocols.grpc.common.CommonRequest\x1a%.protocols.grpc.common.CommonResponse"\x00(\x01\x30\x01\x62\x06proto3'
+)
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
-_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'protocols.grpc.common.common_pb2', _globals)
+_builder.BuildTopDescriptorsAndMessages(
+    DESCRIPTOR, "protocols.grpc.common.common_pb2", _globals
+)
 if not _descriptor._USE_C_DESCRIPTORS:
-  DESCRIPTOR._loaded_options = None
-  _globals['_ERRORDETAIL']._serialized_start=91
-  _globals['_ERRORDETAIL']._serialized_end=151
-  _globals['_COMMONREQUEST']._serialized_start=153
-  _globals['_COMMONREQUEST']._serialized_end=207
-  _globals['_COMMONRESPONSE']._serialized_start=209
-  _globals['_COMMONRESPONSE']._serialized_end=315
-  _globals['_SERVICEINFOREQUEST']._serialized_start=317
-  _globals['_SERVICEINFOREQUEST']._serialized_end=337
-  _globals['_MODELINFO']._serialized_start=339
-  _globals['_MODELINFO']._serialized_end=462
-  _globals['_SERVICEINFORESPONSE']._serialized_start=465
-  _globals['_SERVICEINFORESPONSE']._serialized_end=626
-  _globals['_COMMONSERVICE']._serialized_start=629
-  _globals['_COMMONSERVICE']._serialized_end=1136
+    DESCRIPTOR._loaded_options = None
+    _globals["_ERRORDETAIL"]._serialized_start = 91
+    _globals["_ERRORDETAIL"]._serialized_end = 151
+    _globals["_COMMONREQUEST"]._serialized_start = 153
+    _globals["_COMMONREQUEST"]._serialized_end = 207
+    _globals["_COMMONRESPONSE"]._serialized_start = 209
+    _globals["_COMMONRESPONSE"]._serialized_end = 315
+    _globals["_SERVICEINFOREQUEST"]._serialized_start = 317
+    _globals["_SERVICEINFOREQUEST"]._serialized_end = 337
+    _globals["_MODELINFO"]._serialized_start = 339
+    _globals["_MODELINFO"]._serialized_end = 462
+    _globals["_SERVICEINFORESPONSE"]._serialized_start = 465
+    _globals["_SERVICEINFORESPONSE"]._serialized_end = 626
+    _globals["_COMMONSERVICE"]._serialized_start = 629
+    _globals["_COMMONSERVICE"]._serialized_end = 1136
 # @@protoc_insertion_point(module_scope)

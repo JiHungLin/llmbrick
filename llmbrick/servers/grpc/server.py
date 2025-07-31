@@ -1,11 +1,17 @@
 """
 主 gRPC Server，統一註冊各分類 Service Wrapper (異步版本)
 """
-import grpc
+
 import asyncio
 from typing import Optional
+
+import grpc
+
+from llmbrick.servers.grpc.wrappers import (
+    register_to_grpc_server as register_grpc_service,
+)
 from llmbrick.utils.logging import logger
-from llmbrick.servers.grpc.wrappers import register_to_grpc_server as register_grpc_service
+
 
 class GrpcServer:
     def __init__(self, port=50051):
@@ -20,13 +26,13 @@ class GrpcServer:
     async def start(self):
         if self.server is None:
             self.server = grpc.aio.server()
-            
-        listen_addr = f'[::]:{self.port}'
+
+        listen_addr = f"[::]:{self.port}"
         self.server.add_insecure_port(listen_addr)
-        
+
         await self.server.start()
         logger.info(f"異步 gRPC server 已啟動，監聽端口 {self.port}")
-        
+
         try:
             await self.server.wait_for_termination()
         except KeyboardInterrupt:
