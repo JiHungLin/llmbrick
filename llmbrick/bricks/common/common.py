@@ -32,7 +32,7 @@ class CommonBrick(BaseBrick[CommonRequest, CommonResponse]):
     brick_type = BrickType.COMMON
 
     @classmethod
-    def toGrpcClient(cls, remote_address: str, **kwargs):
+    def toGrpcClient(cls, remote_address: str, **kwargs): # noqa: C901
         """
         將 CommonBrick 轉換為異步 gRPC 客戶端。
 

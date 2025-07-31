@@ -1,7 +1,8 @@
-import time
 import functools
-import logging
 import inspect
+import logging
+import time
+
 
 def measure_time(func):
     """
@@ -9,6 +10,7 @@ def measure_time(func):
     Supports both sync and async functions.
     """
     if inspect.iscoroutinefunction(func):
+
         @functools.wraps(func)
         async def async_wrapper(*args, **kwargs):
             start = time.perf_counter()
@@ -17,9 +19,14 @@ def measure_time(func):
                 return result
             finally:
                 elapsed = time.perf_counter() - start
-                logging.info(f"[metrics] {func.__module__}.{func.__name__} execution time: {elapsed:.6f} seconds")
+                logging.info(
+                    f"[metrics] {func.__module__}.{func.__name__} execution " +
+                    f"time: {elapsed:.6f} seconds"
+                )
+
         return async_wrapper
     else:
+
         @functools.wraps(func)
         def sync_wrapper(*args, **kwargs):
             start = time.perf_counter()
@@ -28,8 +35,13 @@ def measure_time(func):
                 return result
             finally:
                 elapsed = time.perf_counter() - start
-                logging.info(f"[metrics] {func.__module__}.{func.__name__} execution time: {elapsed:.6f} seconds")
+                logging.info(
+                    f"[metrics] {func.__module__}.{func.__name__} execution " +
+                    f"time: {elapsed:.6f} seconds"
+                )
+
         return sync_wrapper
+
 
 def measure_memory(func):
     """
@@ -37,35 +49,50 @@ def measure_memory(func):
     Requires 'psutil' package. Supports both sync and async functions.
     """
     import psutil
+
     process = psutil.Process()
     if inspect.iscoroutinefunction(func):
+
         @functools.wraps(func)
         async def async_wrapper(*args, **kwargs):
             mem_before = process.memory_info().rss
             result = await func(*args, **kwargs)
             mem_after = process.memory_info().rss
             mem_diff_mb = (mem_after - mem_before) / (1024 * 1024)
-            logging.info(f"[metrics] {func.__module__}.{func.__name__} memory usage diff: {mem_diff_mb:.6f} MB")
+            logging.info(
+                f"[metrics] {func.__module__}.{func.__name__} memory " +
+                f"usage diff: {mem_diff_mb:.6f} MB"
+            )
             return result
+
         return async_wrapper
     else:
+
         @functools.wraps(func)
         def sync_wrapper(*args, **kwargs):
             mem_before = process.memory_info().rss
             result = func(*args, **kwargs)
             mem_after = process.memory_info().rss
             mem_diff_mb = (mem_after - mem_before) / (1024 * 1024)
-            logging.info(f"[metrics] {func.__module__}.{func.__name__} memory usage diff: {mem_diff_mb:.6f} MB")
+            logging.info(
+                f"[metrics] {func.__module__}.{func.__name__} memory " +
+                f"usage diff: {mem_diff_mb:.6f} MB"
+            )
             return result
+
         return sync_wrapper
+
 
 def measure_peak_memory(func):
     """
-    Decorator: Measure peak memory usage (in MB) during function execution using tracemalloc.
+    Decorator: Measure peak memory usage (in MB) during \n
+    function execution using tracemalloc.
     Supports both sync and async functions.
     """
     import tracemalloc
+
     if inspect.iscoroutinefunction(func):
+
         @functools.wraps(func)
         async def async_wrapper(*args, **kwargs):
             tracemalloc.start()
@@ -73,12 +100,17 @@ def measure_peak_memory(func):
                 result = await func(*args, **kwargs)
                 current, peak = tracemalloc.get_traced_memory()
                 peak_mb = peak / (1024 * 1024)
-                logging.info(f"[metrics] {func.__module__}.{func.__name__} peak memory usage: {peak_mb:.6f} MB (tracemalloc)")
+                logging.info(
+                    f"[metrics] {func.__module__}.{func.__name__} peak " +
+                    f"memory usage: {peak_mb:.6f} MB (tracemalloc)"
+                )
                 return result
             finally:
                 tracemalloc.stop()
+
         return async_wrapper
     else:
+
         @functools.wraps(func)
         def sync_wrapper(*args, **kwargs):
             tracemalloc.start()
@@ -86,10 +118,15 @@ def measure_peak_memory(func):
                 result = func(*args, **kwargs)
                 current, peak = tracemalloc.get_traced_memory()
                 peak_mb = peak / (1024 * 1024)
-                logging.info(f"[metrics] {func.__module__}.{func.__name__} peak memory usage: {peak_mb:.6f} MB (tracemalloc)")
+                logging.info(
+                    f"[metrics] {func.__module__}.{func.__name__} peak " +
+                    f"memory usage: {peak_mb:.6f} MB (tracemalloc)"
+                )
                 return result
             finally:
                 tracemalloc.stop()
+
         return sync_wrapper
+
 
 # Future: add call count, exception count, etc.

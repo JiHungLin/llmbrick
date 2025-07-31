@@ -10,4 +10,4 @@ typecheck:
 	mypy .
 
 format:
-	pre-commit run --all-files
+	pre-commit run --files $(find llmbrick -type f)
