@@ -22,7 +22,7 @@ _runtime_version.ValidateProtobufRuntimeVersion(
 _sym_db = _symbol_database.Default()
 
 
-from llmbrick.protocols.grpc.common import common_pb2 as protocols_dot_grpc_dot_common_dot_common__pb2
+from llmbrick.protocols.grpc.common import common_pb2
 
 
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n(protocols/grpc/intention/intention.proto\x12\x18protocols.grpc.intention\x1a\"protocols/grpc/common/common.proto\"t\n\x10IntentionRequest\x12\x0c\n\x04text\x18\x01 \x01(\t\x12\x11\n\tclient_id\x18\x02 \x01(\t\x12\x12\n\nsession_id\x18\x03 \x01(\t\x12\x12\n\nrequest_id\x18\x04 \x01(\t\x12\x17\n\x0fsource_language\x18\x05 \x01(\t\">\n\x0fIntentionResult\x12\x17\n\x0fintent_category\x18\x01 \x01(\t\x12\x12\n\nconfidence\x18\x02 \x01(\x02\"\x82\x01\n\x11IntentionResponse\x12:\n\x07results\x18\x01 \x03(\x0b\x32).protocols.grpc.intention.IntentionResult\x12\x31\n\x05\x65rror\x18\x02 \x01(\x0b\x32\".protocols.grpc.common.ErrorDetail2\xdd\x01\n\x10IntentionService\x12g\n\x0eGetServiceInfo\x12).protocols.grpc.common.ServiceInfoRequest\x1a*.protocols.grpc.common.ServiceInfoResponse\x12`\n\x05Unary\x12*.protocols.grpc.intention.IntentionRequest\x1a+.protocols.grpc.intention.IntentionResponseb\x06proto3')
