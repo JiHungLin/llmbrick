@@ -29,3 +29,8 @@ httpx>=0.25.0
 python-multipart>=0.0.6
 psutil>=5.9.0
 pretty-loguru>=1.1.2
+
+# Documentation build dependencies
+sphinx>=7.0.0
+myst-parser>=2.0.0
+sphinx_rtd_theme>=2.0.0

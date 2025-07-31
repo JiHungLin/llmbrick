@@ -67,10 +67,10 @@ dev = [
 llmbrick = "llmbrick.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/llmbrick/llmbrick"
+Homepage = "https://github.com/JiHungLin/llmbrick"
 Documentation = "https://llmbrick.readthedocs.io"
-Repository = "https://github.com/llmbrick/llmbrick"
-Issues = "https://github.com/llmbrick/llmbrick/issues"
+Repository = "https://github.com/JiHungLin/llmbrick"
+Issues = "https://github.com/JiHungLin/llmbrick/issues"
 
 [tool.setuptools.packages.find]
 where = ["."]
