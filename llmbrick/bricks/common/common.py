@@ -1,13 +1,11 @@
 import grpc
 from google.protobuf import struct_pb2
-from google.protobuf.json_format import ParseDict
 
 from llmbrick.core.brick import BaseBrick, BrickType
 from llmbrick.protocols.grpc.common import common_pb2_grpc
 from llmbrick.protocols.models.bricks.common_types import (
     CommonRequest,
     CommonResponse,
-    ErrorDetail,
     ServiceInfoResponse,
 )
 

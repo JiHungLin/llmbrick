@@ -18,7 +18,6 @@ _runtime_version.ValidateProtobufRuntimeVersion(
 _sym_db = _symbol_database.Default()
 
 
-from google.protobuf import struct_pb2 as google_dot_protobuf_dot_struct__pb2
 
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
     b'\n\x1fpb2/helloworld/helloworld.proto\x1a\x1cgoogle/protobuf/struct.proto"\x1c\n\x0cHelloRequest\x12\x0c\n\x04name\x18\x01 \x01(\t"\x1d\n\nHelloReply\x12\x0f\n\x07message\x18\x01 \x01(\t"E\n\x0e\x43omplexRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12%\n\x04\x64\x61ta\x18\x02 \x01(\x0b\x32\x17.google.protobuf.Struct2\x87\x03\n\x07Greeter\x12(\n\x08SayHello\x12\r.HelloRequest\x1a\x0b.HelloReply"\x00\x12\x33\n\x11SayHelloManyTimes\x12\r.HelloRequest\x1a\x0b.HelloReply"\x00\x30\x01\x12\x36\n\x14SayHelloClientStream\x12\r.HelloRequest\x1a\x0b.HelloReply"\x00(\x01\x12\x39\n\x15SayHelloBidirectional\x12\r.HelloRequest\x1a\x0b.HelloReply"\x00(\x01\x30\x01\x12<\n\x12SayHelloWithStruct\x12\x17.google.protobuf.Struct\x1a\x0b.HelloReply"\x00\x12\x31\n\x0fSayComplexHello\x12\x0f.ComplexRequest\x1a\x0b.HelloReply"\x00\x12\x39\n\x15SayComplexHelloStream\x12\x0f.ComplexRequest\x1a\x0b.HelloReply"\x00(\x01\x62\x06proto3'

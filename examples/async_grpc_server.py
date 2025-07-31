@@ -4,6 +4,7 @@
 """
 
 import asyncio
+from typing import Any, AsyncIterator
 
 from llmbrick.bricks.common.common import CommonBrick
 from llmbrick.bricks.llm.base_llm import LLMBrick
@@ -15,7 +16,7 @@ from llmbrick.servers.grpc.server import GrpcServer
 class ExampleLLMBrick(LLMBrick):
     """範例 LLM Brick 實作"""
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any) -> None:
         super().__init__(default_prompt="你是一個有用的 AI 助手。", **kwargs)
 
     async def unary_handler(self, request: LLMRequest) -> LLMResponse:
@@ -26,11 +27,12 @@ class ExampleLLMBrick(LLMBrick):
 
         return LLMResponse(
             text=response_text,
-            tokens_used=len(response_text.split()),
-            model="example-llm-v1",
+            tokens=list(response_text),
+            is_final=True,
+            error=None,
         )
 
-    async def output_streaming_handler(self, request: LLMRequest):
+    async def output_streaming_handler(self, request: LLMRequest) -> AsyncIterator[LLMResponse]:
         """處理流式 LLM 請求"""
         prompt = request.prompt or self.default_prompt
         words = f"[流式回應] 針對 '{prompt}' 的逐字回應".split()
@@ -39,9 +41,9 @@ class ExampleLLMBrick(LLMBrick):
             await asyncio.sleep(0.1)  # 模擬處理延遲
             yield LLMResponse(
                 text=word,
-                tokens_used=i + 1,
-                model="example-llm-v1",
+                tokens=[word],
                 is_final=(i == len(words) - 1),
+                error=None,
             )
 
 
@@ -59,7 +61,7 @@ class ExampleCommonBrick(CommonBrick):
 
         return CommonResponse(data=response_data)
 
-    async def output_streaming_handler(self, request: CommonRequest):
+    async def output_streaming_handler(self, request: CommonRequest) -> AsyncIterator[CommonResponse]:
         """處理流式輸出"""
         count = request.data.get("count", 3) if request.data else 3
 
@@ -69,7 +71,7 @@ class ExampleCommonBrick(CommonBrick):
                 data={"index": i, "message": f"Stream message {i + 1}", "total": count}
             )
 
-    async def input_streaming_handler(self, request_stream) -> CommonResponse:
+    async def input_streaming_handler(self, request_stream: AsyncIterator[CommonRequest]) -> CommonResponse:
         """處理流式輸入"""
         messages = []
         async for request in request_stream:
@@ -84,7 +86,7 @@ class ExampleCommonBrick(CommonBrick):
             }
         )
 
-    async def bidi_streaming_handler(self, request_stream):
+    async def bidi_streaming_handler(self, request_stream: AsyncIterator[CommonRequest]) -> AsyncIterator[CommonResponse]:
         """處理雙向流式"""
         async for request in request_stream:
             if request.data:
@@ -97,7 +99,7 @@ class ExampleCommonBrick(CommonBrick):
                 )
 
 
-async def start_llm_server():
+async def start_llm_server() -> None:
     """啟動 LLM gRPC 伺服器"""
     print("啟動 LLM gRPC 伺服器...")
 
@@ -112,7 +114,7 @@ async def start_llm_server():
     await server.start()
 
 
-async def start_common_server():
+async def start_common_server() -> None:
     """啟動 Common gRPC 伺服器"""
     print("啟動 Common gRPC 伺服器...")
 
@@ -127,7 +129,7 @@ async def start_common_server():
     await server.start()
 
 
-async def start_combined_server():
+async def start_combined_server() -> None:
     """啟動組合 gRPC 伺服器（同時提供 LLM 和 Common 服務）"""
     print("啟動組合 gRPC 伺服器...")
 
@@ -146,7 +148,7 @@ async def start_combined_server():
     await server.start()
 
 
-async def main():
+async def main() -> None:
     """主函數"""
     import sys
 

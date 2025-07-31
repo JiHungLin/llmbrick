@@ -2,10 +2,9 @@ import functools
 from enum import Enum
 from typing import AsyncIterator, Awaitable, Callable, Generic, Optional, TypeVar
 
-import grpc
-from google.protobuf import struct_pb2
 
 from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse
+from llmbrick.utils.logging import log_function
 
 
 # --- 強型別 decorator，避免字串錯誤 ---
@@ -42,7 +41,6 @@ def _brick_handler(call_type: str):
     return decorator
 
 
-from llmbrick.utils.logging import log_function
 
 InputT = TypeVar("InputT")
 OutputT = TypeVar("OutputT")

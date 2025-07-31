@@ -3,6 +3,7 @@ Rectify Brick gRPC 功能測試
 """
 
 import asyncio
+from typing import AsyncIterator
 
 import pytest
 import pytest_asyncio
@@ -12,6 +13,7 @@ from llmbrick.core.brick import get_service_info_handler, unary_handler
 from llmbrick.protocols.models.bricks.common_types import (
     ErrorDetail,
     ServiceInfoResponse,
+    ModelInfo
 )
 from llmbrick.protocols.models.bricks.rectify_types import (
     RectifyRequest,
@@ -33,26 +35,26 @@ class _TestRectifyBrick(RectifyBrick):
         )
 
     @get_service_info_handler
-    async def get_service_info_handler(self):
+    async def get_service_info_handler(self) -> ServiceInfoResponse:
         await asyncio.sleep(0.01)
         return ServiceInfoResponse(
             service_name="TestRectifyBrick",
             version="9.9.9",
             models=[
-                {
-                    "model_id": "test",
-                    "version": "1.0",
-                    "supported_languages": ["zh", "en"],
-                    "support_streaming": True,
-                    "description": "test",
-                }
+                ModelInfo(
+                    model_id="test",
+                    version="1.0",
+                    supported_languages=["zh", "en"],
+                    support_streaming=True,
+                    description="test",
+                )
             ],
             error=ErrorDetail(code=0, message="No error"),
         )
 
 
 @pytest.mark.asyncio
-async def test_async_grpc_server_startup():
+async def test_async_grpc_server_startup() -> None:
     """測試異步 gRPC 伺服器啟動"""
     rectify_brick = _TestRectifyBrick()
     server = GrpcServer(port=50130)
@@ -62,7 +64,7 @@ async def test_async_grpc_server_startup():
 
 
 @pytest_asyncio.fixture
-async def grpc_server():
+async def grpc_server() -> AsyncIterator[None]:
     rectify_brick = _TestRectifyBrick()
     server = GrpcServer(port=50131)
     server.register_service(rectify_brick)
@@ -78,14 +80,14 @@ async def grpc_server():
 
 
 @pytest_asyncio.fixture
-async def grpc_client(grpc_server):
+async def grpc_client(grpc_server: AsyncIterator[None]) -> AsyncIterator[_TestRectifyBrick]:
     client_brick = _TestRectifyBrick.toGrpcClient(remote_address="127.0.0.1:50131")
     yield client_brick
     await client_brick._grpc_channel.close()
 
 
 @pytest.mark.asyncio
-async def test_unary(grpc_client):
+async def test_unary(grpc_client: _TestRectifyBrick) -> None:
     request = RectifyRequest(text="原始句子", client_id="cid")
     response = await grpc_client.run_unary(request)
     assert response is not None
@@ -93,7 +95,7 @@ async def test_unary(grpc_client):
 
 
 @pytest.mark.asyncio
-async def test_get_service_info(grpc_client):
+async def test_get_service_info(grpc_client: _TestRectifyBrick) -> None:
     info = await grpc_client.run_get_service_info()
     assert info.service_name == "TestRectifyBrick"
     assert info.version == "9.9.9"

@@ -17,6 +17,7 @@ from llmbrick.core.brick import (
 from llmbrick.protocols.models.bricks.common_types import (
     ErrorDetail,
     ServiceInfoResponse,
+    ModelInfo
 )
 from llmbrick.protocols.models.bricks.translate_types import (
     TranslateRequest,
@@ -57,26 +58,26 @@ class _TestTranslateBrick(TranslateBrick):
             )
 
     @get_service_info_handler
-    async def get_service_info_handler(self):
+    async def get_service_info_handler(self) -> ServiceInfoResponse:
         await asyncio.sleep(0.01)
         return ServiceInfoResponse(
             service_name="TestTranslateBrick",
             version="9.9.9",
             models=[
-                {
-                    "model_id": "test",
-                    "version": "1.0",
-                    "supported_languages": ["zh", "en"],
-                    "support_streaming": True,
-                    "description": "test",
-                }
+                ModelInfo(
+                    model_id="test",
+                    version="1.0",
+                    supported_languages=["zh", "en"],
+                    support_streaming=True,
+                    description="test",
+                )
             ],
             error=ErrorDetail(code=0, message="No error"),
         )
 
 
 @pytest.mark.asyncio
-async def test_async_grpc_server_startup():
+async def test_async_grpc_server_startup() -> None:
     """測試異步 gRPC 伺服器啟動"""
     translate_brick = _TestTranslateBrick()
     server = GrpcServer(port=50150)
@@ -86,7 +87,7 @@ async def test_async_grpc_server_startup():
 
 
 @pytest_asyncio.fixture
-async def grpc_server():
+async def grpc_server() -> AsyncIterator[None]:
     translate_brick = _TestTranslateBrick()
     server = GrpcServer(port=50151)
     server.register_service(translate_brick)
@@ -102,14 +103,14 @@ async def grpc_server():
 
 
 @pytest_asyncio.fixture
-async def grpc_client(grpc_server):
+async def grpc_client(grpc_server: AsyncIterator[None]) -> AsyncIterator[_TestTranslateBrick]:
     client_brick = _TestTranslateBrick.toGrpcClient(remote_address="127.0.0.1:50151")
     yield client_brick
     await client_brick._grpc_channel.close()
 
 
 @pytest.mark.asyncio
-async def test_unary(grpc_client):
+async def test_unary(grpc_client: _TestTranslateBrick) -> None:
     request = TranslateRequest(text="Hello", target_language="zh", client_id="cid")
     response = await grpc_client.run_unary(request)
     assert response is not None
@@ -119,7 +120,7 @@ async def test_unary(grpc_client):
 
 
 @pytest.mark.asyncio
-async def test_output_streaming(grpc_client):
+async def test_output_streaming(grpc_client: _TestTranslateBrick) -> None:
     stream_req = TranslateRequest(text="Hi", target_language="en")
     results = []
     async for resp in grpc_client.run_output_streaming(stream_req):
@@ -128,7 +129,7 @@ async def test_output_streaming(grpc_client):
 
 
 @pytest.mark.asyncio
-async def test_get_service_info(grpc_client):
+async def test_get_service_info(grpc_client: _TestTranslateBrick) -> None:
     info = await grpc_client.run_get_service_info()
     assert info.service_name == "TestTranslateBrick"
     assert info.version == "9.9.9"

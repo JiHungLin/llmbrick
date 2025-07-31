@@ -1,5 +1,5 @@
 import json
-from typing import Any, AsyncGenerator, Awaitable, Callable, Dict, Optional
+from typing import Any, AsyncGenerator, Callable, Dict, Optional
 
 import uvicorn
 from fastapi import FastAPI, HTTPException, Request
@@ -17,7 +17,7 @@ from llmbrick.utils.logging import logger
 class SSEServer:
     def __init__(
         self,
-        handler=None,
+        handler: Optional[Callable[[Dict[str, Any]], AsyncGenerator[Dict[str, Any], None]]] = None,
         chat_completions_path: str = "/chat/completions",
         prefix: str = "",
     ):
@@ -25,9 +25,9 @@ class SSEServer:
 
         # 註冊 LLMBrickException handler
         @self.app.exception_handler(LLMBrickException)
-        async def llmbrick_exception_handler(request, exc: LLMBrickException):
+        async def llmbrick_exception_handler(_: Any, exc: LLMBrickException) -> JSONResponse:
             logger.error(f"LLMBrickException: {exc}")
-            return JSONResponse(status_code=400, content=exc.to_dict())
+            raise HTTPException(status_code=400, detail=exc.to_dict())
 
         # 處理 prefix 格式，確保開頭有 /，結尾無 /
         if prefix and not prefix.startswith("/"):
@@ -41,7 +41,6 @@ class SSEServer:
         self.chat_completions_path = chat_completions_path
         if handler is not None:
             self.set_handler(handler)
-        self.registered_flows = {}
 
     @property
     def fastapi_app(self) -> FastAPI:
@@ -49,7 +48,7 @@ class SSEServer:
 
     def set_handler(
         self, func: Callable[[Dict[str, Any]], AsyncGenerator[Dict[str, Any], None]]
-    ):
+    ) -> None:
         """
         直接設定主 handler，handler 必須為 async generator，yield event dict
         """
@@ -58,7 +57,7 @@ class SSEServer:
 
     def handler(
         self, func: Callable[[Dict[str, Any]], AsyncGenerator[Dict[str, Any], None]]
-    ):
+    ) -> Callable[[Dict[str, Any]], AsyncGenerator[Dict[str, Any], None]]:
         """
         Decorator 註冊主 handler，handler 必須為 async generator，yield event dict
         用法：
@@ -79,7 +78,7 @@ class SSEServer:
         except ValidationError:
             return False
 
-    def setup_routes(self):
+    def setup_routes(self) -> None:
         full_path = self.prefix + self.chat_completions_path
 
         @self.app.post(
@@ -88,13 +87,13 @@ class SSEServer:
             response_model=ConversationSSEResponse,
             response_model_by_alias=True,
         )
-        async def chat_completions(request: Request):
+        async def chat_completions(request: Request) -> StreamingResponse:
             # 檢查 Accept header 是否包含 text/event-stream
             accept_header = request.headers.get("accept", "")
             if "text/event-stream" not in accept_header:
-                return JSONResponse(
+                raise HTTPException(
                     status_code=406,
-                    content={
+                    detail={
                         "error": "Accept header must include 'text/event-stream' for SSE"
                     },
                 )
@@ -102,19 +101,18 @@ class SSEServer:
                 # 先檢查 body 是否為空
                 raw_body = await request.body()
                 if not raw_body or raw_body.strip() == b"" or raw_body.strip() == b"{}":
-                    return JSONResponse(
+                    raise HTTPException(
                         status_code=400,
-                        content={
+                        detail={
                             "error": "Empty request body",
                             "details": "Request body is empty. Please provide a valid JSON object.",
                         },
                     )
                 body_json = await request.json()
-                req = ConversationSSERequest.model_validate(body_json)
             except ValidationError as ve:
-                return JSONResponse(
+                raise HTTPException(
                     status_code=422,
-                    content={
+                    detail={
                         "error": "Invalid request",
                         "details": ve.errors(),
                         "input": body_json,
@@ -122,19 +120,19 @@ class SSEServer:
                     },
                 )
             except Exception as e:
-                return JSONResponse(
+                raise HTTPException(
                     status_code=400,
-                    content={
+                    detail={
                         "error": "Malformed request",
                         "details": str(e),
                     },
                 )
             if not hasattr(self, "_handler") or self._handler is None:
-                return JSONResponse(
-                    status_code=404, content={"error": "Handler not set"}
+                raise HTTPException(
+                    status_code=404, detail={"error": "Handler not set"}
                 )
 
-            async def event_stream():
+            async def event_stream() -> AsyncGenerator[str, None]:
                 try:
                     async for event in self._handler(body_json):
                         if not self._validate_event(event):
@@ -146,7 +144,7 @@ class SSEServer:
 
             return StreamingResponse(event_stream(), media_type="text/event-stream")
 
-    def run(self, host="0.0.0.0", port=8000):
+    def run(self, host: str = "0.0.0.0", port: int = 8000) -> None:
         """
         啟動 FastAPI SSE 服務
         """

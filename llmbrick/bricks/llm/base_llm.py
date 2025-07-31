@@ -4,7 +4,6 @@ from deprecated import deprecated
 
 from llmbrick.core.brick import BaseBrick, BrickType
 from llmbrick.protocols.models.bricks.common_types import (
-    ErrorDetail,
     ServiceInfoResponse,
 )
 from llmbrick.protocols.models.bricks.llm_types import LLMRequest, LLMResponse
@@ -70,7 +69,6 @@ class LLMBrick(BaseBrick[LLMRequest, LLMResponse]):
             配置為異步 gRPC 客戶端的 LLMBrick 實例
         """
         import grpc
-        from google.protobuf import struct_pb2
 
         from llmbrick.protocols.grpc.llm import llm_pb2_grpc
 

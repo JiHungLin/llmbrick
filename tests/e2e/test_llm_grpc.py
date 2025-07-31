@@ -3,7 +3,7 @@ LLM Brick gRPC 功能測試
 """
 
 import asyncio
-from typing import AsyncIterator
+from typing import Any, AsyncIterator
 
 import pytest
 import pytest_asyncio
@@ -17,6 +17,7 @@ from llmbrick.core.brick import (
 from llmbrick.protocols.models.bricks.common_types import (
     ErrorDetail,
     ServiceInfoResponse,
+    ModelInfo
 )
 from llmbrick.protocols.models.bricks.llm_types import LLMRequest, LLMResponse
 from llmbrick.servers.grpc.server import GrpcServer
@@ -25,7 +26,7 @@ from llmbrick.servers.grpc.server import GrpcServer
 class _TestLLMBrick(LLMBrick):
     """測試用的 LLM Brick"""
 
-    def __init__(self, default_prompt: str, **kwargs):
+    def __init__(self, default_prompt: str, **kwargs: Any):
         super().__init__(default_prompt=default_prompt, **kwargs)
 
     @unary_handler
@@ -59,20 +60,20 @@ class _TestLLMBrick(LLMBrick):
             service_name="TestLLMBrick",
             version="9.9.9",
             models=[
-                {
-                    "model_id": "test",
-                    "version": "1.0",
-                    "supported_languages": ["zh", "en"],
-                    "support_streaming": True,
-                    "description": "test",
-                }
+                ModelInfo(
+                    model_id="test",
+                    version="1.0",
+                    supported_languages=["zh", "en"],
+                    support_streaming=True,
+                    description="test",
+                )
             ],
             error=ErrorDetail(code=0, message="No error"),
         )
 
 
 @pytest.mark.asyncio
-async def test_async_grpc_server_startup():
+async def test_async_grpc_server_startup() -> None:
     """測試異步 gRPC 伺服器啟動"""
     llm_brick = _TestLLMBrick(default_prompt="測試助手")
     server = GrpcServer(port=50060)
@@ -82,7 +83,7 @@ async def test_async_grpc_server_startup():
 
 
 @pytest_asyncio.fixture
-async def grpc_server():
+async def grpc_server() -> AsyncIterator[None]:
     llm_brick = _TestLLMBrick(default_prompt="測試助手")
     server = GrpcServer(port=50061)
     server.register_service(llm_brick)
@@ -98,14 +99,14 @@ async def grpc_server():
 
 
 @pytest_asyncio.fixture
-async def grpc_client(grpc_server):
+async def grpc_client(grpc_server: AsyncIterator[None]) -> AsyncIterator[_TestLLMBrick]:
     client_brick = _TestLLMBrick.toGrpcClient(remote_address="127.0.0.1:50061")
     yield client_brick
     await client_brick._grpc_channel.close()
 
 
 @pytest.mark.asyncio
-async def test_unary(grpc_client: _TestLLMBrick):
+async def test_unary(grpc_client: _TestLLMBrick) -> None:
     request = LLMRequest(prompt="單一請求")
     response = await grpc_client.run_unary(request)
     assert response is not None
@@ -115,7 +116,7 @@ async def test_unary(grpc_client: _TestLLMBrick):
 
 
 @pytest.mark.asyncio
-async def test_output_streaming(grpc_client: _TestLLMBrick):
+async def test_output_streaming(grpc_client: _TestLLMBrick) -> None:
     stream_req = LLMRequest(prompt="流式請求")
     results = []
     async for resp in grpc_client.run_output_streaming(stream_req):
@@ -125,7 +126,7 @@ async def test_output_streaming(grpc_client: _TestLLMBrick):
 
 
 @pytest.mark.asyncio
-async def test_get_service_info(grpc_client: _TestLLMBrick):
+async def test_get_service_info(grpc_client: _TestLLMBrick) -> None:
     info = await grpc_client.run_get_service_info()
     assert info.service_name == "TestLLMBrick"
     assert info.version == "9.9.9"

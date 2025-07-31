@@ -18,7 +18,7 @@ from typing import List, Optional, Dict, Any
 """
 
 
-def parse_proto(proto_path):
+def parse_proto(proto_path: str) -> list[dict]:
     with open(proto_path, "r", encoding="utf-8") as f:
         lines = f.readlines()
 
@@ -28,9 +28,10 @@ def parse_proto(proto_path):
         line = line.strip()
         if line.startswith("message "):
             name = line.split()[1].strip("{")
-            current = {"name": name, "fields": []}
+            current = {"name": name, "fields": []}  # type: ignore
         elif line == "}":
             if current:
+                current["fields"] = list(current["fields"])  # type: ignore
                 messages.append(current)
                 current = None
         elif current and line and not line.startswith("//"):
@@ -39,18 +40,18 @@ def parse_proto(proto_path):
                 is_repeated = bool(m.group(1))
                 typ = m.group(2)
                 fname = m.group(3)
-                current["fields"].append((fname, typ, is_repeated))
+                current["fields"].append((fname, typ, is_repeated))  # type: ignore
     return messages
 
 
-def proto_type_to_py(typ, is_repeated):
+def proto_type_to_py(typ: str, is_repeated: bool) -> str:
     py_type = PROTO_TYPE_MAP.get(typ, typ)
     if is_repeated:
         return f"List[{py_type}]"
     return py_type
 
 
-def gen_dataclass_code(messages):
+def gen_dataclass_code(messages: list[dict]) -> str:
     code = HEADER
     for msg in messages:
         code += f"@dataclass\nclass {msg['name']}:\n"
@@ -75,7 +76,7 @@ def gen_dataclass_code(messages):
     return code
 
 
-def main():
+def main() -> None:
     if len(sys.argv) < 3:
         print("用法: python generate_dataclass.py <proto檔路徑> <輸出py路徑>")
         sys.exit(1)

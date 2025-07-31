@@ -4,14 +4,15 @@
 """
 
 import asyncio
+from typing import AsyncIterator
 
 from llmbrick.bricks.common.common import CommonBrick
 from llmbrick.bricks.llm.base_llm import LLMBrick
-from llmbrick.protocols.models.bricks.common_types import CommonRequest, CommonResponse
-from llmbrick.protocols.models.bricks.llm_types import LLMRequest, LLMResponse
+from llmbrick.protocols.models.bricks.common_types import CommonRequest
+from llmbrick.protocols.models.bricks.llm_types import LLMRequest
 
 
-async def test_llm_grpc_client():
+async def test_llm_grpc_client() -> None:
     """測試 LLM gRPC 異步客戶端"""
     print("=== 測試 LLM gRPC 異步客戶端 ===")
 
@@ -49,7 +50,7 @@ async def test_llm_grpc_client():
             await llm_client._grpc_channel.close()
 
 
-async def test_common_grpc_client():
+async def test_common_grpc_client() -> None:
     """測試 Common gRPC 異步客戶端"""
     print("\n=== 測試 Common gRPC 異步客戶端 ===")
 
@@ -78,7 +79,7 @@ async def test_common_grpc_client():
         # 測試流式輸入
         print("\n4. 測試流式輸入...")
 
-        async def input_generator():
+        async def input_generator() -> AsyncIterator[CommonRequest]:
             for i in range(3):
                 yield CommonRequest(data={"index": i, "message": f"Input {i}"})
                 await asyncio.sleep(0.1)
@@ -89,7 +90,7 @@ async def test_common_grpc_client():
         # 測試雙向流式
         print("\n5. 測試雙向流式...")
 
-        async def bidi_generator():
+        async def bidi_generator() -> AsyncIterator[CommonRequest]:
             for i in range(3):
                 yield CommonRequest(data={"bidi_index": i, "message": f"Bidi {i}"})
                 await asyncio.sleep(0.1)
@@ -106,7 +107,7 @@ async def test_common_grpc_client():
             await common_client._grpc_channel.close()
 
 
-async def main():
+async def main() -> None:
     """主函數"""
     print("異步 gRPC 客戶端測試開始...")
 

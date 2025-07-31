@@ -105,7 +105,7 @@ class CommonGrpcWrapper(common_pb2_grpc.CommonServiceServicer):
 
     # request is common_pb2.CommonRequest
     # request.data is struct_pb2.Struct
-    async def OutputStreaming(self, request: common_pb2.CommonRequest, context):
+    async def OutputStreaming(self, request: common_pb2.CommonRequest, context):  # type: ignore
         """異步處理流式回應"""
         request = CommonRequest.from_pb2_model(request)
         async for response in self.brick.run_output_streaming(request):

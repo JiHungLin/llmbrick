@@ -1,5 +1,6 @@
 # 範例 async flow handler
 import asyncio
+from typing import Any, AsyncGenerator, Dict
 
 from llmbrick.servers.sse.server import SSEServer
 
@@ -8,7 +9,7 @@ server.fastapi_app
 
 
 @server.handler
-async def simple_flow(request_body):
+async def simple_flow(request_body: Dict[str, Any]) -> AsyncGenerator[Dict[str, Any], None]:
     # 模擬訊息處理與回應
     yield {
         "id": "1",

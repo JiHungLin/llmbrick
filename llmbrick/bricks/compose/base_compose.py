@@ -10,7 +10,6 @@ from llmbrick.protocols.models.bricks.common_types import (
 from llmbrick.protocols.models.bricks.compose_types import (
     ComposeRequest,
     ComposeResponse,
-    Document,
 )
 
 
@@ -77,7 +76,6 @@ class ComposeBrick(BaseBrick[ComposeRequest, ComposeResponse]):
             配置為異步 gRPC 客戶端的 ComposeBrick 實例
         """
         import grpc
-        from google.protobuf import struct_pb2
 
         from llmbrick.protocols.grpc.compose import compose_pb2_grpc
 

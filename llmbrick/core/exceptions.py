@@ -29,7 +29,7 @@ class LLMBrickException(Exception):
         self.detail = detail
         super().__init__(f"[{self.code.value}] {self.message}")
 
-    def to_dict(self):
+    def to_dict(self) -> dict[str, Any]:
         return {
             "error_code": self.code.value,
             "error_name": self.code.name,
