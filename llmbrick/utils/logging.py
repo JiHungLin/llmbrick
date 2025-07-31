@@ -36,7 +36,6 @@ def configure_logger(
     """
     重新配置 logger，會回傳新的 logger 實體。
     """
-    global config
     if name is None:
         config.update(name="llmbrick")
     if level is not None:
@@ -74,7 +73,6 @@ def apply_template(
     if template not in templates:
         raise ValueError(f"未知的模板名稱: {template}")
     config = templates[template]()
-    global logger
     logger = config.apply_to(name)
     return logger
 
