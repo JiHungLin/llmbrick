@@ -5,7 +5,7 @@
 ## 特色
 
 - 🧱 **模組化設計**: 基於 Brick 組件的可插拔架構
-- 🔄 **多協議支援**: SSE、WebSocket、WebRTC、gRPC
+- 🔄 **多協議支援**: SSE、gRPC、(~~WebSocket~~、~~WebRTC~~)
 - 🤖 **多 LLM 支援**: OpenAI、Anthropic、本地模型
 - 🎤 **語音處理**: ASR 語音識別整合
 - 📚 **RAG 支援**: 內建檢索增強生成
@@ -214,3 +214,40 @@ if __name__ == "__main__":
 ## 授權
 
 MIT License
+## Metrics Utilities
+
+The `llmbrick.utils.metrics` module provides decorators for monitoring function performance and resource usage. All decorators support both sync and async functions.
+
+### Available Decorators
+
+- **@measure_time**  
+  Logs the execution time of the decorated function.
+
+- **@measure_memory**  
+  Logs the difference in process memory usage (RSS, MB) before and after the function runs. Requires `psutil`.
+
+- **@measure_peak_memory**  
+  Logs the peak memory usage (MB) during function execution using `tracemalloc`.
+
+### Usage Example
+
+```python
+from llmbrick.utils.metrics import measure_time, measure_memory, measure_peak_memory
+
+@measure_time
+def sync_func(x):
+    return x * 2
+
+@measure_memory
+async def async_func(x):
+    a = [0] * 10000
+    return x + 1
+
+@measure_peak_memory
+def another_sync_func(x):
+    a = [0] * 10000
+    return x - 1
+```
+
+All decorators will log performance metrics using the standard logging module.  
+For async functions, simply decorate as usual.

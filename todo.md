@@ -75,21 +75,6 @@
   - [x] 請求處理和路由
   - [x] 錯誤處理和回復
 
-### 3.2 WebSocket 伺服器 (`llmbrick/servers/websocket/`)
-- [ ] WebSocket 伺服器檔案已建立 (`server.py`, `handlers.py`) <!-- 內容為空，僅有骨架 -->
-- [ ] WebSocket 連線管理 <!-- 尚未實作 -->
-- [ ] 訊息路由和處理 <!-- 尚未實作 -->
-- [ ] 連線狀態管理 <!-- 尚未實作 -->
-- [ ] 多客戶端支援 <!-- 尚未實作 -->
-
-<!--
-### 3.3 服務基類 (`llmbrick/servers/base/`)
-- [ ] **BaseServer** (`server_base.py`)
-  - [ ] 共用功能抽象
-  - [ ] 中介軟體支援
-  - [ ] 日誌和監控整合
---> <!-- 檔案不存在，建議註解 -->
-
 ---
 
 ## 🛠️ Phase 4: gRPC 分散式支援 (預估時間: 2-3 週)
@@ -116,10 +101,8 @@
   - [x] 配置範例
 
 ### 5.2 客戶端範例 (`client_examples/`)
-- [] **JavaScript 客戶端** <!-- sse_client.js/websocket_client.js/webrtc_client.js 檔案已建立，內容為空 -->
+- [] **JavaScript 客戶端** 
   - [] SSE 客戶端檔案已建立 <!-- 尚未實作 -->
-  - [] WebSocket 客戶端檔案已建立 <!-- 尚未實作 -->
-  - [] WebRTC 客戶端檔案已建立 <!-- 尚未實作 -->
 
 - [x] **Python 客戶端**
   - [x] gRPC 客戶端 <!-- grpc_client.py 已有完整範例 -->
@@ -188,8 +171,9 @@
 
 ### 🔹 低優先級 (穩定版本)
 1. WebRTC 支援
-2. 完整文檔系統
-3. 高級插件功能
+2. WebSocket 支援
+3. 完整文檔系統
+4. 高級插件功能
 
 ## 🎯 里程碑規劃
 
