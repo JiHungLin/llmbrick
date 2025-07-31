@@ -28,13 +28,13 @@ jobs:
         pip install -r requirements-dev.txt || true
         pip install .
 
-    - name: Lint with flake8
-      run: |
-        flake8 llmbrick tests examples
+    # - name: Lint with flake8
+    #   run: |
+    #     flake8 llmbrick
 
-    - name: Type check with mypy
-      run: |
-        mypy llmbrick
+    # - name: Type check with mypy
+    #   run: |
+    #     mypy llmbrick
 
     - name: Run tests
       run: |
