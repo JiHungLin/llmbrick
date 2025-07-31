@@ -10,19 +10,11 @@ import inspect
 from typing import Any, Callable, Optional
 
 from pretty_loguru import ConfigTemplates, EnhancedLogger, LoggerConfig, create_logger
-from pretty_loguru import get_logger as _get_logger
 
 config = LoggerConfig(level="INFO", rotation="1 day", retention="7 days")
 
 # 預設全域 logger
 logger: EnhancedLogger = create_logger("llmbrick", config=config)
-
-
-def get_logger(name: str = "llmbrick") -> EnhancedLogger:
-    """
-    取得指定名稱的 logger，預設為 llmbrick。
-    """
-    return _get_logger(name)
 
 
 def configure_logger(
