@@ -7,6 +7,7 @@ from llmbrick.protocols.models.bricks.common_types import (
     CommonRequest,
     CommonResponse,
     ServiceInfoResponse,
+    ModelInfo
 )
 
 
@@ -116,12 +117,12 @@ class CommonBrick(BaseBrick[CommonRequest, CommonResponse]):
                 service_name=response.service_name,
                 version=response.version,
                 models=[
-                    {
-                        "model_id": model.model_id,
-                        "version": model.version,
-                        "supported_languages": list(model.supported_languages),
-                        "support_streaming": model.support_streaming,
-                    }
+                    ModelInfo(
+                        model_id=model.model_id,
+                        version=model.version,
+                        supported_languages=list(model.supported_languages),
+                        support_streaming=model.support_streaming,
+                    )
                     for model in response.models
                 ],
             )

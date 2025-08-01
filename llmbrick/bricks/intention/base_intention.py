@@ -6,6 +6,7 @@ from llmbrick.core.brick import BaseBrick, BrickType
 from llmbrick.protocols.models.bricks.common_types import (
     ErrorDetail,
     ServiceInfoResponse,
+    ModelInfo
 )
 from llmbrick.protocols.models.bricks.intention_types import (
     IntentionRequest,
@@ -157,12 +158,13 @@ class IntentionBrick(BaseBrick[IntentionRequest, IntentionResponse]):
                 service_name=response.service_name,
                 version=response.version,
                 models=[
-                    {
-                        "model_id": model.model_id,
-                        "version": model.version,
-                        "supported_languages": list(model.supported_languages),
-                        "support_streaming": model.support_streaming,
-                    }
+                    ModelInfo(
+                        model_id=model.model_id,
+                        version=model.version,
+                        supported_languages=list(model.supported_languages),
+                        support_streaming=model.support_streaming,
+                        description=getattr(model, "description", ""),
+                    )
                     for model in response.models
                 ],
                 error=error,

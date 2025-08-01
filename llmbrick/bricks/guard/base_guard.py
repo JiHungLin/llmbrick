@@ -6,6 +6,7 @@ from llmbrick.core.brick import BaseBrick, BrickType
 from llmbrick.protocols.models.bricks.common_types import (
     ErrorDetail,
     ServiceInfoResponse,
+    ModelInfo
 )
 from llmbrick.protocols.models.bricks.guard_types import (
     GuardRequest,
@@ -141,7 +142,6 @@ class GuardBrick(BaseBrick[GuardRequest, GuardResponse]):
             request = common_pb2.ServiceInfoRequest()
             response = await grpc_client.GetServiceInfo(request)
             # 將 models 轉為 ModelInfo 物件
-            from llmbrick.protocols.models.bricks.common_types import ModelInfo
             models = [
                 ModelInfo(
                     model_id=model.model_id,

@@ -10,7 +10,7 @@ from llmbrick.protocols.grpc.common import common_pb2
 class ErrorDetail:
     code: int
     message: str
-    detail: Optional[str] = None
+    detail: str = ""
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)

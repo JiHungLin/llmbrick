@@ -89,6 +89,9 @@ class RectifyGrpcWrapper(rectify_pb2_grpc.RectifyServiceServicer):
             # context.set_details(result.error.message)
             error_data.code = result.error.code
             error_data.message = result.error.message
+            print("***********************")
+            print(error_data)
+            print(result)
             error_data.detail = result.error.detail
             response = rectify_pb2.RectifyResponse(error=error_data)
             return response

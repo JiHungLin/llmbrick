@@ -6,6 +6,7 @@ from llmbrick.core.brick import BaseBrick, BrickType
 from llmbrick.protocols.models.bricks.common_types import (
     ErrorDetail,
     ServiceInfoResponse,
+    ModelInfo
 )
 from llmbrick.protocols.models.bricks.rectify_types import (
     RectifyRequest,
@@ -131,18 +132,20 @@ class RectifyBrick(BaseBrick[RectifyRequest, RectifyResponse]):
 
             request = common_pb2.ServiceInfoRequest()
             response = await grpc_client.GetServiceInfo(request)
+            models = [
+                ModelInfo(
+                    model_id=model.model_id,
+                    version=model.version,
+                    supported_languages=list(model.supported_languages),
+                    support_streaming=model.support_streaming,
+                    description=getattr(model, "description", ""),
+                )
+                for model in response.models
+            ]
             return ServiceInfoResponse(
                 service_name=response.service_name,
                 version=response.version,
-                models=[
-                    {
-                        "model_id": model.model_id,
-                        "version": model.version,
-                        "supported_languages": list(model.supported_languages),
-                        "support_streaming": model.support_streaming,
-                    }
-                    for model in response.models
-                ],
+                models=models,
             )
 
         # 儲存通道引用以便後續清理
