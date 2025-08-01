@@ -112,18 +112,7 @@ class RectifyBrick(BaseBrick[RectifyRequest, RectifyResponse]):
             response = await grpc_client.Unary(grpc_request)
 
             # 將 protobuf 回應轉換為 RectifyResponse
-            return RectifyResponse(
-                corrected_text=response.corrected_text,
-                error=(
-                    ErrorDetail(
-                        code=response.error.code,
-                        message=response.error.message,
-                        detail=response.error.detail,
-                    )
-                    if response.error
-                    else None
-                ),
-            )
+            return RectifyResponse.from_pb2_model(response)
 
         @brick.get_service_info()
         async def get_service_info_handler() -> ServiceInfoResponse:

@@ -78,9 +78,9 @@ class RetrievalResponse:
     def from_pb2_model(
         cls, model: retrieval_pb2.RetrievalResponse
     ) -> "RetrievalResponse":
-        docs = [Document.from_dict(MessageToDict(doc)) for doc in model.documents]
+        docs = [Document.from_dict(MessageToDict(doc, preserving_proto_field_name=True)) for doc in model.documents]
         error = (
-            ErrorDetail.from_dict(MessageToDict(model.error)) if model.error else None
+            ErrorDetail.from_dict(MessageToDict(model.error, preserving_proto_field_name=True)) if model.error else None
         )
         return cls(documents=docs, error=error)
 

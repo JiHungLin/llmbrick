@@ -20,7 +20,7 @@ class ErrorDetail:
         return cls(
             code=data.get("code", 0),
             message=data.get("message", ""),
-            detail=data.get("detail"),
+            detail=data.get("detail", ""),
         )
 
 
@@ -55,7 +55,7 @@ class CommonRequest:
 
     @classmethod
     def from_pb2_model(cls, model: common_pb2.CommonRequest) -> "CommonRequest":
-        data = MessageToDict(model.data)
+        data = MessageToDict(model.data, preserving_proto_field_name=True)
         return cls(data=data)
 
 
@@ -69,9 +69,9 @@ class CommonResponse:
 
     @classmethod
     def from_pb2_model(cls, model: common_pb2.CommonResponse) -> "CommonResponse":
-        data = MessageToDict(model.data)
+        data = MessageToDict(model.data, preserving_proto_field_name=True)
         error = (
-            ErrorDetail.from_dict(MessageToDict(model.error)) if model.error else None
+            ErrorDetail.from_dict(MessageToDict(model.error, preserving_proto_field_name=True)) if model.error else None
         )
         return cls(data=data, error=error)
 

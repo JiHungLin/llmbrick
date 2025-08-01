@@ -144,23 +144,7 @@ class ComposeBrick(BaseBrick[ComposeRequest, ComposeResponse]):
             grpc_request.source_language = request.source_language
 
             async for response in grpc_client.OutputStreaming(grpc_request):
-                # 將 protobuf 回應轉換為 ComposeResponse
-                output_dict = {}
-                if response.output:
-                    output_dict = dict(response.output)
-
-                yield ComposeResponse(
-                    output=output_dict,
-                    error=(
-                        ErrorDetail(
-                            code=response.error.code,
-                            message=response.error.message,
-                            detail=response.error.detail,
-                        )
-                        if response.error
-                        else None
-                    ),
-                )
+                yield ComposeResponse.from_pb2_model(response)
 
         @brick.get_service_info()
         async def get_service_info_handler() -> ServiceInfoResponse:

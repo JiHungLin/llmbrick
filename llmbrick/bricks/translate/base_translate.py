@@ -106,21 +106,7 @@ class TranslateBrick(BaseBrick[TranslateRequest, TranslateResponse]):
             response = await grpc_client.Unary(grpc_request)
 
             # 將 protobuf 回應轉換為 TranslateResponse
-            return TranslateResponse(
-                text=response.text,
-                tokens=list(response.tokens),
-                language_code=response.language_code,
-                is_final=response.is_final,
-                error=(
-                    ErrorDetail(
-                        code=response.error.code,
-                        message=response.error.message,
-                        detail=response.error.detail,
-                    )
-                    if response.error
-                    else None
-                ),
-            )
+            return TranslateResponse.from_pb2_model(response)
 
         @brick.output_streaming()
         async def output_streaming_handler(request: TranslateRequest):
@@ -138,21 +124,7 @@ class TranslateBrick(BaseBrick[TranslateRequest, TranslateResponse]):
             grpc_request.source_language = request.source_language
 
             async for response in grpc_client.OutputStreaming(grpc_request):
-                yield TranslateResponse(
-                    text=response.text,
-                    tokens=list(response.tokens),
-                    language_code=response.language_code,
-                    is_final=response.is_final,
-                    error=(
-                        ErrorDetail(
-                            code=response.error.code,
-                            message=response.error.message,
-                            detail=response.error.detail,
-                        )
-                        if response.error
-                        else None
-                    ),
-                )
+                yield TranslateResponse.from_pb2_model(response)
 
         @brick.get_service_info()
         async def get_service_info_handler() -> ServiceInfoResponse:

@@ -70,10 +70,10 @@ class IntentionResponse:
         cls, model: intention_pb2.IntentionResponse
     ) -> "IntentionResponse":
         results = [
-            IntentionResult.from_dict(MessageToDict(result)) for result in model.results
+            IntentionResult.from_dict(MessageToDict(result, preserving_proto_field_name=True)) for result in model.results
         ]
         error = (
-            ErrorDetail.from_dict(MessageToDict(model.error)) if model.error else None
+            ErrorDetail.from_dict(MessageToDict(model.error, preserving_proto_field_name=True)) if model.error else None
         )
         return cls(results=results, error=error)
 

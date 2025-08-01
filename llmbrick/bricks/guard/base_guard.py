@@ -4,14 +4,12 @@ from deprecated import deprecated
 
 from llmbrick.core.brick import BaseBrick, BrickType
 from llmbrick.protocols.models.bricks.common_types import (
-    ErrorDetail,
     ServiceInfoResponse,
     ModelInfo
 )
 from llmbrick.protocols.models.bricks.guard_types import (
     GuardRequest,
     GuardResponse,
-    GuardResult,
 )
 
 
@@ -110,29 +108,7 @@ class GuardBrick(BaseBrick[GuardRequest, GuardResponse]):
 
             response = await grpc_client.Unary(grpc_request)
 
-            # 將 protobuf 回應轉換為 GuardResponse
-            results = []
-            for result in response.results:
-                results.append(
-                    GuardResult(
-                        is_attack=result.is_attack,
-                        confidence=result.confidence,
-                        detail=result.detail,
-                    )
-                )
-
-            return GuardResponse(
-                results=results,
-                error=(
-                    ErrorDetail(
-                        code=response.error.code,
-                        message=response.error.message,
-                        detail=response.error.detail,
-                    )
-                    if response.error
-                    else None
-                ),
-            )
+            return GuardResponse.from_pb2_model(response)
 
         @brick.get_service_info()
         async def get_service_info_handler() -> ServiceInfoResponse:

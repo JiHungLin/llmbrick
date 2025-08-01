@@ -113,29 +113,7 @@ class IntentionBrick(BaseBrick[IntentionRequest, IntentionResponse]):
             grpc_request.source_language = request.source_language
 
             response = await grpc_client.Unary(grpc_request)
-
-            # 將 protobuf 回應轉換為 IntentionResponse
-            results = []
-            for result in response.results:
-                results.append(
-                    IntentionResult(
-                        intent_category=result.intent_category,
-                        confidence=result.confidence,
-                    )
-                )
-
-            return IntentionResponse(
-                results=results,
-                error=(
-                    ErrorDetail(
-                        code=response.error.code,
-                        message=response.error.message,
-                        detail=response.error.detail,
-                    )
-                    if response.error
-                    else None
-                ),
-            )
+            return IntentionResponse.from_pb2_model(response)
 
         @brick.get_service_info()
         async def get_service_info_handler() -> ServiceInfoResponse:

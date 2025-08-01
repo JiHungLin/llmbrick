@@ -43,7 +43,7 @@ class ComposeRequest:
 
     @classmethod
     def from_pb2_model(cls, model: compose_pb2.ComposeRequest) -> "ComposeRequest":
-        docs_data = [MessageToDict(doc) for doc in model.input_documents]
+        docs_data = [MessageToDict(doc, preserving_proto_field_name=True) for doc in model.input_documents]
         input_documents = [Document.from_dict(doc) for doc in docs_data]
         return cls(
             input_documents=input_documents,
@@ -78,9 +78,9 @@ class ComposeResponse:
 
     @classmethod
     def from_pb2_model(cls, model: compose_pb2.ComposeResponse) -> "ComposeResponse":
-        output_dict = MessageToDict(model.output) if model.output else {}
+        output_dict = MessageToDict(model.output, preserving_proto_field_name=True) if model.output else {}
         error = (
-            ErrorDetail.from_dict(MessageToDict(model.error)) if model.error else None
+            ErrorDetail.from_dict(MessageToDict(model.error, preserving_proto_field_name=True)) if model.error else None
         )
         return cls(output=output_dict, error=error)
 

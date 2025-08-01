@@ -63,7 +63,7 @@ class TranslateResponse:
         cls, model: translate_pb2.TranslateResponse
     ) -> "TranslateResponse":
         error = (
-            ErrorDetail.from_dict(MessageToDict(model.error)) if model.error else None
+            ErrorDetail.from_dict(MessageToDict(model.error, preserving_proto_field_name=True)) if model.error else None
         )
         return cls(
             text=model.text,

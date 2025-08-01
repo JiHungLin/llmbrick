@@ -65,7 +65,7 @@ class GuardResponse:
     def from_pb2_model(cls, model: guard_pb2.GuardResponse) -> "GuardResponse":
         results = [GuardResult.from_pb2_model(result) for result in model.results]
         error = (
-            ErrorDetail.from_dict(MessageToDict(model.error)) if model.error else None
+            ErrorDetail.from_dict(MessageToDict(model.error, preserving_proto_field_name=True)) if model.error else None
         )
         return cls(results=results, error=error)
 

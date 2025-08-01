@@ -114,36 +114,8 @@ class RetrievalBrick(BaseBrick[RetrievalRequest, RetrievalResponse]):
             grpc_request.source_language = request.source_language
 
             response = await grpc_client.Unary(grpc_request)
-
-            # 將 protobuf 回應轉換為 RetrievalResponse
-            documents = []
-            for doc in response.documents:
-                metadata_dict = {}
-                if doc.metadata:
-                    metadata_dict = dict(doc.metadata)
-
-                documents.append(
-                    Document(
-                        doc_id=doc.doc_id,
-                        title=doc.title,
-                        snippet=doc.snippet,
-                        score=doc.score,
-                        metadata=metadata_dict,
-                    )
-                )
-
-            return RetrievalResponse(
-                documents=documents,
-                error=(
-                    ErrorDetail(
-                        code=response.error.code,
-                        message=response.error.message,
-                        detail=response.error.detail,
-                    )
-                    if response.error
-                    else None
-                ),
-            )
+            
+            return RetrievalResponse.from_pb2_model(response)
 
         @brick.get_service_info()
         async def get_service_info_handler() -> ServiceInfoResponse:
