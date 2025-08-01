@@ -11,6 +11,7 @@
 
 quickstart.md
 tutorials/index.md
+guides/index.md
 api_reference/index
 deployment/index
 ```
