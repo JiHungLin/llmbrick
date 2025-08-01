@@ -6,15 +6,15 @@
 :maxdepth: 1
 :caption: 元件指南
 
-guides/common_brick_guide
-guides/llm_brick_guide
-guides/compose_brick_guide
-guides/guard_brick_guide
-guides/intention_brick_guide
-guides/rectify_brick_guide
-guides/retrieval_brick_guide
-guides/translate_brick_guide
-guides/sse_server_guide
+common_brick_guide
+llm_brick_guide
+compose_brick_guide
+guard_brick_guide
+intention_brick_guide
+rectify_brick_guide
+retrieval_brick_guide
+translate_brick_guide
+sse_server_guide
 ```
 
 - 每份指南皆以步驟化、實作導向為主，適合開發者快速查閱與實作。
