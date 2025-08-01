@@ -10,7 +10,7 @@
 :caption: 內容
 
 quickstart.md
-tutorials/brick_developer_guide.md
+tutorials/index.md
 api_reference/index
 deployment/index
 ```

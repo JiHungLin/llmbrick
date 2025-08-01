@@ -3,7 +3,11 @@ import warnings
 from deprecated import deprecated
 
 from llmbrick.core.brick import BaseBrick, BrickType
-from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse
+from llmbrick.protocols.models.bricks.common_types import (
+    ErrorDetail,
+    ServiceInfoResponse,
+    ModelInfo
+)
 from llmbrick.protocols.models.bricks.llm_types import LLMRequest, LLMResponse
 
 
@@ -146,14 +150,16 @@ class LLMBrick(BaseBrick[LLMRequest, LLMResponse]):
                 service_name=response.service_name,
                 version=response.version,
                 models=[
-                    {
-                        "model_id": model.model_id,
-                        "version": model.version,
-                        "supported_languages": list(model.supported_languages),
-                        "support_streaming": model.support_streaming,
-                    }
+                    ModelInfo(
+                        model_id=model.model_id,
+                        version=model.version,
+                        supported_languages=list(model.supported_languages),
+                        support_streaming=model.support_streaming,
+                        description=model.description,
+                    )
                     for model in response.models
                 ],
+                error=ErrorDetail.from_pb2_model(response.error) if response.error else None,
             )
 
         # 儲存通道引用以便後續清理

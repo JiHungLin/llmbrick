@@ -107,9 +107,9 @@ class BaseBrick(Generic[InputT, OutputT]):
 
     def __get_service_info(self) -> ServiceInfoResponse:
         """
-        回傳服務資訊，子類可覆寫
+        預設未註冊 get_service_info handler 時丟出例外
         """
-        return {"service_name": self.brick_name, "version": "1.0.0", "models": []}
+        raise NotImplementedError("get_service_info handler not implemented")
 
     # Decorator for get_service_info
     def get_service_info(self):

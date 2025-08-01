@@ -37,7 +37,7 @@ class LLMRequest:
 
     @classmethod
     def from_pb2_model(cls, model: llm_pb2.LLMRequest) -> "LLMRequest":
-        context_data = [MessageToDict(ctx) for ctx in model.context]
+        context_data = [MessageToDict(ctx, preserving_proto_field_name=True) for ctx in model.context]
         context = [Context.from_dict(ctx) for ctx in context_data]
         return cls(
             temperature=model.temperature,
@@ -81,7 +81,7 @@ class LLMResponse:
     @classmethod
     def from_pb2_model(cls, model: llm_pb2.LLMResponse) -> "LLMResponse":
         error = (
-            ErrorDetail.from_dict(MessageToDict(model.error)) if model.error else None
+            ErrorDetail.from_dict(MessageToDict(model.error, preserving_proto_field_name=True)) if model.error else None
         )
         return cls(
             text=model.text,

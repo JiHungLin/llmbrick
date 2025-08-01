@@ -10,17 +10,25 @@ from llmbrick.protocols.grpc.common import common_pb2
 class ErrorDetail:
     code: int
     message: str
-    detail: Optional[str] = None
+    detail: str = ""
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
+
+    @classmethod
+    def from_pb2_model(cls, model: common_pb2.ErrorDetail) -> "ErrorDetail":
+        return cls(
+            code=model.code,
+            message=model.message,
+            detail=model.detail,
+        )
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "ErrorDetail":
         return cls(
             code=data.get("code", 0),
             message=data.get("message", ""),
-            detail=data.get("detail"),
+            detail=data.get("detail", ""),
         )
 
 
@@ -55,7 +63,7 @@ class CommonRequest:
 
     @classmethod
     def from_pb2_model(cls, model: common_pb2.CommonRequest) -> "CommonRequest":
-        data = MessageToDict(model.data)
+        data = MessageToDict(model.data, preserving_proto_field_name=True)
         return cls(data=data)
 
 
@@ -69,9 +77,9 @@ class CommonResponse:
 
     @classmethod
     def from_pb2_model(cls, model: common_pb2.CommonResponse) -> "CommonResponse":
-        data = MessageToDict(model.data)
+        data = MessageToDict(model.data, preserving_proto_field_name=True)
         error = (
-            ErrorDetail.from_dict(MessageToDict(model.error)) if model.error else None
+            ErrorDetail.from_dict(MessageToDict(model.error, preserving_proto_field_name=True)) if model.error else None
         )
         return cls(data=data, error=error)
 

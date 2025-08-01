@@ -6,6 +6,7 @@ from llmbrick.core.brick import BaseBrick, BrickType
 from llmbrick.protocols.models.bricks.common_types import (
     ErrorDetail,
     ServiceInfoResponse,
+    ModelInfo
 )
 from llmbrick.protocols.models.bricks.retrieval_types import (
     Document,
@@ -113,36 +114,8 @@ class RetrievalBrick(BaseBrick[RetrievalRequest, RetrievalResponse]):
             grpc_request.source_language = request.source_language
 
             response = await grpc_client.Unary(grpc_request)
-
-            # 將 protobuf 回應轉換為 RetrievalResponse
-            documents = []
-            for doc in response.documents:
-                metadata_dict = {}
-                if doc.metadata:
-                    metadata_dict = dict(doc.metadata)
-
-                documents.append(
-                    Document(
-                        doc_id=doc.doc_id,
-                        title=doc.title,
-                        snippet=doc.snippet,
-                        score=doc.score,
-                        metadata=metadata_dict,
-                    )
-                )
-
-            return RetrievalResponse(
-                documents=documents,
-                error=(
-                    ErrorDetail(
-                        code=response.error.code,
-                        message=response.error.message,
-                        detail=response.error.detail,
-                    )
-                    if response.error
-                    else None
-                ),
-            )
+            
+            return RetrievalResponse.from_pb2_model(response)
 
         @brick.get_service_info()
         async def get_service_info_handler() -> ServiceInfoResponse:
@@ -155,14 +128,16 @@ class RetrievalBrick(BaseBrick[RetrievalRequest, RetrievalResponse]):
                 service_name=response.service_name,
                 version=response.version,
                 models=[
-                    {
-                        "model_id": model.model_id,
-                        "version": model.version,
-                        "supported_languages": list(model.supported_languages),
-                        "support_streaming": model.support_streaming,
-                    }
+                    ModelInfo(
+                        model_id=model.model_id,
+                        version=model.version,
+                        supported_languages=list(model.supported_languages),
+                        support_streaming=model.support_streaming,
+                        description=getattr(model, "description", ""),
+                    )
                     for model in response.models
                 ],
+                error=ErrorDetail.from_pb2_model(response.error) if response.error else None,
             )
 
         # 儲存通道引用以便後續清理

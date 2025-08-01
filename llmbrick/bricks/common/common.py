@@ -6,7 +6,9 @@ from llmbrick.protocols.grpc.common import common_pb2_grpc
 from llmbrick.protocols.models.bricks.common_types import (
     CommonRequest,
     CommonResponse,
+    ErrorDetail,
     ServiceInfoResponse,
+    ModelInfo
 )
 
 
@@ -116,14 +118,15 @@ class CommonBrick(BaseBrick[CommonRequest, CommonResponse]):
                 service_name=response.service_name,
                 version=response.version,
                 models=[
-                    {
-                        "model_id": model.model_id,
-                        "version": model.version,
-                        "supported_languages": list(model.supported_languages),
-                        "support_streaming": model.support_streaming,
-                    }
+                    ModelInfo(
+                        model_id=model.model_id,
+                        version=model.version,
+                        supported_languages=list(model.supported_languages),
+                        support_streaming=model.support_streaming,
+                    )
                     for model in response.models
                 ],
+                error=ErrorDetail.from_pb2_model(response.error) if response.error else None,
             )
 
         # 儲存通道引用以便後續清理

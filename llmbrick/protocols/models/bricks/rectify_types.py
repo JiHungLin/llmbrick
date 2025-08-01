@@ -50,7 +50,7 @@ class RectifyResponse:
     @classmethod
     def from_pb2_model(cls, model: rectify_pb2.RectifyResponse) -> "RectifyResponse":
         error = (
-            ErrorDetail.from_dict(MessageToDict(model.error)) if model.error else None
+            ErrorDetail.from_dict(MessageToDict(model.error, preserving_proto_field_name=True)) if model.error else None
         )
         return cls(corrected_text=model.corrected_text, error=error)
 

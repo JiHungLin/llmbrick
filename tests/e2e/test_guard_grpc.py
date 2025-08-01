@@ -1,5 +1,5 @@
 """
-Guard Brick gRPC 功能測試
+GuardBrick gRPC 功能測試
 """
 
 import asyncio
@@ -9,68 +9,69 @@ import pytest
 import pytest_asyncio
 
 from llmbrick.bricks.guard.base_guard import GuardBrick
-from llmbrick.core.brick import get_service_info_handler, unary_handler
-from llmbrick.protocols.models.bricks.common_types import (
-    ErrorDetail,
-    ModelInfo,
-    ServiceInfoResponse,
-)
-from llmbrick.protocols.models.bricks.guard_types import GuardRequest, GuardResponse
+from llmbrick.core.brick import unary_handler, get_service_info_handler
+from llmbrick.protocols.models.bricks.guard_types import GuardRequest, GuardResponse, GuardResult
+from llmbrick.protocols.models.bricks.common_types import ErrorDetail, ModelInfo, ServiceInfoResponse
 from llmbrick.servers.grpc.server import GrpcServer
-
 
 class _TestGuardBrick(GuardBrick):
     """測試用的 Guard Brick"""
 
     @unary_handler
     async def unary_handler(self, request: GuardRequest) -> GuardResponse:
-        await asyncio.sleep(0.1)
-        # 回傳 results 欄位，模擬檢查結果
-        from llmbrick.protocols.models.bricks.guard_types import GuardResult
-
+        await asyncio.sleep(0.05)
+        is_attack = "attack" in (request.text or "").lower()
         result = GuardResult(
-            is_attack=False, confidence=0.99, detail=f"echo: {request.text}"
+            is_attack=is_attack,
+            confidence=0.95 if is_attack else 0.05,
+            detail="Attack detected" if is_attack else "Safe"
         )
         return GuardResponse(
-            results=[result], error=ErrorDetail(code=0, message="No error", detail="")
+            results=[result],
+            error=ErrorDetail(code=0, message="No error")
         )
 
     @get_service_info_handler
     async def get_service_info_handler(self) -> ServiceInfoResponse:
         await asyncio.sleep(0.01)
+        error = ErrorDetail(code=0, message="No error")
         return ServiceInfoResponse(
             service_name="TestGuardBrick",
-            version="9.9.9",
+            version="2.1.0",
             models=[
                 ModelInfo(
-                    model_id="test",
-                    version="1.0",
+                    model_id="guard-test",
+                    version="2.1.0",
                     supported_languages=["zh", "en"],
-                    support_streaming=True,
-                    description="test",
+                    support_streaming=False,
+                    description="test"
                 )
             ],
-            error=ErrorDetail(code=0, message="No error"),
+            error=error,
         )
-
 
 @pytest.mark.asyncio
 async def test_async_grpc_server_startup() -> None:
     """測試異步 gRPC 伺服器啟動"""
-    guard_brick = _TestGuardBrick()
-    server = GrpcServer(port=50110)
-    server.register_service(guard_brick)
-    assert server.server is not None
-    assert server.port == 50110
+    print("測試 GuardBrick gRPC 伺服器啟動...")
 
+    # 建立測試 Brick
+    llm_brick = _TestGuardBrick()
+    # 建立伺服器
+    server = GrpcServer(port=50066)
+    server.register_service(llm_brick)
+    # 測試伺服器建立
+    assert server.server is not None
+    assert server.port == 50066
+    print("✓ GuardBrick 伺服器建立成功")
 
 @pytest_asyncio.fixture
 async def grpc_server() -> AsyncIterator[None]:
-    guard_brick = _TestGuardBrick()
-    server = GrpcServer(port=50111)
+    guard_brick = _TestGuardBrick(verbose=False)
+    server = GrpcServer(port=50068)
     server.register_service(guard_brick)
     server_task = asyncio.create_task(server.start())
-    await asyncio.sleep(0.5)
+    await asyncio.sleep(0.5)  # 等 server 啟動
     yield
     await server.stop()
     server_task.cancel()
@@ -79,27 +80,60 @@ async def grpc_server() -> AsyncIterator[None]:
     except asyncio.CancelledError:
         pass
 
-
 @pytest_asyncio.fixture
 async def grpc_client(grpc_server: Any) -> AsyncIterator[_TestGuardBrick]:
-    client_brick = _TestGuardBrick.toGrpcClient(remote_address="127.0.0.1:50111")
+    client_brick = _TestGuardBrick.toGrpcClient(
+        remote_address="127.0.0.1:50068", verbose=False
+    )
     yield client_brick
     await client_brick._grpc_channel.close()
 
-
 @pytest.mark.asyncio
 async def test_unary(grpc_client: _TestGuardBrick) -> None:
-    request = GuardRequest(text="測試內容", client_id="cid")
+    print("== 測試 GuardBrick Unary 方法 ==")
+    request = GuardRequest(text="This is a safe message")
     response = await grpc_client.run_unary(request)
     assert response is not None
-    assert isinstance(response.results, list)
-    assert response.results[0].detail.startswith("echo")
-    assert response.results[0].confidence > 0.9
+    assert response.results[0].is_attack is False
 
+    attack_request = GuardRequest(text="This is an attack!")
+    attack_response = await grpc_client.run_unary(attack_request)
+    assert attack_response.results[0].is_attack is True
 
 @pytest.mark.asyncio
 async def test_get_service_info(grpc_client: _TestGuardBrick) -> None:
     info = await grpc_client.run_get_service_info()
     assert info.service_name == "TestGuardBrick"
-    assert info.version == "9.9.9"
+    assert info.version == "2.1.0"
     assert isinstance(info.models, list)
+    assert info.models[0].model_id == "guard-test"
+
+@pytest.mark.asyncio
+async def test_error_handling(grpc_client: _TestGuardBrick) -> None:
+    # 模擬異常情境
+    class ErrorGuardBrick(GuardBrick):
+        @unary_handler
+        async def error_handler(self, request: GuardRequest) -> GuardResponse:
+            if request.text == "raise":
+                raise ValueError("Test exception")
+            elif request.text == "error":
+                return GuardResponse(
+                    results=[],
+                    error=ErrorDetail(code=500, message="Business logic error")
+                )
+            else:
+                return GuardResponse(
+                    results=[GuardResult(is_attack=False, confidence=1.0, detail="ok")],
+                    error=ErrorDetail(code=0, message="Success")
+                )
+    # 直接用本地模式測試異常
+    brick = ErrorGuardBrick(verbose=False)
+    normal_request = GuardRequest(text="normal")
+    response = await brick.run_unary(normal_request)
+    assert response.error.code == 0
+    error_request = GuardRequest(text="error")
+    response = await brick.run_unary(error_request)
+    assert response.error.code == 500
+    exception_request = GuardRequest(text="raise")
+    with pytest.raises(ValueError):
+        await brick.run_unary(exception_request)
