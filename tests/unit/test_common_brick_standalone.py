@@ -435,3 +435,7 @@ async def test_not_implemented_handlers():
     with pytest.raises(NotImplementedError):
         async for _ in brick.run_bidi_streaming(iter([request])):
             pass
+
+    # get_service_info 應該拋出 NotImplementedError
+    with pytest.raises(NotImplementedError):
+        await brick.run_get_service_info()
