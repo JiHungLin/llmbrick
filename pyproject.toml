@@ -36,14 +36,12 @@ dependencies = [
     "grpcio>=1.59.0",
     "grpcio-tools>=1.59.0",
     "sse-starlette>=1.6.5",
-    "speechrecognition>=3.10.0",
     "chromadb>=0.4.15",
-    "sentence-transformers>=2.2.2",
     "httpx>=0.25.0",
     "python-multipart>=0.0.6",
-    "python-dotenv>=1.0.0",
     "pretty-loguru>=1.1.2",
     "deprecated>=1.2.14",
+    "psutil>=5.9.0"
 ]
 
 [project.optional-dependencies]
@@ -67,10 +65,10 @@ dev = [
 llmbrick = "llmbrick.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/llmbrick/llmbrick"
+Homepage = "https://github.com/JiHungLin/llmbrick"
 Documentation = "https://llmbrick.readthedocs.io"
-Repository = "https://github.com/llmbrick/llmbrick"
-Issues = "https://github.com/llmbrick/llmbrick/issues"
+Repository = "https://github.com/JiHungLin/llmbrick"
+Issues = "https://github.com/JiHungLin/llmbrick/issues"
 
 [tool.setuptools.packages.find]
 where = ["."]

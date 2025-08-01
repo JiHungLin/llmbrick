@@ -1,0 +1,6 @@
+[run]
+omit =
+    llmbrick/protocols/grpc/*
+    llmbrick/servers/grpc/wrappers/*
+    */__init__.py
+    llmbrick/version.py

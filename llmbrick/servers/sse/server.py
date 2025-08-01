@@ -1,5 +1,5 @@
 import json
-from typing import Any, AsyncGenerator, Callable, Dict, Optional
+from typing import Any, AsyncGenerator, Callable, Optional
 
 import uvicorn
 from fastapi import FastAPI, HTTPException, Request
@@ -18,7 +18,7 @@ class SSEServer:
     def __init__(
         self,
         handler: Optional[
-            Callable[[Dict[str, Any]], AsyncGenerator[Dict[str, Any], None]]
+            Callable[[ConversationSSERequest], AsyncGenerator[ConversationSSEResponse, None]]
         ] = None,
         chat_completions_path: str = "/chat/completions",
         prefix: str = "",
@@ -51,7 +51,7 @@ class SSEServer:
         return self.app
 
     def set_handler(
-        self, func: Callable[[Dict[str, Any]], AsyncGenerator[Dict[str, Any], None]]
+        self, func: Callable[[ConversationSSERequest], AsyncGenerator[ConversationSSEResponse, None]]
     ) -> None:
         """
         直接設定主 handler，handler 必須為 async generator，yield event dict
@@ -60,8 +60,8 @@ class SSEServer:
         self.setup_routes()
 
     def handler(
-        self, func: Callable[[Dict[str, Any]], AsyncGenerator[Dict[str, Any], None]]
-    ) -> Callable[[Dict[str, Any]], AsyncGenerator[Dict[str, Any], None]]:
+        self, func: Callable[[ConversationSSERequest], AsyncGenerator[ConversationSSEResponse, None]]
+    ) -> Callable[[ConversationSSERequest], AsyncGenerator[ConversationSSEResponse, None]]:
         """
         Decorator 註冊主 handler，handler 必須為 async generator，yield event dict
         用法：
@@ -72,15 +72,9 @@ class SSEServer:
         self.setup_routes()
         return func
 
-    def _validate_event(self, event: Dict[str, Any]) -> bool:
-        # 使用 pydantic v2 model_validate 進行型別驗證
-        from pydantic import ValidationError
-
-        try:
-            ConversationSSEResponse.model_validate(event)
-            return True
-        except ValidationError:
-            return False
+    def _validate_event(self, event: Any) -> bool:
+        # 僅允許 ConversationSSEResponse 型態
+        return isinstance(event, ConversationSSEResponse)
 
     def setup_routes(self) -> None:
         full_path = self.prefix + self.chat_completions_path
@@ -140,9 +134,9 @@ class SSEServer:
                 try:
                     async for event in self._handler(body_json):
                         if not self._validate_event(event):
-                            yield f"event: error\ndata: {json.dumps({'error': 'Invalid event format'})}\n\n"
+                            yield f"event: error\ndata: {json.dumps({'error': 'Server returned invalid event'})}\n\n"
                             break
-                        yield f"event: message\ndata: {json.dumps(event)}\n\n"
+                        yield f"event: message\ndata: {event.model_dump_json()}\n\n"
                 except Exception as e:
                     yield f"event: error\ndata: {json.dumps({'error': 'Handler exception', 'details': str(e)})}\n\n"
 

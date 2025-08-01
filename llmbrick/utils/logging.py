@@ -7,10 +7,9 @@ Pretty-Loguru 封裝，提供全域 logger、decorator 與動態配置功能。
 
 import functools
 import inspect
-from typing import Any, Callable
+from typing import Any, Callable, Optional
 
 from pretty_loguru import ConfigTemplates, EnhancedLogger, LoggerConfig, create_logger
-from pretty_loguru import get_logger as _get_logger
 
 config = LoggerConfig(level="INFO", rotation="1 day", retention="7 days")
 
@@ -18,20 +17,13 @@ config = LoggerConfig(level="INFO", rotation="1 day", retention="7 days")
 logger: EnhancedLogger = create_logger("llmbrick", config=config)
 
 
-def get_logger(name: str = "llmbrick") -> EnhancedLogger:
-    """
-    取得指定名稱的 logger，預設為 llmbrick。
-    """
-    return _get_logger(name)
-
-
 def configure_logger(
-    name: str | None = None,
-    level: str | None = None,
-    log_path: str | None = None,
-    rotation: str | None = None,
-    retention: str | None = None,
-    compression: str | None = None,
+    name: Optional[str] = None,
+    level: Optional[str] = None,
+    log_path: Optional[str] = None,
+    rotation: Optional[str] = None,
+    retention: Optional[str] = None,
+    compression: Optional[str] = None,
 ) -> None:
     """
     重新配置 logger，會回傳新的 logger 實體。
@@ -80,12 +72,12 @@ def apply_template(
 def log_function(
     _func: Callable[..., Any] = None,
     *,
-    logger_instance: EnhancedLogger | None = None,
+    logger_instance: Optional[EnhancedLogger] = None,
     log_input: bool = True,
     log_output: bool = True,
     log_exception: bool = True,
     level: str = "info",
-    service_name: str | None = None,
+    service_name: Optional[str] = None,
 ) -> Callable[..., Any]:
     """
     Decorator: 自動 log 函式的輸入、輸出、例外。
