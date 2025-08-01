@@ -147,3 +147,4 @@ yarn-error.log
 .conda
 .kilocode
 .ruff_cache
+*.code-workspace
