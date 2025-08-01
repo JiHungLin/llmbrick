@@ -123,15 +123,6 @@ class IntentionBrick(BaseBrick[IntentionRequest, IntentionResponse]):
             request = common_pb2.ServiceInfoRequest()
             response = await grpc_client.GetServiceInfo(request)
             # 處理 error 欄位
-            error = (
-                ErrorDetail(
-                    code=response.error.code,
-                    message=response.error.message,
-                    detail=response.error.detail,
-                )
-                if hasattr(response, "error") and response.error and getattr(response.error, "code", 0) != 0
-                else None
-            )
             return ServiceInfoResponse(
                 service_name=response.service_name,
                 version=response.version,
@@ -145,7 +136,7 @@ class IntentionBrick(BaseBrick[IntentionRequest, IntentionResponse]):
                     )
                     for model in response.models
                 ],
-                error=error,
+                error=ErrorDetail.from_pb2_model(response.error) if response.error else None,
             )
 
         # 儲存通道引用以便後續清理

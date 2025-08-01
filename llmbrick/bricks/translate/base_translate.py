@@ -146,6 +146,7 @@ class TranslateBrick(BaseBrick[TranslateRequest, TranslateResponse]):
                     )
                     for model in response.models
                 ],
+                error=ErrorDetail.from_pb2_model(response.error) if response.error else None,
             )
 
         # 儲存通道引用以便後續清理

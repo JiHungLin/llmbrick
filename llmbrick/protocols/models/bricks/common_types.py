@@ -16,6 +16,14 @@ class ErrorDetail:
         return asdict(self)
 
     @classmethod
+    def from_pb2_model(cls, model: common_pb2.ErrorDetail) -> "ErrorDetail":
+        return cls(
+            code=model.code,
+            message=model.message,
+            detail=model.detail,
+        )
+
+    @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "ErrorDetail":
         return cls(
             code=data.get("code", 0),

@@ -4,6 +4,7 @@ from deprecated import deprecated
 
 from llmbrick.core.brick import BaseBrick, BrickType
 from llmbrick.protocols.models.bricks.common_types import (
+    ErrorDetail,
     ServiceInfoResponse,
     ModelInfo
 )
@@ -132,6 +133,7 @@ class GuardBrick(BaseBrick[GuardRequest, GuardResponse]):
                 service_name=response.service_name,
                 version=response.version,
                 models=models,
+                error=ErrorDetail.from_pb2_model(response.error) if response.error else None,
             )
 
         # 儲存通道引用以便後續清理

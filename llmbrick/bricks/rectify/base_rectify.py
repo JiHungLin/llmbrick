@@ -135,6 +135,7 @@ class RectifyBrick(BaseBrick[RectifyRequest, RectifyResponse]):
                 service_name=response.service_name,
                 version=response.version,
                 models=models,
+                error=ErrorDetail.from_pb2_model(response.error) if response.error else None,
             )
 
         # 儲存通道引用以便後續清理
