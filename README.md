@@ -72,7 +72,7 @@ server.run(host="0.0.0.0", port=8000)
 - 自動系統語言偵測
 - 深色/淺色主題支援
 
-👉 [查看範例](examples/openai_chatbot/openai_chatbot.py) | [使用說明](examples/README.md)
+👉 [查看範例](examples/openai_chatbot/openai_chatbot.py) | [使用說明](examples/openai_chatbot/README.md)
 
 ### 標準用法範例
 
