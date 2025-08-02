@@ -2,7 +2,7 @@
 OpenAI GPT Brick implementation for LLMBrick framework.
 """
 import os
-from typing import AsyncGenerator, List, Optional
+from typing import AsyncGenerator, List, Optional, Union
 
 from openai import AsyncOpenAI
 from llmbrick.utils.logging import log_function, logger
@@ -60,7 +60,7 @@ class OpenAIGPTBrick(LLMBrick):
         self,
         request: LLMRequest,
         stream: bool = False
-    ) -> ChatCompletion | AsyncGenerator[ChatCompletionChunk, None]:
+    ) -> Union[ChatCompletion, AsyncGenerator[ChatCompletionChunk, None]]:
         """Create a chat completion using OpenAI API.
         
         Args:
