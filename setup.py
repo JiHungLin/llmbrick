@@ -15,7 +15,7 @@ with open("requirements.txt") as f:
 
 setup(
     name="llmbrick",
-    version="0.2.0",
+    version="0.2.1",
     author="LLMBrick Team",
     author_email="team@llmbrick.dev",
     description="A modular LLM application development framework",
