@@ -243,18 +243,22 @@
     .event-done .message-content {
       color: var(--done-color-text);
     }
-    #output::-webkit-scrollbar {
+    #output::-webkit-scrollbar,
+    #accumulated::-webkit-scrollbar {
       width: 8px;
       height: 8px;
     }
-    #output::-webkit-scrollbar-track {
+    #output::-webkit-scrollbar-track,
+    #accumulated::-webkit-scrollbar-track {
       background: var(--surface-bg);
     }
-    #output::-webkit-scrollbar-thumb {
+    #output::-webkit-scrollbar-thumb,
+    #accumulated::-webkit-scrollbar-thumb {
       background: var(--border-color);
       border-radius: 4px;
     }
-    #output::-webkit-scrollbar-thumb:hover {
+    #output::-webkit-scrollbar-thumb:hover,
+    #accumulated::-webkit-scrollbar-thumb:hover {
       background: var(--secondary-color);
     }
     .status {
@@ -417,9 +421,9 @@
             <div class="help-text">生成最大 token 數</div>
           </div>
           <div class="form-group">
-            <label for="sourceLanguage">Source Language (optional)</label>
+            <label for="sourceLanguage">Source Language</label>
             <input type="text" id="sourceLanguage">
-            <div class="help-text">源語言</div>
+            <div class="help-text">源語言 (自動偵測使用者的系統語言)</div>
           </div>
         </div>
 
@@ -433,12 +437,22 @@
         <button type="submit">Send Request</button>
       </form>
 
-      <div class="output-container">
-        <div class="output-header">
-          <h2 style="margin: 0">Stream Output</h2>
-          <span id="status" class="status disconnected">Disconnected</span>
+      <div style="display: flex; gap: 1rem;">
+        <div class="output-container" style="flex: 1;">
+          <div class="output-header">
+            <h2 style="margin: 0">Stream Output</h2>
+            <span id="status" class="status disconnected">Disconnected</span>
+          </div>
+          <div id="output"></div>
         </div>
-        <div id="output"></div>
+        
+        <div class="output-container" style="flex: 1;">
+          <div class="output-header">
+            <h2 style="margin: 0">Accumulated Response</h2>
+            <button class="small" onclick="clearAccumulated()" style="margin-left: auto;">Clear</button>
+          </div>
+          <div id="accumulated" style="white-space: pre-wrap; padding: 1rem; overflow-y: auto; height: 100%; scroll-behavior: smooth;"></div>
+        </div>
       </div>
     </div>
 
@@ -596,6 +610,10 @@
     // Add initial message
     addMessage('user', 'Hello, world!');
 
+    // Set default source language from browser
+    const userLanguage = navigator.language || navigator.userLanguage;
+    document.getElementById('sourceLanguage').value = userLanguage.split('-')[0]; // Get primary language code
+
     // Tab switching
     document.querySelectorAll('.tab').forEach(tab => {
       tab.addEventListener('click', () => {
@@ -620,6 +638,7 @@
     const output = document.getElementById('output');
     const status = document.getElementById('status');
     let currentRequest = null;
+    let accumulatedText = '';
 
     // Form submission
     document.getElementById('sseForm').onsubmit = async function(e) {
@@ -627,6 +646,8 @@
 
       // Reset output and update status
       output.innerHTML = '';
+      accumulatedText = '';
+      document.getElementById('accumulated').innerHTML = '';
       if (currentRequest) {
         currentRequest.abort();
       }
@@ -712,6 +733,14 @@
               if (eventData) {
                 try {
                   const data = JSON.parse(eventData);
+                  
+                  // Accumulate text from text events
+                  if (data.type === 'text' && data.text) {
+                    accumulatedText += data.text;
+                    const accumulated = document.getElementById('accumulated');
+                    accumulated.textContent = accumulatedText;
+                    accumulated.scrollTop = accumulated.scrollHeight;
+                  }
                   // Add timestamp and format the message
                   const timestamp = new Date().toLocaleTimeString('en-US', {
                     hour12: false,
@@ -792,6 +821,12 @@
         currentRequest = null;
       }
     };
+
+    // Clear accumulated text
+    function clearAccumulated() {
+      accumulatedText = '';
+      document.getElementById('accumulated').textContent = '';
+    }
 
     // Open collapsible sections by default on page load
     document.querySelectorAll('.collapsible').forEach(el => el.classList.add('open'));

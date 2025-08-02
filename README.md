@@ -64,6 +64,18 @@ server.run(host="0.0.0.0", port=8000)
 
 ## 範例
 
+### OpenAI GPT Brick with SSE Server
+
+完整的 OpenAI GPT 整合示例，包含：
+- SSE 服務器整合與測試頁面
+- 串流輸出與即時累積回應
+- 自動系統語言偵測
+- 深色/淺色主題支援
+
+👉 [查看範例](examples/openai_chatbot/openai_chatbot.py) | [使用說明](examples/README.md)
+
+### 標準用法範例
+
 #### 1. CommonBrick 標準用法
 
 ```python

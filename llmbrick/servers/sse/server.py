@@ -294,7 +294,7 @@ class SSEServer:
                         yield f"event: error\ndata: {json.dumps({'error': 'Business validation failed', 'details': error_details})}\n\n"
                         return
                     
-                    async for event in self._handler(body_json):
+                    async for event in self._handler(req):
                         valid, err_msg = self._validate_event(event)
                         if not valid:
                             error_details = err_msg if self.config.debug_mode else "Server returned invalid event"
