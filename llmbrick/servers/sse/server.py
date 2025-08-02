@@ -1,5 +1,9 @@
 import json
+import os
+from pathlib import Path
 from typing import Any, AsyncGenerator, Callable, Optional
+
+from fastapi.responses import HTMLResponse
 
 import uvicorn
 from fastapi import FastAPI, HTTPException, Request
@@ -27,7 +31,19 @@ class SSEServer:
         prefix: Optional[str] = None,
         # 自定義驗證器
         custom_validator: Optional[Any] = None,
+        # 新增：是否啟用測試用網頁
+        enable_test_page: bool = False,
     ):
+        """
+        SSEServer
+
+        :param handler: 主 SSE handler
+        :param config: SSEServerConfig 配置
+        :param chat_completions_path: 舊版 API 路徑參數
+        :param prefix: 路徑前綴
+        :param custom_validator: 自定義驗證器
+        :param enable_test_page: 是否啟用測試用網頁 (預設 False，僅開發/測試用)
+        """
         # 初始化配置
         if config is None:
             config = SSEServerConfig()
@@ -40,11 +56,50 @@ class SSEServer:
             
         self.config = config
         self.custom_validator = custom_validator
+        self._enable_test_page = enable_test_page  # Store the test page setting
+        
+        # Initialize FastAPI app with basic configuration
         self.app = FastAPI(
             title="LLMBrick SSE Server",
             description="Server-Sent Events API for LLM conversations",
             debug=self.config.debug_mode
         )
+
+        # Register test page if enabled (only once at initialization)
+        if self._enable_test_page:
+            templates_dir = Path(__file__).parent / 'templates'
+            template_path = templates_dir / 'test_page.html'
+            
+            if not template_path.exists():
+                logger.warning(f"Test page template not found at {template_path}")
+            else:
+                @self.app.get("/", response_class=HTMLResponse)
+                async def test_page():
+                    full_path = self.config.prefix + self.config.chat_completions_path
+                    # Read the template and inject the API endpoint
+                    with open(template_path, 'r', encoding='utf-8') as f:
+                        template = f.read()
+                    
+                    # Calculate the actual API endpoint URL
+                    html = template.replace('{api_endpoint}', full_path)
+
+                    # Add warning if handler is not set
+                    has_handler = hasattr(self, '_handler') and self._handler is not None
+                    status_script = f"""
+                    <script>
+                        window.hasHandler = {str(has_handler).lower()};
+                        if (!window.hasHandler) {{
+                            const warning = document.createElement('div');
+                            warning.className = 'warning';
+                            warning.innerHTML = '⚠️ Warning: No handler is configured. Requests will fail until a handler is set.';
+                            document.body.insertBefore(warning, document.body.firstChild);
+                        }}
+                    </script>
+                    """
+                    # Insert the status script before </body>
+                    html = html.replace('</body>', f'{status_script}</body>')
+                    
+                    return HTMLResponse(content=html)
 
         # 註冊 LLMBrickException handler
         @self.app.exception_handler(LLMBrickException)
@@ -89,6 +144,11 @@ class SSEServer:
         # 處理 path 格式，確保開頭有 /
         if not self.config.chat_completions_path.startswith("/"):
             self.config.chat_completions_path = "/" + self.config.chat_completions_path
+
+        # Register initial routes (including test page)
+        self.setup_routes()
+
+        # Set handler if provided (will reset routes)
         if handler is not None:
             self.set_handler(handler)
 
@@ -134,8 +194,10 @@ class SSEServer:
         return True, ""
 
     def setup_routes(self) -> None:
+        """設定 API 路由"""
         full_path = self.config.prefix + self.config.chat_completions_path
 
+        # Register SSE endpoint
         @self.app.post(
             full_path,
             response_description="SSE response stream",
@@ -261,6 +323,10 @@ class SSEServer:
         )
         logger.info(f"Debug mode: {self.config.debug_mode}")
         logger.info(f"Allowed models: {self.config.allowed_models}")
+        
+        # Log test page URL if enabled
+        if hasattr(self, '_enable_test_page') and self._enable_test_page:
+            logger.info(f"Test page available at: http://{actual_host}:{actual_port}/")
         
         uvicorn.run(
             self.app,

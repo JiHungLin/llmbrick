@@ -41,6 +41,27 @@ server = SSEServer(llm_brick)
 server.run(host="0.0.0.0", port=8000)
 ```
 
+## 測試頁面
+
+SSEServer 提供了內建的測試頁面，方便開發和測試：
+
+```python
+# 啟用測試頁面
+server = SSEServer(enable_test_page=True)
+server.run(host="0.0.0.0", port=8000)
+```
+
+測試頁面特色：
+- 完整的請求表單，支援所有 SSERequest 欄位
+- 動態訊息管理（新增/刪除/重排序）
+- 即時串流輸出顯示，支援自動捲動
+- 不同類型訊息顏色區分
+- 時間戳記標記
+- 深色/淺色主題切換
+- 完整的 API 文件和範例
+
+![SSE Test Page](docs/guides/sse_server_test.png)
+
 ## 範例
 
 #### 1. CommonBrick 標準用法
