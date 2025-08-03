@@ -17,6 +17,16 @@ class GuardRequest:
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
+    
+    @classmethod
+    def from_pb2_model(cls, model: guard_pb2.GuardRequest) -> "GuardRequest":
+        return cls(
+            text=model.text,
+            client_id=model.client_id,
+            session_id=model.session_id,
+            request_id=model.request_id,
+            source_language=model.source_language,
+        )
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "GuardRequest":

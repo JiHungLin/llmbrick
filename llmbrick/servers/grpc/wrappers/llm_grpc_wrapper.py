@@ -1,5 +1,6 @@
 import grpc
 
+from google.protobuf import struct_pb2
 from llmbrick.bricks.llm.base_llm import LLMBrick
 from llmbrick.protocols.grpc.common import common_pb2
 from llmbrick.protocols.grpc.llm import llm_pb2, llm_pb2_grpc
@@ -36,96 +37,142 @@ class LLMGrpcWrapper(llm_pb2_grpc.LLMServiceServicer):
         self.brick = brick
 
     async def GetServiceInfo(self, request, context):
-        result = await self.brick.run_get_service_info()
         error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
-        if result is None:
+        try:
+            result = await self.brick.run_get_service_info()
+            if result is None:
+                # context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+                # context.set_details('Service info not implemented!')
+                error_data.code = grpc.StatusCode.UNIMPLEMENTED.value[0]
+                error_data.message = "Service info not implemented!"
+                error_data.detail = "The brick did not implement service info."
+                response = common_pb2.ServiceInfoResponse(error=error_data)
+                return response
+            if not isinstance(result, ServiceInfoResponse):
+                # context.set_code(grpc.StatusCode.INTERNAL)
+                # context.set_details('Invalid service info response type!')
+                error_data.code = grpc.StatusCode.INTERNAL.value[0]
+                error_data.message = "Invalid service info response type!"
+                error_data.detail = (
+                    "The response from the brick is not of type ServiceInfoResponse."
+                )
+                response = common_pb2.ServiceInfoResponse(error=error_data)
+                return response
+            if result.error and result.error.code != 0:
+                # context.set_code(grpc.StatusCode.INTERNAL)
+                # context.set_details(result.error.message)
+                error_data.code = result.error.code
+                error_data.message = result.error.message
+                error_data.detail = result.error.detail
+                response = common_pb2.ServiceInfoResponse(error=error_data)
+                return response
+            response_dict = result.to_dict()
+            response_dict["error"] = error_data
+            response = common_pb2.ServiceInfoResponse(**response_dict)
+            return response
+        except NotImplementedError as ev:
             # context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-            # context.set_details('Service info not implemented!')
+            # context.set_details(str(ev))
             error_data.code = grpc.StatusCode.UNIMPLEMENTED.value[0]
-            error_data.message = "Service info not implemented!"
-            error_data.detail = "The brick did not implement service info."
+            error_data.message = str(ev)
+            error_data.detail = "The requested operation is not implemented."
             response = common_pb2.ServiceInfoResponse(error=error_data)
             return response
-        if not isinstance(result, ServiceInfoResponse):
+        except Exception as e:
             # context.set_code(grpc.StatusCode.INTERNAL)
-            # context.set_details('Invalid service info response type!')
-            error_data.code = grpc.StatusCode.INTERNAL.value[0]
-            error_data.message = "Invalid service info response type!"
-            error_data.detail = (
-                "The response from the brick is not of type ServiceInfoResponse."
+            # context.set_details(f'Error in GetServiceInfo: {str(e)}')
+            error_data = common_pb2.ErrorDetail(
+                code=grpc.StatusCode.INTERNAL.value[0],
+                message=str(e),
+                detail="An error occurred while processing GetServiceInfo.",
             )
-            response = common_pb2.ServiceInfoResponse(error=error_data)
-            return response
-        if result.error and result.error.code != 0:
-            # context.set_code(grpc.StatusCode.INTERNAL)
-            # context.set_details(result.error.message)
-            error_data.code = result.error.code
-            error_data.message = result.error.message
-            error_data.detail = result.error.detail
-            response = common_pb2.ServiceInfoResponse(error=error_data)
-            return response
-        response_dict = result.to_dict()
-        response_dict["error"] = error_data
-        response = common_pb2.ServiceInfoResponse(**response_dict)
-        return response
+            return common_pb2.ServiceInfoResponse(error=error_data)
 
     async def Unary(self, request: llm_pb2.LLMRequest, context):
-        req = LLMRequest.from_pb2_model(request)
-        result: LLMResponse = await self.brick.run_unary(req)
-        print("LLMGrpcWrapper.Unary result:", result)
         error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
-        if not isinstance(result, LLMResponse):
-            # context.set_code(grpc.StatusCode.INTERNAL)
-            # context.set_details('Invalid unary response type!')
-            error_data.code = grpc.StatusCode.INTERNAL.value[0]
-            error_data.message = "Invalid unary response type!"
-            error_data.detail = (
-                "The response from the brick is not of type LLMResponse."
-            )
-            return llm_pb2.LLMResponse(error=error_data)
-        if result.error and result.error.code != 0:
-            # context.set_code(grpc.StatusCode.INTERNAL)
-            # context.set_details(result.error.message)
-            error_data.code = result.error.code
-            error_data.message = result.error.message
-            error_data.detail = result.error.detail
-            return llm_pb2.LLMResponse(error=error_data)
-        response = llm_pb2.LLMResponse(
-            text=result.text,
-            tokens=result.tokens,
-            is_final=result.is_final,
-            error=error_data,
-        )
-        return response
-
-    async def OutputStreaming(self, request: llm_pb2.LLMRequest, context):
-        req = LLMRequest.from_pb2_model(request)
-        async for response in self.brick.run_output_streaming(req):
-            error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
-            if not isinstance(response, LLMResponse):
+        try:
+            request = LLMRequest.from_pb2_model(request)
+            result: LLMResponse = await self.brick.run_unary(request)
+            if not isinstance(result, LLMResponse):
                 # context.set_code(grpc.StatusCode.INTERNAL)
-                # context.set_details('Invalid output streaming response type!')
+                # context.set_details('Invalid unary response type!')
                 error_data.code = grpc.StatusCode.INTERNAL.value[0]
-                error_data.message = "Invalid output streaming response type!"
+                error_data.message = "Invalid unary response type!"
                 error_data.detail = (
                     "The response from the brick is not of type LLMResponse."
                 )
-                yield llm_pb2.LLMResponse(error=error_data)
-                break
-            if response.error and response.error.code != 0:
+                return llm_pb2.LLMResponse(error=error_data)
+            if result.error and result.error.code != 0:
                 # context.set_code(grpc.StatusCode.INTERNAL)
-                # context.set_details(response.error.message)
-                error_data.code = response.error.code
-                error_data.message = response.error.message
-                error_data.detail = response.error.detail
-                yield llm_pb2.LLMResponse(error=error_data)
-                break
-            yield llm_pb2.LLMResponse(
-                text=response.text,
-                tokens=response.tokens,
-                is_final=response.is_final,
-                error=error_data,
+                # context.set_details(result.error.message)
+                error_data.code = result.error.code
+                error_data.message = result.error.message
+                error_data.detail = result.error.detail
+                return llm_pb2.LLMResponse(error=error_data)
+
+            data = struct_pb2.Struct()
+            data.update(result.to_dict().get("data", {}))
+            response = llm_pb2.LLMResponse(data=data, error=error_data)
+
+            return response
+        except NotImplementedError as ev:
+            # context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+            # context.set_details(str(ev))
+            error_data.code = grpc.StatusCode.UNIMPLEMENTED.value[0]
+            error_data.message = str(ev)
+            error_data.detail = "The requested operation is not implemented."
+            return llm_pb2.LLMResponse(error=error_data)
+        except Exception as e:
+            # context.set_code(grpc.StatusCode.INTERNAL)
+            # context.set_details(f'Error in Unary: {str(e)}')
+            error_data = common_pb2.ErrorDetail(
+                code=grpc.StatusCode.INTERNAL.value[0],
+                message=str(e),
+                detail="An error occurred while processing Unary.",
             )
+            return llm_pb2.LLMResponse(error=error_data)
+
+
+    async def OutputStreaming(self, request: llm_pb2.LLMRequest, context):
+        request = LLMRequest.from_pb2_model(request)
+        try:
+            async for response in self.brick.run_output_streaming(request):
+                error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
+                if not isinstance(response, LLMResponse):
+                    # context.set_code(grpc.StatusCode.INTERNAL)
+                    # context.set_details('Invalid output streaming response type!')
+                    error_data.code = grpc.StatusCode.INTERNAL.value[0]
+                    error_data.message = "Invalid output streaming response type!"
+                    error_data.detail = (
+                        "The response from the brick is not of type LLMResponse."
+                    )
+                    yield llm_pb2.LLMResponse(error=error_data)
+                    break
+                if response.error and response.error.code != 0:
+                    # context.set_code(grpc.StatusCode.INTERNAL)
+                    # context.set_details(response.error.message)
+                    error_data.code = response.error.code
+                    error_data.message = response.error.message
+                    error_data.detail = response.error.detail
+                    yield llm_pb2.LLMResponse(error=error_data)
+                    break
+                data = struct_pb2.Struct()
+                data.update(response.to_dict().get("data", {}))
+                yield llm_pb2.LLMResponse(data=data, error=error_data)
+        except NotImplementedError as ev:
+            error_data = common_pb2.ErrorDetail(
+                code=grpc.StatusCode.UNIMPLEMENTED.value[0],
+                message=str(ev),
+                detail="The requested operation is not implemented."
+            )
+            yield llm_pb2.LLMResponse(error=error_data)
+        except Exception as e:
+            error_data = common_pb2.ErrorDetail(
+                code=grpc.StatusCode.INTERNAL.value[0],
+                message=str(e),
+                detail="An error occurred while processing OutputStreaming."
+            )
+            yield llm_pb2.LLMResponse(error=error_data)
 
     def register(self, server):
         llm_pb2_grpc.add_LLMServiceServicer_to_server(self, server)

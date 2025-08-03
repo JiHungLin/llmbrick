@@ -1,5 +1,6 @@
 import grpc
 
+from google.protobuf import struct_pb2
 from llmbrick.bricks.guard.base_guard import GuardBrick
 from llmbrick.protocols.grpc.common import common_pb2
 from llmbrick.protocols.grpc.guard import guard_pb2, guard_pb2_grpc
@@ -29,73 +30,100 @@ class GuardGrpcWrapper(guard_pb2_grpc.GuardServiceServicer):
         self.brick = brick
 
     async def GetServiceInfo(self, request, context):
-        result = await self.brick.run_get_service_info()
         error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
-        if result is None:
+        try:
+            result = await self.brick.run_get_service_info()
+            if result is None:
+                # context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+                # context.set_details('Service info not implemented!')
+                error_data.code = grpc.StatusCode.UNIMPLEMENTED.value[0]
+                error_data.message = "Service info not implemented!"
+                error_data.detail = "The brick did not implement service info."
+                response = common_pb2.ServiceInfoResponse(error=error_data)
+                return response
+            if not isinstance(result, ServiceInfoResponse):
+                # context.set_code(grpc.StatusCode.INTERNAL)
+                # context.set_details('Invalid service info response type!')
+                error_data.code = grpc.StatusCode.INTERNAL.value[0]
+                error_data.message = "Invalid service info response type!"
+                error_data.detail = (
+                    "The response from the brick is not of type ServiceInfoResponse."
+                )
+                response = common_pb2.ServiceInfoResponse(error=error_data)
+                return response
+            if result.error and result.error.code != 0:
+                # context.set_code(grpc.StatusCode.INTERNAL)
+                # context.set_details(result.error.message)
+                error_data.code = result.error.code
+                error_data.message = result.error.message
+                error_data.detail = result.error.detail
+                response = common_pb2.ServiceInfoResponse(error=error_data)
+                return response
+            response_dict = result.to_dict()
+            response_dict["error"] = error_data
+            response = common_pb2.ServiceInfoResponse(**response_dict)
+            return response
+        except NotImplementedError as ev:
             # context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-            # context.set_details('Service info not implemented!')
+            # context.set_details(str(ev))
             error_data.code = grpc.StatusCode.UNIMPLEMENTED.value[0]
-            error_data.message = "Service info not implemented!"
-            error_data.detail = "The brick did not implement service info."
+            error_data.message = str(ev)
+            error_data.detail = "The requested operation is not implemented."
             response = common_pb2.ServiceInfoResponse(error=error_data)
             return response
-        if not isinstance(result, ServiceInfoResponse):
+        except Exception as e:
             # context.set_code(grpc.StatusCode.INTERNAL)
-            # context.set_details('Invalid service info response type!')
-            error_data.code = grpc.StatusCode.INTERNAL.value[0]
-            error_data.message = "Invalid service info response type!"
-            error_data.detail = (
-                "The response from the brick is not of type ServiceInfoResponse."
+            # context.set_details(f'Error in GetServiceInfo: {str(e)}')
+            error_data = common_pb2.ErrorDetail(
+                code=grpc.StatusCode.INTERNAL.value[0],
+                message=str(e),
+                detail="An error occurred while processing GetServiceInfo.",
             )
-            response = common_pb2.ServiceInfoResponse(error=error_data)
-            return response
-        if result.error and result.error.code != 0:
-            # context.set_code(grpc.StatusCode.INTERNAL)
-            # context.set_details(result.error.message)
-            error_data.code = result.error.code
-            error_data.message = result.error.message
-            error_data.detail = result.error.detail
             return common_pb2.ServiceInfoResponse(error=error_data)
-        response_dict = result.to_dict()
-        response_dict["error"] = error_data
-        response = common_pb2.ServiceInfoResponse(**response_dict)
-        return response
 
-    async def Unary(self, request: GuardRequest, context):
-        req = GuardRequest(
-            text=request.text,
-            client_id=request.client_id,
-            session_id=request.session_id,
-            request_id=request.request_id,
-            source_language=request.source_language,
-        )
-        result = await self.brick.run_unary(req)
+    async def Unary(self, request: guard_pb2.GuardRequest, context):
         error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
-        if not isinstance(result, GuardResponse):
+        try:
+            request = GuardRequest.from_pb2_model(request)
+            result: GuardResponse = await self.brick.run_unary(request)
+            if not isinstance(result, GuardResponse):
+                # context.set_code(grpc.StatusCode.INTERNAL)
+                # context.set_details('Invalid unary response type!')
+                error_data.code = grpc.StatusCode.INTERNAL.value[0]
+                error_data.message = "Invalid unary response type!"
+                error_data.detail = (
+                    "The response from the brick is not of type GuardResponse."
+                )
+                return guard_pb2.GuardResponse(error=error_data)
+            if result.error and result.error.code != 0:
+                # context.set_code(grpc.StatusCode.INTERNAL)
+                # context.set_details(result.error.message)
+                error_data.code = result.error.code
+                error_data.message = result.error.message
+                error_data.detail = result.error.detail
+                return guard_pb2.GuardResponse(error=error_data)
+
+            data = struct_pb2.Struct()
+            data.update(result.to_dict().get("data", {}))
+            response = guard_pb2.GuardResponse(data=data, error=error_data)
+
+            return response
+        except NotImplementedError as ev:
+            # context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+            # context.set_details(str(ev))
+            error_data.code = grpc.StatusCode.UNIMPLEMENTED.value[0]
+            error_data.message = str(ev)
+            error_data.detail = "The requested operation is not implemented."
+            return guard_pb2.GuardResponse(error=error_data)
+        except Exception as e:
             # context.set_code(grpc.StatusCode.INTERNAL)
-            # context.set_details('Invalid unary response type!')
-            error_data.code = grpc.StatusCode.INTERNAL.value[0]
-            error_data.message = "Invalid unary response type!"
-            error_data.detail = (
-                "The response from the brick is not of type GuardResponse."
+            # context.set_details(f'Error in Unary: {str(e)}')
+            error_data = common_pb2.ErrorDetail(
+                code=grpc.StatusCode.INTERNAL.value[0],
+                message=str(e),
+                detail="An error occurred while processing Unary.",
             )
             return guard_pb2.GuardResponse(error=error_data)
-        if result.error and result.error.code != 0:
-            # context.set_code(grpc.StatusCode.INTERNAL)
-            # context.set_details(result.error.message)
-            error_data.code = result.error.code
-            error_data.message = result.error.message
-            error_data.detail = result.error.detail
-            return guard_pb2.GuardResponse(error=error_data)
-        # results: List[GuardResult]
-        results_pb = []
-        for r in result.results:
-            res_pb = guard_pb2.GuardResult(
-                is_attack=r.is_attack, confidence=r.confidence, detail=r.detail
-            )
-            results_pb.append(res_pb)
-        response = guard_pb2.GuardResponse(results=results_pb, error=error_data)
-        return response
 
     def register(self, server):
         guard_pb2_grpc.add_GuardServiceServicer_to_server(self, server)

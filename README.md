@@ -1,5 +1,11 @@
 # LLMBrick
 
+[![Python Version](https://img.shields.io/pypi/pyversions/llmbrick)](https://www.python.org/downloads/)
+[![PyPI Version](https://img.shields.io/pypi/v/llmbrick)](https://pypi.org/project/llmbrick/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/JiHungLin/llmbrick/blob/main/LICENSE)
+[![Documentation](https://img.shields.io/badge/docs-latest-brightgreen)](https://llmbrick.readthedocs.io)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/JiHungLin/llmbrick)
+
 一個強調「模組化設計」、「明確協定定義」、「靈活組裝」與「易於擴展」的 LLM 應用開發框架。
 核心理念為：所有功能皆以 Brick 組件為單元，協定明確、組裝彈性，方便擴充與客製化。
 
@@ -60,7 +66,7 @@ server.run(host="0.0.0.0", port=8000)
 - 深色/淺色主題切換
 - 完整的 API 文件和範例
 
-![SSE Test Page](docs/guides/sse_server_test.png)
+![SSE Test Page](https://raw.githubusercontent.com/JiHungLin/llmbrick/main/docs/guides/sse_server_test.png)
 
 ## 範例
 
@@ -72,7 +78,7 @@ server.run(host="0.0.0.0", port=8000)
 - 自動系統語言偵測
 - 深色/淺色主題支援
 
-👉 [查看範例](examples/openai_chatbot/openai_chatbot.py) | [使用說明](examples/openai_chatbot/README.md)
+👉 [查看範例](https://github.com/JiHungLin/llmbrick/blob/main/examples/openai_chatbot/openai_chatbot.py) | [使用說明](https://github.com/JiHungLin/llmbrick/blob/main/examples/openai_chatbot/README.md)
 
 ### 標準用法範例
 
@@ -319,7 +325,7 @@ async def use_grpc_client():
     client_brick = LLMBrick.toGrpcClient(remote_address="127.0.0.1:50051")
     req = LLMRequest(prompt="Test", context=[])
     resp = await client_brick.run_unary(req)
-    print(resp.text)
+    print(resp)
     await client_brick._grpc_channel.close()
 
 asyncio.run(use_grpc_client())
@@ -356,13 +362,13 @@ if __name__ == "__main__":
 
 - [完整線上文檔（ReadTheDocs）](https://llmbrick.readthedocs.io/)
   包含所有指南、API 參考、教學與部署說明，建議優先查閱。
-- [快速開始](docs/quickstart.md)
+- [快速開始](https://llmbrick.readthedocs.io/zh-tw/latest/quickstart/)
   最精簡的安裝與第一個 Brick 實作步驟。
-- [API 參考](docs/api_reference/)
+- [API 參考](https://llmbrick.readthedocs.io/zh-tw/latest/api_reference/)
   各類 Brick 與核心方法的 API 文件。
-- [教學範例](docs/tutorials/)
+- [教學範例](https://llmbrick.readthedocs.io/zh-tw/latest/tutorials/)
   Step-by-step 教學與開發實例。
-- [元件指南（Brick Guides）](docs/guides/index.md)
+- [元件指南（Brick Guides）](https://llmbrick.readthedocs.io/zh-tw/latest/guides/)
   詳細說明各類 Brick（如 CommonBrick、LLMBrick、GuardBrick 等）的設計理念、實作範例與最佳實踐。
 
 > 文檔結構說明：

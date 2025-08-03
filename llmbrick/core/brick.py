@@ -238,7 +238,7 @@ class BaseBrick(Generic[InputT, OutputT]):
             from llmbrick.utils.logging import logger
 
             logger.error(f"[{self.brick_name}] run_unary exception: {e}", exc_info=True)
-            raise
+            raise e
 
     # Entry: get_service_info call
     async def run_get_service_info(self) -> ServiceInfoResponse:
@@ -251,7 +251,7 @@ class BaseBrick(Generic[InputT, OutputT]):
                 f"[{self.brick_name}] run_get_service_info exception: {e}",
                 exc_info=True,
             )
-            raise
+            raise e
 
     # Entry: server streaming call
     async def run_output_streaming(self, input_data: InputT) -> AsyncIterator[OutputT]:
@@ -267,7 +267,7 @@ class BaseBrick(Generic[InputT, OutputT]):
                 f"[{self.brick_name}] run_output_streaming exception: {e}",
                 exc_info=True,
             )
-            raise
+            raise e
 
     # Entry: client streaming call
     async def run_input_streaming(self, input_stream: AsyncIterator[InputT]) -> OutputT:
@@ -281,7 +281,7 @@ class BaseBrick(Generic[InputT, OutputT]):
             logger.error(
                 f"[{self.brick_name}] run_input_streaming exception: {e}", exc_info=True
             )
-            raise
+            raise e
 
     # Entry: bidirectional streaming call
     async def run_bidi_streaming(
@@ -298,7 +298,7 @@ class BaseBrick(Generic[InputT, OutputT]):
             logger.error(
                 f"[{self.brick_name}] run_bidi_streaming exception: {e}", exc_info=True
             )
-            raise
+            raise e
 
     @classmethod
     def toGrpcClient(cls, remote_address: str, **kwargs):
