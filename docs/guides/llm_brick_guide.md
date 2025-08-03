@@ -17,8 +17,12 @@
 
 ## 概述
 
-LLMBrick 是 LLMBrick 框架中專為大型語言模型（LLM）服務設計的核心元件，提供統一的異步處理介面，支援本地調用與遠端 gRPC 調用的無縫切換。  
+LLMBrick 是 LLMBrick 框架中專為大型語言模型（LLM）服務設計的核心元件，提供統一的異步處理介面，支援本地調用與遠端 gRPC 調用的無縫切換。
 其 API 設計與 CommonBrick 完全一致，讓開發者可專注於業務邏輯，無需關心底層通訊細節。
+
+### 可用的 LLM Brick 實作
+
+- [OpenAI GPT Brick](./openai_llm_brick_guide.md) - 整合 OpenAI GPT-3.5、GPT-4 等模型的 Brick 實作
 
 ---
 

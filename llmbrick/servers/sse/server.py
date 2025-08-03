@@ -1,5 +1,9 @@
 import json
+import os
+from pathlib import Path
 from typing import Any, AsyncGenerator, Callable, Optional
+
+from fastapi.responses import HTMLResponse
 
 import uvicorn
 from fastapi import FastAPI, HTTPException, Request
@@ -27,7 +31,19 @@ class SSEServer:
         prefix: Optional[str] = None,
         # 自定義驗證器
         custom_validator: Optional[Any] = None,
+        # 新增：是否啟用測試用網頁
+        enable_test_page: bool = False,
     ):
+        """
+        SSEServer
+
+        :param handler: 主 SSE handler
+        :param config: SSEServerConfig 配置
+        :param chat_completions_path: 舊版 API 路徑參數
+        :param prefix: 路徑前綴
+        :param custom_validator: 自定義驗證器
+        :param enable_test_page: 是否啟用測試用網頁 (預設 False，僅開發/測試用)
+        """
         # 初始化配置
         if config is None:
             config = SSEServerConfig()
@@ -40,11 +56,50 @@ class SSEServer:
             
         self.config = config
         self.custom_validator = custom_validator
+        self._enable_test_page = enable_test_page  # Store the test page setting
+        
+        # Initialize FastAPI app with basic configuration
         self.app = FastAPI(
             title="LLMBrick SSE Server",
             description="Server-Sent Events API for LLM conversations",
             debug=self.config.debug_mode
         )
+
+        # Register test page if enabled (only once at initialization)
+        if self._enable_test_page:
+            templates_dir = Path(__file__).parent / 'templates'
+            template_path = templates_dir / 'test_page.html'
+            
+            if not template_path.exists():
+                logger.warning(f"Test page template not found at {template_path}")
+            else:
+                @self.app.get("/", response_class=HTMLResponse)
+                async def test_page():
+                    full_path = self.config.prefix + self.config.chat_completions_path
+                    # Read the template and inject the API endpoint
+                    with open(template_path, 'r', encoding='utf-8') as f:
+                        template = f.read()
+                    
+                    # Calculate the actual API endpoint URL
+                    html = template.replace('{api_endpoint}', full_path)
+
+                    # Add warning if handler is not set
+                    has_handler = hasattr(self, '_handler') and self._handler is not None
+                    status_script = f"""
+                    <script>
+                        window.hasHandler = {str(has_handler).lower()};
+                        if (!window.hasHandler) {{
+                            const warning = document.createElement('div');
+                            warning.className = 'warning';
+                            warning.innerHTML = '⚠️ Warning: No handler is configured. Requests will fail until a handler is set.';
+                            document.body.insertBefore(warning, document.body.firstChild);
+                        }}
+                    </script>
+                    """
+                    # Insert the status script before </body>
+                    html = html.replace('</body>', f'{status_script}</body>')
+                    
+                    return HTMLResponse(content=html)
 
         # 註冊 LLMBrickException handler
         @self.app.exception_handler(LLMBrickException)
@@ -89,6 +144,11 @@ class SSEServer:
         # 處理 path 格式，確保開頭有 /
         if not self.config.chat_completions_path.startswith("/"):
             self.config.chat_completions_path = "/" + self.config.chat_completions_path
+
+        # Register initial routes (including test page)
+        self.setup_routes()
+
+        # Set handler if provided (will reset routes)
         if handler is not None:
             self.set_handler(handler)
 
@@ -134,15 +194,17 @@ class SSEServer:
         return True, ""
 
     def setup_routes(self) -> None:
+        """設定 API 路由"""
         full_path = self.config.prefix + self.config.chat_completions_path
 
+        # Register SSE endpoint
         @self.app.post(
             full_path,
             response_description="SSE response stream",
             response_model=ConversationSSEResponse,
             response_model_by_alias=True,
         )
-        async def chat_completions(request: Request) -> StreamingResponse:
+        async def chat_completions(request: Request, body: ConversationSSERequest) -> StreamingResponse:
             # 檢查 Accept header 是否包含 text/event-stream
             accept_header = request.headers.get("accept", "")
             if "text/event-stream" not in accept_header:
@@ -152,60 +214,18 @@ class SSEServer:
                         "error": "Accept header must include 'text/event-stream' for SSE"
                     },
                 )
-            try:
-                # 先檢查 body 是否為空
-                raw_body = await request.body()
-                if not raw_body or raw_body.strip() == b"" or raw_body.strip() == b"{}":
-                    raise HTTPException(
-                        status_code=400,
-                        detail={
-                            "error": "Empty request body",
-                            "details": "Request body is empty. Please provide a valid JSON object.",
-                        },
-                    )
-                try:
-                    body_json = await request.json()
-                except Exception as e:
-                    raise HTTPException(
-                        status_code=400,
-                        detail={
-                            "error": "Malformed JSON",
-                            "details": str(e),
-                        },
-                    )
-                try:
-                    req = ConversationSSERequest.model_validate(body_json)
-                except ValidationError as ve:
-                    raise HTTPException(
-                        status_code=422,
-                        detail={
-                            "error": "Invalid request schema",
-                            "details": ve.errors(),
-                            "input": body_json,
-                            "message": "Request body does not conform to ConversationSSERequest schema. See 'details' for field errors.",
-                        },
-                    )
-            except HTTPException:
-                raise
-            except Exception as e:
-                raise HTTPException(
-                    status_code=400,
-                    detail={
-                        "error": "Malformed request",
-                        "details": str(e),
-                    },
-                )
+
             if not hasattr(self, "_handler") or self._handler is None:
                 raise HTTPException(
                     status_code=404, detail={"error": "Handler not set"}
                 )
-
+            
             from llmbrick.servers.sse.validators import ConversationSSERequestValidator
             from llmbrick.core.exceptions import ValidationException
             
             # 請求日誌
             if self.config.enable_request_logging:
-                logger.info(f"SSE request received: model={req.model}, session_id={req.session_id}")
+                logger.info(f"SSE request received: model={body.model}, session_id={body.session_id}")
             
             async def event_stream() -> AsyncGenerator[str, None]:
                 try:
@@ -214,7 +234,7 @@ class SSEServer:
                         if self.custom_validator:
                             # 使用自定義驗證器
                             self.custom_validator.validate(
-                                req,
+                                body,
                                 allowed_models=self.config.allowed_models,
                                 max_message_length=self.config.max_message_length,
                                 max_messages_count=self.config.max_messages_count
@@ -222,7 +242,7 @@ class SSEServer:
                         else:
                             # 使用預設驗證器
                             ConversationSSERequestValidator.validate(
-                                req,
+                                body,
                                 allowed_models=self.config.allowed_models,
                                 max_message_length=self.config.max_message_length,
                                 max_messages_count=self.config.max_messages_count
@@ -232,7 +252,7 @@ class SSEServer:
                         yield f"event: error\ndata: {json.dumps({'error': 'Business validation failed', 'details': error_details})}\n\n"
                         return
                     
-                    async for event in self._handler(body_json):
+                    async for event in self._handler(body):
                         valid, err_msg = self._validate_event(event)
                         if not valid:
                             error_details = err_msg if self.config.debug_mode else "Server returned invalid event"
@@ -261,6 +281,10 @@ class SSEServer:
         )
         logger.info(f"Debug mode: {self.config.debug_mode}")
         logger.info(f"Allowed models: {self.config.allowed_models}")
+        
+        # Log test page URL if enabled
+        if hasattr(self, '_enable_test_page') and self._enable_test_page:
+            logger.info(f"Test page available at: http://{actual_host}:{actual_port}/")
         
         uvicorn.run(
             self.app,

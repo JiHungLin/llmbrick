@@ -41,7 +41,40 @@ server = SSEServer(llm_brick)
 server.run(host="0.0.0.0", port=8000)
 ```
 
+## 測試頁面
+
+SSEServer 提供了內建的測試頁面，方便開發和測試：
+
+```python
+# 啟用測試頁面
+server = SSEServer(enable_test_page=True)
+server.run(host="0.0.0.0", port=8000)
+```
+
+測試頁面特色：
+- 完整的請求表單，支援所有 SSERequest 欄位
+- 動態訊息管理（新增/刪除/重排序）
+- 即時串流輸出顯示，支援自動捲動
+- 不同類型訊息顏色區分
+- 時間戳記標記
+- 深色/淺色主題切換
+- 完整的 API 文件和範例
+
+![SSE Test Page](docs/guides/sse_server_test.png)
+
 ## 範例
+
+### OpenAI GPT Brick with SSE Server
+
+完整的 OpenAI GPT 整合示例，包含：
+- SSE 服務器整合與測試頁面
+- 串流輸出與即時累積回應
+- 自動系統語言偵測
+- 深色/淺色主題支援
+
+👉 [查看範例](examples/openai_chatbot/openai_chatbot.py) | [使用說明](examples/openai_chatbot/README.md)
+
+### 標準用法範例
 
 #### 1. CommonBrick 標準用法
 
@@ -319,11 +352,25 @@ if __name__ == "__main__":
     server.run(host="0.0.0.0", port=8000)
 ```
 
-## 文檔
+## 📚 文檔
 
+- [完整線上文檔（ReadTheDocs）](https://llmbrick.readthedocs.io/)
+  包含所有指南、API 參考、教學與部署說明，建議優先查閱。
 - [快速開始](docs/quickstart.md)
+  最精簡的安裝與第一個 Brick 實作步驟。
 - [API 參考](docs/api_reference/)
+  各類 Brick 與核心方法的 API 文件。
 - [教學範例](docs/tutorials/)
+  Step-by-step 教學與開發實例。
+- [元件指南（Brick Guides）](docs/guides/index.md)
+  詳細說明各類 Brick（如 CommonBrick、LLMBrick、GuardBrick 等）的設計理念、實作範例與最佳實踐。
+
+> 文檔結構說明：
+> - **快速開始**：新手入門、安裝與 Hello World
+> - **API 參考**：查詢各元件方法與型別
+> - **教學範例**：實戰案例、進階應用
+> - **元件指南**：每種 Brick 的設計與最佳實踐
+> - **完整文檔**：建議直接瀏覽 ReadTheDocs 以獲得最佳閱讀體驗
 
 ## 授權
 

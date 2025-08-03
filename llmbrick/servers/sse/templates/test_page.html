@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LLMBrick SSE Test Page</title>
+  <style>
+    :root {
+      /* Light theme colors */
+      --primary-color: #2563eb;
+      --secondary-color: #4b5563;
+      --bg-color: #f3f4f6;
+      --border-color: #e5e7eb;
+      --text-color: #111827;
+      --container-bg: #ffffff;
+      --surface-bg: #ffffff;
+      --success-color: #22c55e;
+      --error-color: #ef4444;
+      --warning-bg: #fff3cd;
+      --warning-color: #664d03;
+      --warning-border: #ffecb5;
+      --code-bg: #1e1e1e;
+      --code-color: #d4d4d4;
+      /* Message type colors */
+      --message-color: #d4d4d4;
+      --error-color-bg: rgba(239, 68, 68, 0.1);
+      --error-color-text: #ef4444;
+      --meta-color-bg: rgba(37, 99, 235, 0.1);
+      --meta-color-text: #2563eb;
+      --done-color-bg: rgba(34, 197, 94, 0.1);
+      --done-color-text: #22c55e;
+    }
+
+    [data-theme="dark"] {
+      --primary-color: #60a5fa;
+      --secondary-color: #9ca3af;
+      --bg-color: #111827;
+      --border-color: #374151;
+      --text-color: #f3f4f6;
+      --container-bg: #1f2937;
+      --surface-bg: #1f2937;
+      --success-color: #34d399;
+      --error-color: #f87171;
+      --warning-bg: #3f2c0d;
+      --warning-color: #fcd34d;
+      --warning-border: #92400e;
+      --code-bg: #000000;
+      --code-color: #e5e7eb;
+      /* Message type colors - dark theme */
+      --message-color: #e5e7eb;
+      --error-color-bg: rgba(239, 68, 68, 0.15);
+      --error-color-text: #f87171;
+      --meta-color-bg: rgba(96, 165, 250, 0.15);
+      --meta-color-text: #60a5fa;
+      --done-color-bg: rgba(52, 211, 153, 0.15);
+      --done-color-text: #34d399;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --primary-color: #60a5fa;
+        --secondary-color: #9ca3af;
+        --bg-color: #111827;
+        --border-color: #374151;
+        --text-color: #f3f4f6;
+        --container-bg: #1f2937;
+        --surface-bg: #1f2937;
+        --success-color: #34d399;
+        --error-color: #f87171;
+        --warning-bg: #3f2c0d;
+        --warning-color: #fcd34d;
+        --warning-border: #92400e;
+        --code-bg: #000000;
+        --code-color: #e5e7eb;
+        /* Message type colors - dark theme */
+        --message-color: #e5e7eb;
+        --error-color-bg: rgba(239, 68, 68, 0.15);
+        --error-color-text: #f87171;
+        --meta-color-bg: rgba(96, 165, 250, 0.15);
+        --meta-color-text: #60a5fa;
+        --done-color-bg: rgba(52, 211, 153, 0.15);
+        --done-color-text: #34d399;
+      }
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.5;
+      margin: 0;
+      padding: 2rem;
+      background: var(--bg-color);
+      color: var(--text-color);
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: var(--container-bg);
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    h1, h2, h3 {
+      color: var(--primary-color);
+      margin-top: 0;
+    }
+    .form-group {
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+    .form-row {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .form-row > * {
+      flex: 1;
+    }
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: var(--secondary-color);
+      font-weight: 500;
+    }
+    .help-text {
+      font-size: 0.875rem;
+      color: var(--secondary-color);
+      margin-top: 0.25rem;
+    }
+    .warning {
+      background: var(--warning-bg);
+      color: var(--warning-color);
+      border: 1px solid var(--warning-border);
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      font-size: 1rem;
+      background: var(--surface-bg);
+      color: var(--text-color);
+    }
+    input:focus, textarea:focus, select:focus {
+      outline: 2px solid var(--primary-color);
+      outline-offset: -1px;
+    }
+    textarea {
+      min-height: 80px;
+      font-family: monospace;
+    }
+    button {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 0.75rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    button:hover {
+      filter: brightness(110%);
+    }
+    button:active {
+      transform: translateY(1px);
+    }
+    button.secondary {
+      background: var(--secondary-color);
+    }
+    button.small {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.875rem;
+    }
+    .output-container {
+      margin-top: 2rem;
+      background: var(--code-bg);
+      color: var(--code-color);
+      border-radius: 4px;
+      font-family: monospace;
+      border: 1px solid var(--border-color);
+      position: relative;
+      height: 400px;
+      display: flex;
+      flex-direction: column;
+    }
+    .output-header {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border-color);
+      background: var(--surface-bg);
+      color: var(--text-color);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    #output {
+      flex: 1;
+      white-space: pre-wrap;
+      overflow-y: auto;
+      padding: 1rem;
+      margin: 0;
+      scroll-behavior: smooth;
+    }
+    .message-timestamp {
+      color: var(--secondary-color);
+      padding-right: 0.5rem;
+      user-select: none;
+    }
+    .message-line {
+      display: flex;
+      gap: 1rem;
+      padding: 0.25rem 0.5rem;
+      margin: 0.25rem 0;
+      border-radius: 4px;
+    }
+    .message-content {
+      flex: 1;
+      color: var(--message-color);
+    }
+    /* Event type styles */
+    .event-error {
+      background: var(--error-color-bg);
+    }
+    .event-error .message-content {
+      color: var(--error-color-text);
+    }
+    .event-meta {
+      background: var(--meta-color-bg);
+    }
+    .event-meta .message-content {
+      color: var(--meta-color-text);
+    }
+    .event-done {
+      background: var(--done-color-bg);
+    }
+    .event-done .message-content {
+      color: var(--done-color-text);
+    }
+    #output::-webkit-scrollbar,
+    #accumulated::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    #output::-webkit-scrollbar-track,
+    #accumulated::-webkit-scrollbar-track {
+      background: var(--surface-bg);
+    }
+    #output::-webkit-scrollbar-thumb,
+    #accumulated::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 4px;
+    }
+    #output::-webkit-scrollbar-thumb:hover,
+    #accumulated::-webkit-scrollbar-thumb:hover {
+      background: var(--secondary-color);
+    }
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      margin-left: 0.5rem;
+      border: 1px solid;
+    }
+    .status.connected {
+      background: color-mix(in srgb, var(--success-color) 15%, transparent);
+      color: var(--success-color);
+      border-color: var(--success-color);
+    }
+    .status.disconnected {
+      background: color-mix(in srgb, var(--error-color) 15%, transparent);
+      color: var(--error-color);
+      border-color: var(--error-color);
+    }
+    .status::before {
+      content: "●";
+      font-size: 0.75em;
+    }
+    .error {
+      color: var(--error-color);
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+    }
+    .message-item {
+      border: 1px solid var(--border-color);
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 4px;
+    }
+    .message-controls {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    .tabs {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .tab {
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+    }
+    .tab.active {
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+    }
+    .example-container {
+      background: var(--surface-bg);
+      padding: 1rem;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+      border: 1px solid var(--border-color);
+    }
+    .example-code {
+      background: var(--code-bg);
+      color: var(--code-color);
+      padding: 1rem;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+    .collapsible {
+      margin-bottom: 1rem;
+    }
+    .collapsible-header {
+      background: var(--surface-bg);
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      user-select: none;
+      border: 1px solid var(--border-color);
+    }
+
+    .theme-switch {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      background: var(--surface-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-color);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      transition: all 0.2s;
+    }
+    .theme-switch:hover {
+      background: var(--bg-color);
+    }
+    .theme-icon {
+      font-size: 1.25rem;
+    }
+    .collapsible-content {
+      display: none;
+      padding: 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: 0 0 4px 4px;
+    }
+    .collapsible.open .collapsible-content {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-switch" onclick="toggleTheme()" title="Toggle dark mode">
+    <span class="theme-icon">🌓</span>
+    <span class="theme-text">Theme</span>
+  </button>
+  <div class="container">
+    <h1>LLMBrick SSE Test Page</h1>
+    
+    <div class="tabs">
+      <div class="tab active" data-tab="form">Request Form</div>
+      <div class="tab" data-tab="examples">Examples</div>
+      <div class="tab" data-tab="docs">Documentation</div>
+    </div>
+
+    <div class="tab-content" id="form">
+      <form id="sseForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="model">Model</label>
+            <input type="text" id="model" value="gpt-4o" required>
+            <div class="help-text">指定模型名稱 (e.g. 'gpt-4o', 'sonar')</div>
+          </div>
+          <div class="form-group">
+            <label for="sessionId">Session ID</label>
+            <input type="text" id="sessionId" value="test-session" required>
+            <div class="help-text">對話 session id，標記本次對話所屬</div>
+          </div>
+          <div class="form-group">
+            <label for="clientId">Client ID (optional)</label>
+            <input type="text" id="clientId">
+            <div class="help-text">客戶端識別碼</div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="temperature">Temperature (optional)</label>
+            <input type="number" id="temperature" step="0.1" min="0" max="2">
+            <div class="help-text">回應多樣性 (0.0 - 2.0)</div>
+          </div>
+          <div class="form-group">
+            <label for="maxTokens">Max Tokens (optional)</label>
+            <input type="number" id="maxTokens" min="1">
+            <div class="help-text">生成最大 token 數</div>
+          </div>
+          <div class="form-group">
+            <label for="sourceLanguage">Source Language</label>
+            <input type="text" id="sourceLanguage">
+            <div class="help-text">源語言 (自動偵測使用者的系統語言)</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Messages</label>
+          <div id="messages-container"></div>
+          <button type="button" class="secondary small" onclick="addMessage()">Add Message</button>
+          <div class="help-text">訊息陣列，每則訊息需包含 role 和 content</div>
+        </div>
+
+        <button type="submit">Send Request</button>
+      </form>
+
+      <div style="display: flex; gap: 1rem;">
+        <div class="output-container" style="flex: 1;">
+          <div class="output-header">
+            <h2 style="margin: 0">Stream Output</h2>
+            <span id="status" class="status disconnected">Disconnected</span>
+          </div>
+          <div id="output"></div>
+        </div>
+        
+        <div class="output-container" style="flex: 1;">
+          <div class="output-header">
+            <h2 style="margin: 0">Accumulated Response</h2>
+            <button class="small" onclick="clearAccumulated()" style="margin-left: auto;">Clear</button>
+          </div>
+          <div id="accumulated" style="white-space: pre-wrap; padding: 1rem; overflow-y: auto; height: 100%; scroll-behavior: smooth;"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-content" id="examples" style="display: none;">
+      <div class="example-container">
+        <h3>Basic Request Example</h3>
+        <pre class="example-code">{
+  "model": "gpt-4o",
+  "messages": [
+    {"role": "system", "content": "You are a helpful assistant."},
+    {"role": "user", "content": "What is the weather like today?"}
+  ],
+  "stream": true,
+  "sessionId": "1234567890"
+}</pre>
+      </div>
+
+      <div class="example-container">
+        <h3>Response Format</h3>
+        <pre class="example-code">{
+  "id": "1",
+  "type": "text",
+  "model": "gpt-4o",
+  "text": "Hello, this is a streaming response.",
+  "progress": "IN_PROGRESS",
+  "context": {
+    "conversationId": "1234567890",
+    "cursor": "abcdefg12345"
+  },
+  "metadata": {
+    "searchResults": {"results": ["result1", "result2"]},
+    "attachments": [
+      {"type": "image", "url": "http://example.com/image.jpg"}
+    ]
+  }
+}</pre>
+      </div>
+    </div>
+
+    <div class="tab-content" id="docs" style="display: none;">
+      <div class="collapsible">
+        <div class="collapsible-header">Request Fields Description</div>
+        <div class="collapsible-content">
+          <ul>
+            <li><strong>model</strong>: (required) 指定模型名稱，如 'gpt-4o', 'sonar'</li>
+            <li><strong>messages</strong>: (required) 訊息陣列，每則訊息包含：
+              <ul>
+                <li>role: 角色 ('system', 'user', 'assistant')</li>
+                <li>content: 訊息內容</li>
+              </ul>
+            </li>
+            <li><strong>stream</strong>: (required) 是否啟用串流，必須為 true</li>
+            <li><strong>sessionId</strong>: (required) 對話 session id</li>
+            <li><strong>clientId</strong>: (optional) 客戶端識別碼</li>
+            <li><strong>temperature</strong>: (optional) 回應多樣性 (0.0 - 2.0)</li>
+            <li><strong>maxTokens</strong>: (optional) 生成最大 token 數</li>
+            <li><strong>sourceLanguage</strong>: (optional) 源語言</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="collapsible">
+        <div class="collapsible-header">Response Fields Description</div>
+        <div class="collapsible-content">
+          <ul>
+            <li><strong>id</strong>: (required) 唯一識別碼</li>
+            <li><strong>type</strong>: (required) 資料類型 ('text', 'meta', 'done')</li>
+            <li><strong>model</strong>: (optional) 回應的模型名稱</li>
+            <li><strong>text</strong>: (optional) 本次串流新文本</li>
+            <li><strong>progress</strong>: (required) 進度狀態 ('IN_PROGRESS', 'DONE')</li>
+            <li><strong>context</strong>: (optional) 上下文資訊</li>
+            <li><strong>metadata</strong>: (optional) 輔助資訊</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Theme management
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('theme', theme);
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      setTheme(next);
+    }
+
+    // Initialize theme
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      setTheme(savedTheme);
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      setTheme('dark');
+    }
+
+    // Listen for system theme changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+      if (!localStorage.getItem('theme')) {
+        setTheme(e.matches ? 'dark' : 'light');
+      }
+    });
+    // Message management
+    function addMessage(role = 'user', content = '') {
+      const container = document.getElementById('messages-container');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'message-item';
+      messageDiv.innerHTML = `
+        <div class="form-row">
+          <div class="form-group">
+            <label>Role</label>
+            <select class="message-role">
+              <option value="system" ${role === 'system' ? 'selected' : ''}>system</option>
+              <option value="user" ${role === 'user' ? 'selected' : ''}>user</option>
+              <option value="assistant" ${role === 'assistant' ? 'selected' : ''}>assistant</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Content</label>
+            <textarea class="message-content">${content}</textarea>
+          </div>
+        </div>
+        <div class="message-controls">
+          <button type="button" class="small secondary" onclick="moveUp(this)">↑ Move Up</button>
+          <button type="button" class="small secondary" onclick="moveDown(this)">↓ Move Down</button>
+          <button type="button" class="small secondary" onclick="removeMessage(this)">Remove</button>
+        </div>
+      `;
+      container.appendChild(messageDiv);
+    }
+
+    function removeMessage(button) {
+      button.closest('.message-item').remove();
+    }
+
+    function moveUp(button) {
+      const item = button.closest('.message-item');
+      const prev = item.previousElementSibling;
+      if (prev) {
+        item.parentNode.insertBefore(item, prev);
+      }
+    }
+
+    function moveDown(button) {
+      const item = button.closest('.message-item');
+      const next = item.nextElementSibling;
+      if (next) {
+        item.parentNode.insertBefore(next, item);
+      }
+    }
+
+    // Add initial message
+    addMessage('user', 'Hello, world!');
+
+    // Set default source language from browser
+    const userLanguage = navigator.language || navigator.userLanguage;
+    document.getElementById('sourceLanguage').value = userLanguage.split('-')[0]; // Get primary language code
+
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        document.querySelectorAll('.tab-content').forEach(content => {
+          content.style.display = 'none';
+        });
+        document.getElementById(tab.dataset.tab).style.display = 'block';
+      });
+    });
+
+    // Collapsible sections
+    document.querySelectorAll('.collapsible-header').forEach(header => {
+      header.addEventListener('click', () => {
+        header.parentElement.classList.toggle('open');
+      });
+    });
+
+    // Initialize API endpoint
+    const API_ENDPOINT = '{api_endpoint}';
+    const output = document.getElementById('output');
+    const status = document.getElementById('status');
+    let currentRequest = null;
+    let accumulatedText = '';
+
+    // Form submission
+    document.getElementById('sseForm').onsubmit = async function(e) {
+      e.preventDefault();
+
+      // Reset output and update status
+      output.innerHTML = '';
+      accumulatedText = '';
+      document.getElementById('accumulated').innerHTML = '';
+      if (currentRequest) {
+        currentRequest.abort();
+      }
+
+      try {
+        // Gather form data
+        const model = document.getElementById('model').value;
+        const sessionId = document.getElementById('sessionId').value;
+
+        // Get messages from dynamic inputs
+        const messages = Array.from(document.querySelectorAll('.message-item')).map(item => ({
+          role: item.querySelector('.message-role').value,
+          content: item.querySelector('.message-content').value
+        }));
+
+        // Build request body with required fields
+        const reqBody = {
+          model,
+          messages,
+          stream: true,
+          sessionId
+        };
+
+        // Add optional fields if they have values
+        const optionalFields = {
+          clientId: 'clientId',
+          temperature: 'temperature',
+          maxTokens: 'maxTokens',
+          sourceLanguage: 'sourceLanguage'
+        };
+
+        for (const [key, id] of Object.entries(optionalFields)) {
+          const value = document.getElementById(id).value;
+          if (value) {
+            if (id === 'temperature' || id === 'maxTokens') {
+              reqBody[key] = Number(value);
+            } else {
+              reqBody[key] = value;
+            }
+          }
+        }
+
+        // Update connection status
+        status.textContent = 'Connected';
+        status.className = 'status connected';
+
+        // Send request
+        currentRequest = new AbortController();
+        const resp = await fetch(API_ENDPOINT, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'text/event-stream'
+          },
+          body: JSON.stringify(reqBody),
+          signal: currentRequest.signal
+        });
+
+        if (!resp.ok) {
+          throw new Error(`HTTP error! status: ${resp.status}`);
+        }
+
+        const reader = resp.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          
+          buffer += decoder.decode(value, { stream: true });
+          const parts = buffer.split('\n\n');
+          buffer = parts.pop() || '';
+
+          for (const part of parts) {
+            if (part.trim()) {
+              // Parse and format the SSE data
+              const lines = part.split('\n');
+              const eventData = lines
+                .find(line => line.startsWith('data: '))
+                ?.substring(6);
+              
+              if (eventData) {
+                try {
+                  const data = JSON.parse(eventData);
+                  
+                  // Accumulate text from text events
+                  if (data.type === 'text' && data.text) {
+                    accumulatedText += data.text;
+                    const accumulated = document.getElementById('accumulated');
+                    accumulated.textContent = accumulatedText;
+                    accumulated.scrollTop = accumulated.scrollHeight;
+                  }
+                  // Add timestamp and format the message
+                  const timestamp = new Date().toLocaleTimeString('en-US', {
+                    hour12: false,
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    fractionalSecondDigits: 3
+                  });
+
+                  // Determine event class based on event type and progress
+                  let eventClass = '';
+                  if (lines[0].startsWith('event: error')) {
+                    eventClass = 'event-error';
+                  } else if (data.type === 'meta') {
+                    eventClass = 'event-meta';
+                  } else if (data.progress === 'DONE') {
+                    eventClass = 'event-done';
+                  }
+
+                  const msgHtml = `<div class="message-line ${eventClass}">
+                    <span class="message-timestamp">[${timestamp}]</span>
+                    <pre class="message-content">${JSON.stringify(data, null, 2)}</pre>
+                  </div>\n`;
+                  output.insertAdjacentHTML('beforeend', msgHtml);
+                  output.scrollTop = output.scrollHeight;
+                } catch (e) {
+                  const timestamp = new Date().toLocaleTimeString('en-US', {
+                    hour12: false,
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    fractionalSecondDigits: 3
+                  });
+                  const msgHtml = `<div class="message-line event-error">
+                    <span class="message-timestamp">[${timestamp}]</span>
+                    <pre class="message-content">${eventData}</pre>
+                  </div>\n`;
+                  output.insertAdjacentHTML('beforeend', msgHtml);
+                  output.scrollTop = output.scrollHeight;
+                }
+              }
+            }
+          }
+        }
+      } catch (err) {
+        if (err.name === 'AbortError') {
+          const timestamp = new Date().toLocaleTimeString('en-US', {
+            hour12: false,
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            fractionalSecondDigits: 3
+          });
+          const msgHtml = `<div class="message-line event-error">
+            <span class="message-timestamp">[${timestamp}]</span>
+            <pre class="message-content">[Connection closed by user]</pre>
+          </div>\n`;
+          output.insertAdjacentHTML('beforeend', msgHtml);
+          output.scrollTop = output.scrollHeight;
+        } else {
+          const timestamp = new Date().toLocaleTimeString('en-US', {
+            hour12: false,
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            fractionalSecondDigits: 3
+          });
+          const msgHtml = `<div class="message-line event-error">
+            <span class="message-timestamp">[${timestamp}]</span>
+            <pre class="message-content">Error: ${err.message}</pre>
+          </div>\n`;
+          output.insertAdjacentHTML('beforeend', msgHtml);
+          output.scrollTop = output.scrollHeight;
+        }
+      } finally {
+        status.textContent = 'Disconnected';
+        status.className = 'status disconnected';
+        currentRequest = null;
+      }
+    };
+
+    // Clear accumulated text
+    function clearAccumulated() {
+      accumulatedText = '';
+      document.getElementById('accumulated').textContent = '';
+    }
+
+    // Open collapsible sections by default on page load
+    document.querySelectorAll('.collapsible').forEach(el => el.classList.add('open'));
+  </script>
+</body>
+</html>
