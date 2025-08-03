@@ -204,7 +204,7 @@ class SSEServer:
             response_model=ConversationSSEResponse,
             response_model_by_alias=True,
         )
-        async def chat_completions(request: Request) -> StreamingResponse:
+        async def chat_completions(request: Request, body: ConversationSSERequest) -> StreamingResponse:
             # 檢查 Accept header 是否包含 text/event-stream
             accept_header = request.headers.get("accept", "")
             if "text/event-stream" not in accept_header:
@@ -214,60 +214,18 @@ class SSEServer:
                         "error": "Accept header must include 'text/event-stream' for SSE"
                     },
                 )
-            try:
-                # 先檢查 body 是否為空
-                raw_body = await request.body()
-                if not raw_body or raw_body.strip() == b"" or raw_body.strip() == b"{}":
-                    raise HTTPException(
-                        status_code=400,
-                        detail={
-                            "error": "Empty request body",
-                            "details": "Request body is empty. Please provide a valid JSON object.",
-                        },
-                    )
-                try:
-                    body_json = await request.json()
-                except Exception as e:
-                    raise HTTPException(
-                        status_code=400,
-                        detail={
-                            "error": "Malformed JSON",
-                            "details": str(e),
-                        },
-                    )
-                try:
-                    req = ConversationSSERequest.model_validate(body_json)
-                except ValidationError as ve:
-                    raise HTTPException(
-                        status_code=422,
-                        detail={
-                            "error": "Invalid request schema",
-                            "details": ve.errors(),
-                            "input": body_json,
-                            "message": "Request body does not conform to ConversationSSERequest schema. See 'details' for field errors.",
-                        },
-                    )
-            except HTTPException:
-                raise
-            except Exception as e:
-                raise HTTPException(
-                    status_code=400,
-                    detail={
-                        "error": "Malformed request",
-                        "details": str(e),
-                    },
-                )
+
             if not hasattr(self, "_handler") or self._handler is None:
                 raise HTTPException(
                     status_code=404, detail={"error": "Handler not set"}
                 )
-
+            
             from llmbrick.servers.sse.validators import ConversationSSERequestValidator
             from llmbrick.core.exceptions import ValidationException
             
             # 請求日誌
             if self.config.enable_request_logging:
-                logger.info(f"SSE request received: model={req.model}, session_id={req.session_id}")
+                logger.info(f"SSE request received: model={body.model}, session_id={body.session_id}")
             
             async def event_stream() -> AsyncGenerator[str, None]:
                 try:
@@ -276,7 +234,7 @@ class SSEServer:
                         if self.custom_validator:
                             # 使用自定義驗證器
                             self.custom_validator.validate(
-                                req,
+                                body,
                                 allowed_models=self.config.allowed_models,
                                 max_message_length=self.config.max_message_length,
                                 max_messages_count=self.config.max_messages_count
@@ -284,7 +242,7 @@ class SSEServer:
                         else:
                             # 使用預設驗證器
                             ConversationSSERequestValidator.validate(
-                                req,
+                                body,
                                 allowed_models=self.config.allowed_models,
                                 max_message_length=self.config.max_message_length,
                                 max_messages_count=self.config.max_messages_count
@@ -294,7 +252,7 @@ class SSEServer:
                         yield f"event: error\ndata: {json.dumps({'error': 'Business validation failed', 'details': error_details})}\n\n"
                         return
                     
-                    async for event in self._handler(req):
+                    async for event in self._handler(body):
                         valid, err_msg = self._validate_event(event)
                         if not valid:
                             error_details = err_msg if self.config.debug_mode else "Server returned invalid event"
