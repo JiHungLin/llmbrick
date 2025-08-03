@@ -1,5 +1,6 @@
 import grpc
 
+from google.protobuf import struct_pb2
 from llmbrick.bricks.intention.base_intention import IntentionBrick
 from llmbrick.protocols.grpc.common import common_pb2
 from llmbrick.protocols.grpc.intention import intention_pb2, intention_pb2_grpc
@@ -32,75 +33,99 @@ class IntentionGrpcWrapper(intention_pb2_grpc.IntentionServiceServicer):
         self.brick = brick
 
     async def GetServiceInfo(self, request, context):
-        result = await self.brick.run_get_service_info()
         error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
-        if result is None:
+        try:
+            result = await self.brick.run_get_service_info()
+            if result is None:
+                # context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+                # context.set_details('Service info not implemented!')
+                error_data.code = grpc.StatusCode.UNIMPLEMENTED.value[0]
+                error_data.message = "Service info not implemented!"
+                error_data.detail = "The brick did not implement service info."
+                response = common_pb2.ServiceInfoResponse(error=error_data)
+                return response
+            if not isinstance(result, ServiceInfoResponse):
+                # context.set_code(grpc.StatusCode.INTERNAL)
+                # context.set_details('Invalid service info response type!')
+                error_data.code = grpc.StatusCode.INTERNAL.value[0]
+                error_data.message = "Invalid service info response type!"
+                error_data.detail = (
+                    "The response from the brick is not of type ServiceInfoResponse."
+                )
+                response = common_pb2.ServiceInfoResponse(error=error_data)
+                return response
+            if result.error and result.error.code != 0:
+                # context.set_code(grpc.StatusCode.INTERNAL)
+                # context.set_details(result.error.message)
+                error_data.code = result.error.code
+                error_data.message = result.error.message
+                error_data.detail = result.error.detail
+                response = common_pb2.ServiceInfoResponse(error=error_data)
+                return response
+            response_dict = result.to_dict()
+            response_dict["error"] = error_data
+            response = common_pb2.ServiceInfoResponse(**response_dict)
+            return response
+        except NotImplementedError as ev:
             # context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-            # context.set_details('Service info not implemented!')
+            # context.set_details(str(ev))
             error_data.code = grpc.StatusCode.UNIMPLEMENTED.value[0]
-            error_data.message = "Service info not implemented!"
-            error_data.detail = "The brick did not implement service info."
+            error_data.message = str(ev)
+            error_data.detail = "The requested operation is not implemented."
             response = common_pb2.ServiceInfoResponse(error=error_data)
             return response
-        if not isinstance(result, ServiceInfoResponse):
+        except Exception as e:
             # context.set_code(grpc.StatusCode.INTERNAL)
-            # context.set_details('Invalid service info response type!')
-            error_data.code = grpc.StatusCode.INTERNAL.value[0]
-            error_data.message = "Invalid service info response type!"
-            error_data.detail = (
-                "The response from the brick is not of type ServiceInfoResponse."
+            # context.set_details(f'Error in GetServiceInfo: {str(e)}')
+            error_data = common_pb2.ErrorDetail(
+                code=grpc.StatusCode.INTERNAL.value[0],
+                message=str(e),
+                detail="An error occurred while processing GetServiceInfo.",
             )
-            response = common_pb2.ServiceInfoResponse(error=error_data)
-            return response
-        if result.error and result.error.code != 0:
-            # context.set_code(grpc.StatusCode.INTERNAL)
-            # context.set_details(result.error.message)
-            error_data.code = result.error.code
-            error_data.message = result.error.message
-            error_data.detail = result.error.detail
-            response = common_pb2.ServiceInfoResponse(error=error_data)
-            return response
-        response_dict = result.to_dict()
-        response_dict["error"] = error_data
-        response = common_pb2.ServiceInfoResponse(**response_dict)
-        return response
-
+            return common_pb2.ServiceInfoResponse(error=error_data)
     async def Unary(self, request: intention_pb2.IntentionRequest, context):
-        req = IntentionRequest(
-            text=request.text,
-            client_id=request.client_id,
-            session_id=request.session_id,
-            request_id=request.request_id,
-            source_language=request.source_language,
-        )
-        result = await self.brick.run_unary(req)
         error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
-        if not isinstance(result, IntentionResponse):
+        try:
+            request = IntentionRequest.from_pb2_model(request)
+            result: IntentionResponse = await self.brick.run_unary(request)
+            if not isinstance(result, IntentionResponse):
+                # context.set_code(grpc.StatusCode.INTERNAL)
+                # context.set_details('Invalid unary response type!')
+                error_data.code = grpc.StatusCode.INTERNAL.value[0]
+                error_data.message = "Invalid unary response type!"
+                error_data.detail = (
+                    "The response from the brick is not of type IntentionResponse."
+                )
+                return intention_pb2.IntentionResponse(error=error_data)
+            if result.error and result.error.code != 0:
+                # context.set_code(grpc.StatusCode.INTERNAL)
+                # context.set_details(result.error.message)
+                error_data.code = result.error.code
+                error_data.message = result.error.message
+                error_data.detail = result.error.detail
+                return intention_pb2.IntentionResponse(error=error_data)
+
+            data = struct_pb2.Struct()
+            data.update(result.to_dict().get("data", {}))
+            response = intention_pb2.IntentionResponse(data=data, error=error_data)
+
+            return response
+        except NotImplementedError as ev:
+            # context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+            # context.set_details(str(ev))
+            error_data.code = grpc.StatusCode.UNIMPLEMENTED.value[0]
+            error_data.message = str(ev)
+            error_data.detail = "The requested operation is not implemented."
+            return intention_pb2.IntentionResponse(error=error_data)
+        except Exception as e:
             # context.set_code(grpc.StatusCode.INTERNAL)
-            # context.set_details('Invalid unary response type!')
-            error_data.code = grpc.StatusCode.INTERNAL.value[0]
-            error_data.message = "Invalid unary response type!"
-            error_data.detail = (
-                "The response from the brick is not of type IntentionResponse."
+            # context.set_details(f'Error in Unary: {str(e)}')
+            error_data = common_pb2.ErrorDetail(
+                code=grpc.StatusCode.INTERNAL.value[0],
+                message=str(e),
+                detail="An error occurred while processing Unary.",
             )
             return intention_pb2.IntentionResponse(error=error_data)
-        if result.error and result.error.code != 0:
-            # context.set_code(grpc.StatusCode.INTERNAL)
-            # context.set_details(result.error.message)
-            error_data.code = result.error.code
-            error_data.message = result.error.message
-            error_data.detail = result.error.detail
-            response = intention_pb2.IntentionResponse(error=error_data)
-            return response
-        # results: List[IntentionResult]
-        results_pb = []
-        for r in result.results:
-            res_pb = intention_pb2.IntentionResult(
-                intent_category=r.intent_category, confidence=r.confidence
-            )
-            results_pb.append(res_pb)
-        response = intention_pb2.IntentionResponse(results=results_pb, error=error_data)
-        return response
 
     def register(self, server):
         intention_pb2_grpc.add_IntentionServiceServicer_to_server(self, server)

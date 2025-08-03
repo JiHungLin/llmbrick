@@ -325,7 +325,7 @@ async def use_grpc_client():
     client_brick = LLMBrick.toGrpcClient(remote_address="127.0.0.1:50051")
     req = LLMRequest(prompt="Test", context=[])
     resp = await client_brick.run_unary(req)
-    print(resp.text)
+    print(resp)
     await client_brick._grpc_channel.close()
 
 asyncio.run(use_grpc_client())

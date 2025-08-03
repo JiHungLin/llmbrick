@@ -34,9 +34,9 @@ class ComposeGrpcWrapper(compose_pb2_grpc.ComposeServiceServicer):
 
     async def GetServiceInfo(self, request, context):
         """異步獲取服務信息"""
+        error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
         try:
             result = await self.brick.run_get_service_info()
-            error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
             if result is None:
                 # context.set_code(grpc.StatusCode.UNIMPLEMENTED)
                 # context.set_details('Service info not implemented!')
@@ -61,10 +61,19 @@ class ComposeGrpcWrapper(compose_pb2_grpc.ComposeServiceServicer):
                 error_data.code = result.error.code
                 error_data.message = result.error.message
                 error_data.detail = result.error.detail
-                return common_pb2.ServiceInfoResponse(error=error_data)
+                response = common_pb2.ServiceInfoResponse(error=error_data)
+                return response
             response_dict = result.to_dict()
             response_dict["error"] = error_data
             response = common_pb2.ServiceInfoResponse(**response_dict)
+            return response
+        except NotImplementedError as ev:
+            # context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+            # context.set_details(str(ev))
+            error_data.code = grpc.StatusCode.UNIMPLEMENTED.value[0]
+            error_data.message = str(ev)
+            error_data.detail = "The requested operation is not implemented."
+            response = common_pb2.ServiceInfoResponse(error=error_data)
             return response
         except Exception as e:
             # context.set_code(grpc.StatusCode.INTERNAL)
@@ -78,56 +87,90 @@ class ComposeGrpcWrapper(compose_pb2_grpc.ComposeServiceServicer):
 
     async def Unary(self, request: compose_pb2.ComposeRequest, context):
         """異步處理單次請求"""
-        req = ComposeRequest.from_pb2_model(request)
-        result = await self.brick.run_unary(req)
         error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
-        if not isinstance(result, ComposeResponse):
-            # context.set_code(grpc.StatusCode.INTERNAL)
-            # context.set_details('Invalid unary response type!')
-            error_data.code = grpc.StatusCode.INTERNAL.value[0]
-            error_data.message = "Invalid unary response type!"
-            error_data.detail = (
-                "The response from the brick is not of type ComposeResponse."
-            )
-            return compose_pb2.ComposeResponse(error=error_data)
-        if result.error and result.error.code != 0:
-            # context.set_code(grpc.StatusCode.INTERNAL)
-            # context.set_details(result.error.message)
-            error_data.code = result.error.code
-            error_data.message = result.error.message
-            error_data.detail = result.error.detail
-            return compose_pb2.ComposeResponse(error=error_data)
-        output = struct_pb2.Struct()
-        output.update(result.to_dict().get("output", {}))
-        response = compose_pb2.ComposeResponse(output=output, error=error_data)
-        return response
-
-    async def OutputStreaming(self, request: compose_pb2.ComposeRequest, context):
-        """異步處理流式回應"""
-        req = ComposeRequest.from_pb2_model(request)
-        async for response in self.brick.run_output_streaming(req):
-            error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
-            if not isinstance(response, ComposeResponse):
+        try:
+            request = ComposeRequest.from_pb2_model(request)
+            result: ComposeResponse = await self.brick.run_unary(request)
+            if not isinstance(result, ComposeResponse):
                 # context.set_code(grpc.StatusCode.INTERNAL)
-                # context.set_details('Invalid output streaming response type!')
+                # context.set_details('Invalid unary response type!')
                 error_data.code = grpc.StatusCode.INTERNAL.value[0]
-                error_data.message = "Invalid output streaming response type!"
+                error_data.message = "Invalid unary response type!"
                 error_data.detail = (
                     "The response from the brick is not of type ComposeResponse."
                 )
-                yield compose_pb2.ComposeResponse(error=error_data)
-                break
-            if response.error and response.error.code != 0:
+                return compose_pb2.ComposeResponse(error=error_data)
+            if result.error and result.error.code != 0:
                 # context.set_code(grpc.StatusCode.INTERNAL)
-                # context.set_details(response.error.message)
-                error_data.code = response.error.code
-                error_data.message = response.error.message
-                error_data.detail = response.error.detail
-                yield compose_pb2.ComposeResponse(error=error_data)
-                break
-            output = struct_pb2.Struct()
-            output.update(response.to_dict().get("output", {}))
-            yield compose_pb2.ComposeResponse(output=output, error=error_data)
+                # context.set_details(result.error.message)
+                error_data.code = result.error.code
+                error_data.message = result.error.message
+                error_data.detail = result.error.detail
+                return compose_pb2.ComposeResponse(error=error_data)
+
+            data = struct_pb2.Struct()
+            data.update(result.to_dict().get("data", {}))
+            response = compose_pb2.ComposeResponse(data=data, error=error_data)
+
+            return response
+        except NotImplementedError as ev:
+            # context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+            # context.set_details(str(ev))
+            error_data.code = grpc.StatusCode.UNIMPLEMENTED.value[0]
+            error_data.message = str(ev)
+            error_data.detail = "The requested operation is not implemented."
+            return compose_pb2.ComposeResponse(error=error_data)
+        except Exception as e:
+            # context.set_code(grpc.StatusCode.INTERNAL)
+            # context.set_details(f'Error in Unary: {str(e)}')
+            error_data = common_pb2.ErrorDetail(
+                code=grpc.StatusCode.INTERNAL.value[0],
+                message=str(e),
+                detail="An error occurred while processing Unary.",
+            )
+            return compose_pb2.ComposeResponse(error=error_data)
+
+    async def OutputStreaming(self, request: compose_pb2.ComposeRequest, context):
+        """異步處理流式回應"""
+        request = ComposeRequest.from_pb2_model(request)
+        try:
+            async for response in self.brick.run_output_streaming(request):
+                error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
+                if not isinstance(response, ComposeResponse):
+                    # context.set_code(grpc.StatusCode.INTERNAL)
+                    # context.set_details('Invalid output streaming response type!')
+                    error_data.code = grpc.StatusCode.INTERNAL.value[0]
+                    error_data.message = "Invalid output streaming response type!"
+                    error_data.detail = (
+                        "The response from the brick is not of type ComposeResponse."
+                    )
+                    yield compose_pb2.ComposeResponse(error=error_data)
+                    break
+                if response.error and response.error.code != 0:
+                    # context.set_code(grpc.StatusCode.INTERNAL)
+                    # context.set_details(response.error.message)
+                    error_data.code = response.error.code
+                    error_data.message = response.error.message
+                    error_data.detail = response.error.detail
+                    yield compose_pb2.ComposeResponse(error=error_data)
+                    break
+                data = struct_pb2.Struct()
+                data.update(response.to_dict().get("data", {}))
+                yield compose_pb2.ComposeResponse(data=data, error=error_data)
+        except NotImplementedError as ev:
+            error_data = common_pb2.ErrorDetail(
+                code=grpc.StatusCode.UNIMPLEMENTED.value[0],
+                message=str(ev),
+                detail="The requested operation is not implemented."
+            )
+            yield compose_pb2.ComposeResponse(error=error_data)
+        except Exception as e:
+            error_data = common_pb2.ErrorDetail(
+                code=grpc.StatusCode.INTERNAL.value[0],
+                message=str(e),
+                detail="An error occurred while processing OutputStreaming."
+            )
+            yield compose_pb2.ComposeResponse(error=error_data)
 
     def register(self, server):
         compose_pb2_grpc.add_ComposeServiceServicer_to_server(self, server)
