@@ -64,7 +64,8 @@ server.run(host="0.0.0.0", port=8000)
 - 深色/淺色主題切換
 - 完整的 API 文件和範例
 
-![SSE Test Page](https://raw.githubusercontent.com/JiHungLin/llmbrick/main/docs/guides/sse_server_test.png)
+<!-- ![SSE Test Page](https://raw.githubusercontent.com/JiHungLin/llmbrick/main/docs/guides/sse_server_test.png) -->
+![SSE Test Page](https://raw.githubusercontent.com/JiHungLin/llmbrick/main/examples/openai_chatbot/openai_chatbot.gif)
 
 ## 範例
 
