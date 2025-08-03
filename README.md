@@ -1,5 +1,11 @@
 # LLMBrick
 
+[![Python Version](https://img.shields.io/pypi/pyversions/llmbrick)](https://www.python.org/downloads/)
+[![PyPI Version](https://img.shields.io/pypi/v/llmbrick)](https://pypi.org/project/llmbrick/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Documentation](https://img.shields.io/badge/docs-latest-brightgreen)](https://llmbrick.readthedocs.io)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/JiHungLin/llmbrick)
+
 一個強調「模組化設計」、「明確協定定義」、「靈活組裝」與「易於擴展」的 LLM 應用開發框架。
 核心理念為：所有功能皆以 Brick 組件為單元，協定明確、組裝彈性，方便擴充與客製化。
 
