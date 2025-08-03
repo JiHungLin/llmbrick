@@ -106,11 +106,19 @@ class RetrievalGrpcWrapper(retrieval_pb2_grpc.RetrievalServiceServicer):
                 error_data.message = result.error.message
                 error_data.detail = result.error.detail
                 return retrieval_pb2.RetrievalResponse(error=error_data)
-
-            data = struct_pb2.Struct()
-            data.update(result.to_dict().get("data", {}))
-            response = retrieval_pb2.RetrievalResponse(data=data, error=error_data)
-
+            documents_pb = []
+            for d in result.documents:
+                doc_pb = retrieval_pb2.Document(
+                    doc_id=d.doc_id,
+                    title=d.title,
+                    snippet=d.snippet,
+                    score=d.score,
+                    metadata=d.metadata,
+                )
+                documents_pb.append(doc_pb)
+            response = retrieval_pb2.RetrievalResponse(
+                documents=documents_pb, error=error_data
+            )
             return response
         except NotImplementedError as ev:
             # context.set_code(grpc.StatusCode.UNIMPLEMENTED)

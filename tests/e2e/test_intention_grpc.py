@@ -220,5 +220,7 @@ async def grpc_client_exception(
 @pytest.mark.asyncio
 async def test_unary_exception(grpc_client_exception: ExceptionIntentionBrick):
     request = IntentionRequest(text="exception", client_id="cid")
-    with pytest.raises(Exception):
-        await grpc_client_exception.run_unary(request)
+    res = await grpc_client_exception.run_unary(request)
+    assert res.error.code != 0
+    assert "Simulated server error" in res.error.message
+    

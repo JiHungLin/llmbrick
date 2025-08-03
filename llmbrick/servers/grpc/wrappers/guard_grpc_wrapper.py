@@ -103,10 +103,13 @@ class GuardGrpcWrapper(guard_pb2_grpc.GuardServiceServicer):
                 error_data.detail = result.error.detail
                 return guard_pb2.GuardResponse(error=error_data)
 
-            data = struct_pb2.Struct()
-            data.update(result.to_dict().get("data", {}))
-            response = guard_pb2.GuardResponse(data=data, error=error_data)
-
+            results_pb = []
+            for r in result.results:
+                res_pb = guard_pb2.GuardResult(
+                    is_attack=r.is_attack, confidence=r.confidence, detail=r.detail
+                )
+                results_pb.append(res_pb)
+            response = guard_pb2.GuardResponse(results=results_pb, error=error_data)
             return response
         except NotImplementedError as ev:
             # context.set_code(grpc.StatusCode.UNIMPLEMENTED)
