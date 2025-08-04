@@ -106,10 +106,9 @@ class RectifyGrpcWrapper(rectify_pb2_grpc.RectifyServiceServicer):
                 error_data.detail = result.error.detail
                 return rectify_pb2.RectifyResponse(error=error_data)
 
-            data = struct_pb2.Struct()
-            data.update(result.to_dict().get("data", {}))
-            response = rectify_pb2.RectifyResponse(data=data, error=error_data)
-
+            response = rectify_pb2.RectifyResponse(
+                corrected_text=result.corrected_text, error=error_data
+            )
             return response
         except NotImplementedError as ev:
             # context.set_code(grpc.StatusCode.UNIMPLEMENTED)

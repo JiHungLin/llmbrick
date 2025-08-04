@@ -105,10 +105,13 @@ class IntentionGrpcWrapper(intention_pb2_grpc.IntentionServiceServicer):
                 error_data.detail = result.error.detail
                 return intention_pb2.IntentionResponse(error=error_data)
 
-            data = struct_pb2.Struct()
-            data.update(result.to_dict().get("data", {}))
-            response = intention_pb2.IntentionResponse(data=data, error=error_data)
-
+            results_pb = []
+            for r in result.results:
+                res_pb = intention_pb2.IntentionResult(
+                    intent_category=r.intent_category, confidence=r.confidence
+                )
+                results_pb.append(res_pb)
+            response = intention_pb2.IntentionResponse(results=results_pb, error=error_data)
             return response
         except NotImplementedError as ev:
             # context.set_code(grpc.StatusCode.UNIMPLEMENTED)

@@ -108,10 +108,13 @@ class TranslateGrpcWrapper(translate_pb2_grpc.TranslateServiceServicer):
                 error_data.detail = result.error.detail
                 return translate_pb2.TranslateResponse(error=error_data)
 
-            data = struct_pb2.Struct()
-            data.update(result.to_dict().get("data", {}))
-            response = translate_pb2.TranslateResponse(data=data, error=error_data)
-
+            response = translate_pb2.TranslateResponse(
+                text=result.text,
+                tokens=result.tokens,
+                language_code=result.language_code,
+                is_final=result.is_final,
+                error=error_data,
+            )
             return response
         except NotImplementedError as ev:
             # context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -153,9 +156,13 @@ class TranslateGrpcWrapper(translate_pb2_grpc.TranslateServiceServicer):
                     error_data.detail = response.error.detail
                     yield translate_pb2.TranslateResponse(error=error_data)
                     break
-                data = struct_pb2.Struct()
-                data.update(response.to_dict().get("data", {}))
-                yield translate_pb2.TranslateResponse(data=data, error=error_data)
+                yield translate_pb2.TranslateResponse(
+                    text=response.text,
+                    tokens=response.tokens,
+                    language_code=response.language_code,
+                    is_final=response.is_final,
+                    error=error_data,
+                )
         except NotImplementedError as ev:
             error_data = common_pb2.ErrorDetail(
                 code=grpc.StatusCode.UNIMPLEMENTED.value[0],

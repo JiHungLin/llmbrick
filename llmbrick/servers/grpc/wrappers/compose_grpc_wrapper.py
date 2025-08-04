@@ -108,9 +108,9 @@ class ComposeGrpcWrapper(compose_pb2_grpc.ComposeServiceServicer):
                 error_data.detail = result.error.detail
                 return compose_pb2.ComposeResponse(error=error_data)
 
-            data = struct_pb2.Struct()
-            data.update(result.to_dict().get("data", {}))
-            response = compose_pb2.ComposeResponse(data=data, error=error_data)
+            output = struct_pb2.Struct()
+            output.update(result.to_dict().get("output", {}))
+            response = compose_pb2.ComposeResponse(output=output, error=error_data)
 
             return response
         except NotImplementedError as ev:
@@ -154,9 +154,9 @@ class ComposeGrpcWrapper(compose_pb2_grpc.ComposeServiceServicer):
                     error_data.detail = response.error.detail
                     yield compose_pb2.ComposeResponse(error=error_data)
                     break
-                data = struct_pb2.Struct()
-                data.update(response.to_dict().get("data", {}))
-                yield compose_pb2.ComposeResponse(data=data, error=error_data)
+                output = struct_pb2.Struct()
+                output.update(response.to_dict().get("output", {}))
+                yield compose_pb2.ComposeResponse(output=output, error=error_data)
         except NotImplementedError as ev:
             error_data = common_pb2.ErrorDetail(
                 code=grpc.StatusCode.UNIMPLEMENTED.value[0],

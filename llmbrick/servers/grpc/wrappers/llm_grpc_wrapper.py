@@ -110,10 +110,12 @@ class LLMGrpcWrapper(llm_pb2_grpc.LLMServiceServicer):
                 error_data.detail = result.error.detail
                 return llm_pb2.LLMResponse(error=error_data)
 
-            data = struct_pb2.Struct()
-            data.update(result.to_dict().get("data", {}))
-            response = llm_pb2.LLMResponse(data=data, error=error_data)
-
+            response = llm_pb2.LLMResponse(
+                text=result.text,
+                tokens=result.tokens,
+                is_final=result.is_final,
+                error=error_data,
+            )
             return response
         except NotImplementedError as ev:
             # context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -156,9 +158,12 @@ class LLMGrpcWrapper(llm_pb2_grpc.LLMServiceServicer):
                     error_data.detail = response.error.detail
                     yield llm_pb2.LLMResponse(error=error_data)
                     break
-                data = struct_pb2.Struct()
-                data.update(response.to_dict().get("data", {}))
-                yield llm_pb2.LLMResponse(data=data, error=error_data)
+                yield llm_pb2.LLMResponse(
+                    text=response.text,
+                    tokens=response.tokens,
+                    is_final=response.is_final,
+                    error=error_data,
+                )
         except NotImplementedError as ev:
             error_data = common_pb2.ErrorDetail(
                 code=grpc.StatusCode.UNIMPLEMENTED.value[0],
