@@ -3,8 +3,14 @@ name: Python Test
 on:
   push:
     branches: [ main, master ]
+    paths-ignore:
+      - "docs/**"
+      - "**.md"
   pull_request:
     branches: [ main, master ]
+    paths-ignore:
+      - "docs/**"
+      - "**.md"
 
 jobs:
   test:
@@ -31,3 +37,4 @@ jobs:
         with:
           name: htmlcov-${{ matrix.python-version }}
           path: htmlcov/
+          retention-days: 7

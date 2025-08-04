@@ -3,8 +3,14 @@ name: Tests
 on:
   push:
     branches: [ main, develop ]
+    paths-ignore:
+      - "docs/**"
+      - "**.md"
   pull_request:
     branches: [ main, develop ]
+    paths-ignore:
+      - "docs/**"
+      - "**.md"
 
 jobs:
   test:
@@ -53,9 +59,12 @@ jobs:
         pytest tests/ -v --cov=llmbrick --cov-report=xml --cov-report=html
 
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v5
+      env:
+        CODECOV_PATH: "./coverage.xml"
       with:
-        file: ./coverage.xml
+        token: ${{ secrets.CODECOV_TOKEN }}
+        slug: JiHungLin/llmbrick
         flags: unittests
         name: codecov-umbrella
         fail_ci_if_error: false
