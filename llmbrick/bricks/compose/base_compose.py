@@ -77,12 +77,8 @@ class ComposeBrick(BaseBrick[ComposeRequest, ComposeResponse]):
             配置為異步 gRPC 客戶端的 ComposeBrick 實例
         """
         import grpc
-
-        from llmbrick.protocols.grpc.compose import compose_pb2_grpc
-
-        # 建立異步 gRPC 通道和客戶端
-        channel = grpc.aio.insecure_channel(remote_address)
-        grpc_client = compose_pb2_grpc.ComposeServiceStub(channel)
+        from llmbrick.protocols.grpc.compose import compose_pb2_grpc, compose_pb2
+        from llmbrick.protocols.grpc.common import common_pb2
 
         # 建立 brick 實例
         brick = cls(**kwargs)
@@ -90,7 +86,10 @@ class ComposeBrick(BaseBrick[ComposeRequest, ComposeResponse]):
         @brick.unary()
         async def unary_handler(request: ComposeRequest) -> ComposeResponse:
             """異步單次請求處理器"""
-            from llmbrick.protocols.grpc.compose import compose_pb2
+
+            # 建立異步 gRPC 通道和客戶端
+            channel = grpc.aio.insecure_channel(remote_address)
+            grpc_client = compose_pb2_grpc.ComposeServiceStub(channel)
 
             # 轉換 Document 列表
             grpc_documents = []
@@ -120,7 +119,10 @@ class ComposeBrick(BaseBrick[ComposeRequest, ComposeResponse]):
         @brick.output_streaming()
         async def output_streaming_handler(request: ComposeRequest):
             """異步流式輸出處理器"""
-            from llmbrick.protocols.grpc.compose import compose_pb2
+
+            # 建立異步 gRPC 通道和客戶端
+            channel = grpc.aio.insecure_channel(remote_address)
+            grpc_client = compose_pb2_grpc.ComposeServiceStub(channel)
 
             # 轉換 Document 列表
             grpc_documents = []
@@ -149,7 +151,10 @@ class ComposeBrick(BaseBrick[ComposeRequest, ComposeResponse]):
         @brick.get_service_info()
         async def get_service_info_handler() -> ServiceInfoResponse:
             """異步服務信息處理器"""
-            from llmbrick.protocols.grpc.common import common_pb2
+
+            # 建立異步 gRPC 通道和客戶端
+            channel = grpc.aio.insecure_channel(remote_address)
+            grpc_client = compose_pb2_grpc.ComposeServiceStub(channel)
 
             request = common_pb2.ServiceInfoRequest()
             response = await grpc_client.GetServiceInfo(request)
@@ -167,8 +172,5 @@ class ComposeBrick(BaseBrick[ComposeRequest, ComposeResponse]):
                 ],
                 error=ErrorDetail.from_pb2_model(response.error) if response.error else None,
             )
-
-        # 儲存通道引用以便後續清理
-        brick._grpc_channel = channel
 
         return brick

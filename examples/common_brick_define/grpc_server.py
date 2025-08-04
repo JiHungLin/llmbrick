@@ -1,4 +1,3 @@
-
 from my_brick import MyBrick
 from llmbrick.servers.grpc.server import GrpcServer
 
@@ -10,4 +9,5 @@ my_brick = MyBrick(
 grpc_server.register_service(my_brick)
 
 if __name__ == "__main__":
-    grpc_server.run()
+    import asyncio
+    asyncio.run(grpc_server.start())

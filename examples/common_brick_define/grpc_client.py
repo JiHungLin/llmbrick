@@ -7,14 +7,13 @@ if __name__ == "__main__":
     my_brick = CommonBrick.toGrpcClient(remote_address="127.0.0.1:50051")
     import asyncio
 
-    loop = asyncio.get_event_loop()
     print("=== Get Service Info ===")
     def run_get_service_info_example():
         async def example():
             service_info = await my_brick.run_get_service_info()
             print(service_info)
 
-        loop.run_until_complete(example())
+        asyncio.run(example())
 
     run_get_service_info_example()
 
@@ -29,7 +28,7 @@ if __name__ == "__main__":
             response = await my_brick.run_unary(request)
             print(response)
 
-        loop.run_until_complete(example())
+        asyncio.run(example())
 
     print("Normal case:")
     run_unary_example(is_test_error=False)  # Normal case
@@ -48,7 +47,7 @@ if __name__ == "__main__":
             response = await my_brick.run_input_streaming(input_stream())
             print(response)
 
-        loop.run_until_complete(example())
+        asyncio.run(example())
 
     print("Normal case:")
     run_input_streaming_example(is_test_error=False)  # Normal case
@@ -65,7 +64,7 @@ if __name__ == "__main__":
             async for response in my_brick.run_output_streaming(request):
                 print(response)
 
-        loop.run_until_complete(example())
+        asyncio.run(example())
 
     print("Normal case:")
     run_output_streaming_example(is_test_error=False)  # Normal case
@@ -85,7 +84,7 @@ if __name__ == "__main__":
             async for response in my_brick.run_bidi_streaming(bidi_input_stream()):
                 print(response)
 
-        loop.run_until_complete(example())
+        asyncio.run(example())
 
     print("Normal case:")
     run_bidi_streaming_example(is_test_error=False)  # Normal case

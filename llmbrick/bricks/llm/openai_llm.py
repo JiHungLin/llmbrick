@@ -96,7 +96,7 @@ class OpenAIGPTBrick(LLMBrick):
 
     @unary_handler
     @log_function(service_name="OpenAIGPTBrick", level="info")
-    async def unary(self, request: LLMRequest) -> LLMResponse:
+    async def unary_method(self, request: LLMRequest) -> LLMResponse:
         """Handle a single request-response interaction.
         
         Args:
@@ -123,7 +123,7 @@ class OpenAIGPTBrick(LLMBrick):
 
     @output_streaming_handler
     @log_function(service_name="OpenAIGPTBrick", level="info")
-    async def output_streaming(self, request: LLMRequest) -> AsyncGenerator[LLMResponse, None]:
+    async def output_streaming_method(self, request: LLMRequest) -> AsyncGenerator[LLMResponse, None]:
         """Handle a streaming response interaction.
         
         Args:
@@ -162,7 +162,7 @@ class OpenAIGPTBrick(LLMBrick):
 
     @get_service_info_handler
     @log_function(service_name="OpenAIGPTBrick", level="info")
-    async def get_service_info(self) -> ServiceInfoResponse:
+    async def get_service_info_method(self) -> ServiceInfoResponse:
         """Get information about this service.
         
         Returns:

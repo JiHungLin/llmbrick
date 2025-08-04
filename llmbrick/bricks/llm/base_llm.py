@@ -72,11 +72,10 @@ class LLMBrick(BaseBrick[LLMRequest, LLMResponse]):
         """
         import grpc
 
-        from llmbrick.protocols.grpc.llm import llm_pb2_grpc
+        from llmbrick.protocols.grpc.llm import llm_pb2_grpc, llm_pb2
+        from llmbrick.protocols.grpc.common import common_pb2
 
-        # 建立異步 gRPC 通道和客戶端
-        channel = grpc.aio.insecure_channel(remote_address)
-        grpc_client = llm_pb2_grpc.LLMServiceStub(channel)
+
 
         # 建立 brick 實例
         brick = cls(default_prompt=default_prompt, **kwargs)
@@ -84,8 +83,10 @@ class LLMBrick(BaseBrick[LLMRequest, LLMResponse]):
         @brick.unary()
         async def unary_handler(request: LLMRequest, context=None) -> LLMResponse:
             """異步單次請求處理器"""
-            from llmbrick.protocols.grpc.llm import llm_pb2
 
+            # 建立異步 gRPC 通道和客戶端
+            channel = grpc.aio.insecure_channel(remote_address)
+            grpc_client = llm_pb2_grpc.LLMServiceStub(channel)
             # 轉換 Context 列表
             grpc_contexts = []
             for ctx in request.context:
@@ -114,7 +115,10 @@ class LLMBrick(BaseBrick[LLMRequest, LLMResponse]):
         @brick.output_streaming()
         async def output_streaming_handler(request: LLMRequest, context=None):
             """異步流式輸出處理器"""
-            from llmbrick.protocols.grpc.llm import llm_pb2
+
+            # 建立異步 gRPC 通道和客戶端
+            channel = grpc.aio.insecure_channel(remote_address)
+            grpc_client = llm_pb2_grpc.LLMServiceStub(channel)
 
             # 轉換 Context 列表
             grpc_contexts = []
@@ -142,7 +146,10 @@ class LLMBrick(BaseBrick[LLMRequest, LLMResponse]):
         @brick.get_service_info()
         async def get_service_info_handler() -> ServiceInfoResponse:
             """異步服務信息處理器"""
-            from llmbrick.protocols.grpc.common import common_pb2
+            
+            # 建立異步 gRPC 通道和客戶端
+            channel = grpc.aio.insecure_channel(remote_address)
+            grpc_client = llm_pb2_grpc.LLMServiceStub(channel)
 
             request = common_pb2.ServiceInfoRequest()
             response = await grpc_client.GetServiceInfo(request)
@@ -161,8 +168,5 @@ class LLMBrick(BaseBrick[LLMRequest, LLMResponse]):
                 ],
                 error=ErrorDetail.from_pb2_model(response.error) if response.error else None,
             )
-
-        # 儲存通道引用以便後續清理
-        brick._grpc_channel = channel
 
         return brick

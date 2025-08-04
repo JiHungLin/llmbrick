@@ -25,11 +25,11 @@ class ChatHandler:
     
     def __init__(self):
         # 初始化 OpenAI GPT Brick
-        self.llm = OpenAIGPTBrick(
-            model_id="gpt-4o",  # 默認使用 GPT-4o 模型
-            api_key=os.getenv("OPENAI_API_KEY")
-        )
-        
+        # self.llm = OpenAIGPTBrick(
+        #     model_id="gpt-4o",  # 默認使用 GPT-4o 模型
+        #     api_key=os.getenv("OPENAI_API_KEY")
+        # )
+        self.llm = OpenAIGPTBrick.toGrpcClient(remote_address="127.0.0.1:50051")
         # 追蹤對話 session
         self.sessions: Dict[str, list] = {}
     
