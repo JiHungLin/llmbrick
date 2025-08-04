@@ -5,8 +5,8 @@ import type * as Preset from '@docusaurus/preset-classic';
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
 const config: Config = {
-  title: 'My Site',
-  tagline: 'Dinosaurs are cool',
+  title: 'llmbrick',
+  tagline: 'llmbrick 是專為 AI 應用打造的模組化框架',
   favicon: 'img/favicon.ico',
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
@@ -73,9 +73,9 @@ const config: Config = {
     // Replace with your project's social card
     image: 'img/docusaurus-social-card.jpg',
     navbar: {
-      title: 'My Site',
+      title: 'llmbrick',
       logo: {
-        alt: 'My Site Logo',
+        alt: 'llmbrick Logo',
         src: 'img/logo.svg',
       },
       items: [
@@ -86,7 +86,7 @@ const config: Config = {
           label: 'Tutorial',
         },
         {
-          href: 'https://github.com/facebook/docusaurus',
+          href: 'https://github.com/JiHungLin/llmbrick',
           label: 'GitHub',
           position: 'right',
         },
@@ -109,12 +109,12 @@ const config: Config = {
           items: [
             {
               label: 'GitHub',
-              href: 'https://github.com/facebook/docusaurus',
+              href: 'https://github.com/JiHungLin/llmbrick',
             },
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} llmbrick. Built with Docusaurus.`,
     },
     prism: {
       theme: prismThemes.github,
