@@ -106,7 +106,7 @@ export default function Home() {
               </ul>
               <Heading as="h2" style={{marginTop: '2rem'}}>設計理念</Heading>
               <p>
-                llmbrick 強調「協定導向」與「靈活組裝」，每個 Brick 可獨立開發、測試、組裝，降低耦合。Pipeline、Server、Client 皆可自由組合各種 Brick，支援多種應用場景。
+                llmbrick 強調「協定導向」與「靈活組裝」，每個 Brick 可獨立開發、測試、組裝，降低耦合。PServer、Client 皆可自由組合各種 Brick，支援多種應用場景。
               </p>
               <Heading as="h2" style={{marginTop: '2rem'}}>技術架構</Heading>
               <ul>
