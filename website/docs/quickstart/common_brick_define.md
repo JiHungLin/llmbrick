@@ -3,7 +3,7 @@ sidebar_position: 1
 sidebar_label: 通用型 CommonBrick 定義
 ---
 
-[GitHub 範例程式碼](https://github.com/mycena/llmbrick/tree/main/examples/common_brick_define)
+[GitHub 範例程式碼](https://github.com/JiHungLin/llmbrick/tree/main/examples/common_brick_define)
 
 
 # 定義與使用 CommonBrick
@@ -241,7 +241,7 @@ if __name__ == "__main__":
 
 ## 7. 完整範例程式碼
 
-請參考 [`examples/common_brick_define/`](https://github.com/mycena/llmbrick/tree/main/examples/common_brick_define) 目錄下的完整範例，包含本地端與 gRPC 兩種用法，並涵蓋所有常見方法型態。
+請參考 [`examples/common_brick_define/`](https://github.com/JiHungLin/llmbrick/tree/main/examples/common_brick_define) 目錄下的完整範例，包含本地端與 gRPC 兩種用法，並涵蓋所有常見方法型態。
 
 ---
 
