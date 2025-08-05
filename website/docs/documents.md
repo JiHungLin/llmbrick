@@ -44,20 +44,10 @@ LLMBrick 框架採用模組化設計，通過標準化的 Brick（積木）組�
 - 型別定義說明
 - 錯誤碼對照表
 
-### 2. [最佳實踐](./documents/best-practices)
+### 2. [最佳實踐](./category/bricks)
 - 架構設計建議
-- 效能優化指南
-- 開發規範與準則
-
-### 3. [進階教學](./documents/tutorials)
 - 自定義 Brick 開發
-- 串接外部服務
-- 大規模應用設計
-
-### 4. [部署指南](./documents/deployment)
-- 環境設置
-- 伺服器配置
-- 監控與維護
+- 開發規範與準則
 
 ## 框架配置詳解
 
@@ -156,10 +146,3 @@ async def process_request(request):
 - [OpenAI API 文件](https://platform.openai.com/docs/api-reference)
 - [gRPC 文件](https://grpc.io/docs/)
 - [SSE 規範](https://html.spec.whatwg.org/multipage/server-sent-events.html)
-
-## 貢獻指南
-
-我們歡迎社群貢獻！請參考以下資源：
-- [貢獻指南](./documents/contributing)
-- [開發規範](./documents/development)
-- [測試指南](./documents/testing)

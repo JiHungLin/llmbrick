@@ -1,7 +1,3 @@
----
-sidebar_position: 1
----
-
 # LLMBrick 框架介紹
 
 ## 框架概述
@@ -191,11 +187,11 @@ class CustomBrick(CommonBrick):
 
 ### 新手入門
 1. [快速入門範例](./quickstart)：15 分鐘內完成第一個應用
-2. [常見範例](./quickstart/local_brick_define)：參考實用範例
+2. [常見範例](./quickstart/examples)：參考實用範例
 
 ### 進階開發
 1. [API 參考](./documents/api)：完整 API 文件
-2. [最佳實踐](./documents/best-practices)：開發建議與規範
+2. [最佳實踐](./documents/all)：開發建議與規範
 
 ## 下一步
 

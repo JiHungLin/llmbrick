@@ -13,13 +13,13 @@ const config: Config = {
     v4: true,
   },
 
-  url: 'https://your-docusaurus-site.example.com',
-  baseUrl: '/',
+  url: 'https://JiHungLin.github.io',
+  baseUrl: '/llmbrick/',
 
-  organizationName: 'facebook',
-  projectName: 'docusaurus',
+  organizationName: 'JiHungLin',
+  projectName: 'llmbrick',
 
-  onBrokenLinks: 'throw',
+  onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',
 
   i18n: {

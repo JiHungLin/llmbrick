@@ -3,6 +3,6 @@
   "position": 2,
   "link": {
     "type": "generated-index",
-    "description": "在這裡，你可以找到所有的 Bricks。 \nBricks 是 LLMBrick 的核心組件，負責處理不同的任務和功能。每個 Brick 都有其特定的功能和用途，並且可以根據需要進行組合和擴展。\n你可以在這裡瀏覽各種 Bricks 的定義和使用方式，並了解它們如何協同工作來實現更複雜的功能。"
+    "description": "在這裡，你可以找到所有的 Bricks。 \nBricks 是 LLMBrick 的重要組件，負責處理和管理不同的磚塊和資源。每個 Brick 都有其特定的功能和用途，並且可以根據需要進行配置和擴展。\n你可以在這裡瀏覽各種 Bricks 的定義和使用方式，並了解它們如何協同工作來實現更高效的資源管理和服務提供。"
   }
 }
