@@ -1,6 +1,6 @@
 ---
 sidebar_position: 7
-sidebar_label: ComposeBrick 定義
+sidebar_label: 組合轉換 ComposeBrick 定義
 ---
 
 [GitHub 範例程式碼](https://github.com/JiHungLin/llmbrick/tree/main/examples/compose_brick_define)
