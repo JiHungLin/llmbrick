@@ -106,7 +106,7 @@ async def test_grpc_unary(grpc_client: LLMBrick):
     assert resp.text == "gRPC Echo: gRPC test"
     assert resp.tokens == ["echo"]
     assert resp.is_final is True
-    assert resp.error.code == 0
+    assert resp.error.code == ErrorCodes.SUCCESS
 
 @pytest.mark.asyncio
 async def test_grpc_output_streaming(grpc_client: LLMBrick):
@@ -135,7 +135,7 @@ async def test_grpc_error_response(grpc_server):
                 text="",
                 tokens=[],  # tokens 必須為 List[str]
                 is_final=True,
-                error=ErrorDetail(code=501, message="gRPC error"),
+                error=ErrorDetail(code=ErrorCodes.INTERNAL_ERROR, message="gRPC error"),
             )
     # 啟動一個臨時 server
     server = GrpcServer(port=50061)
@@ -146,7 +146,7 @@ async def test_grpc_error_response(grpc_server):
     client = ErrorLLMBrick.toGrpcClient("127.0.0.1:50061", default_prompt="err", verbose=False)
     req = LLMRequest(prompt="err", context=[])
     resp = await client.run_unary(req)
-    assert resp.error.code == 501
+    assert resp.error.code == ErrorCodes.INTERNAL_ERROR
     assert "gRPC error" in resp.error.message
     await server.stop()
     server_task.cancel()

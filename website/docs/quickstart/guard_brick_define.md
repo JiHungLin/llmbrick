@@ -70,7 +70,7 @@ class MyGuardBrick(GuardBrick):
         except Exception as e:
             return GuardResponse(
                 results=[],
-                error=ErrorDetail(code=500, message="Internal error", detail=str(e))
+                error=ErrorDetail(code=ErrorCodes.INTERNAL_ERROR, message="Internal error", detail=str(e))
             )
 
     @get_service_info_handler

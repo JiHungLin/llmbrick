@@ -64,7 +64,7 @@ class CommonGrpcWrapper(common_pb2_grpc.CommonServiceServicer):
                 )
                 response = common_pb2.ServiceInfoResponse(error=error_data)
                 return response
-            if result.error and result.error.code != 0:
+            if result.error and result.error.code != ErrorCodes.SUCCESS:
                 # context.set_code(grpc.StatusCode.INTERNAL)
                 # context.set_details(result.error.message)
                 error_data.code = result.error.code
@@ -109,7 +109,7 @@ class CommonGrpcWrapper(common_pb2_grpc.CommonServiceServicer):
                     "The response from the brick is not of type CommonResponse."
                 )
                 return common_pb2.CommonResponse(error=error_data)
-            if result.error and result.error.code != 0:
+            if result.error and result.error.code != ErrorCodes.SUCCESS:
                 # context.set_code(grpc.StatusCode.INTERNAL)
                 # context.set_details(result.error.message)
                 error_data.code = result.error.code
@@ -157,7 +157,7 @@ class CommonGrpcWrapper(common_pb2_grpc.CommonServiceServicer):
                     )
                     yield common_pb2.CommonResponse(error=error_data)
                     break
-                if response.error and response.error.code != 0:
+                if response.error and response.error.code != ErrorCodes.SUCCESS:
                     # context.set_code(grpc.StatusCode.INTERNAL)
                     # context.set_details(response.error.message)
                     error_data.code = response.error.code
@@ -205,7 +205,7 @@ class CommonGrpcWrapper(common_pb2_grpc.CommonServiceServicer):
                     "The response from the brick is not of type CommonResponse."
                 )
                 return common_pb2.CommonResponse(error=error_data)
-            if result.error and result.error.code != 0:
+            if result.error and result.error.code != ErrorCodes.SUCCESS:
                 # context.set_code(grpc.StatusCode.INTERNAL)
                 # context.set_details(result.error.message)
                 error_data.code = result.error.code
@@ -255,7 +255,7 @@ class CommonGrpcWrapper(common_pb2_grpc.CommonServiceServicer):
                     )
                     yield common_pb2.CommonResponse(error=error_data)
                     break
-                if response.error and response.error.code != 0:
+                if response.error and response.error.code != ErrorCodes.SUCCESS:
                     # context.set_code(grpc.StatusCode.INTERNAL)
                     # context.set_details(response.error.message)
                     error_data.code = response.error.code

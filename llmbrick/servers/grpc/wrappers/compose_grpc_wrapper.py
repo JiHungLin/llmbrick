@@ -56,7 +56,7 @@ class ComposeGrpcWrapper(compose_pb2_grpc.ComposeServiceServicer):
                 )
                 response = common_pb2.ServiceInfoResponse(error=error_data)
                 return response
-            if result.error and result.error.code != 0:
+            if result.error and result.error.code != ErrorCodes.SUCCESS:
                 # context.set_code(grpc.StatusCode.INTERNAL)
                 # context.set_details(result.error.message)
                 error_data.code = result.error.code
@@ -101,7 +101,7 @@ class ComposeGrpcWrapper(compose_pb2_grpc.ComposeServiceServicer):
                     "The response from the brick is not of type ComposeResponse."
                 )
                 return compose_pb2.ComposeResponse(error=error_data)
-            if result.error and result.error.code != 0:
+            if result.error and result.error.code != ErrorCodes.SUCCESS:
                 # context.set_code(grpc.StatusCode.INTERNAL)
                 # context.set_details(result.error.message)
                 error_data.code = result.error.code
@@ -147,7 +147,7 @@ class ComposeGrpcWrapper(compose_pb2_grpc.ComposeServiceServicer):
                     )
                     yield compose_pb2.ComposeResponse(error=error_data)
                     break
-                if response.error and response.error.code != 0:
+                if response.error and response.error.code != ErrorCodes.SUCCESS:
                     # context.set_code(grpc.StatusCode.INTERNAL)
                     # context.set_details(response.error.message)
                     error_data.code = response.error.code

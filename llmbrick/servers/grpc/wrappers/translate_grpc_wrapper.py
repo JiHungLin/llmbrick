@@ -57,7 +57,7 @@ class TranslateGrpcWrapper(translate_pb2_grpc.TranslateServiceServicer):
                 )
                 response = common_pb2.ServiceInfoResponse(error=error_data)
                 return response
-            if result.error and result.error.code != 0:
+            if result.error and result.error.code != ErrorCodes.SUCCESS:
                 # context.set_code(grpc.StatusCode.INTERNAL)
                 # context.set_details(result.error.message)
                 error_data.code = result.error.code
@@ -101,7 +101,7 @@ class TranslateGrpcWrapper(translate_pb2_grpc.TranslateServiceServicer):
                     "The response from the brick is not of type TranslateResponse."
                 )
                 return translate_pb2.TranslateResponse(error=error_data)
-            if result.error and result.error.code != 0:
+            if result.error and result.error.code != ErrorCodes.SUCCESS:
                 # context.set_code(grpc.StatusCode.INTERNAL)
                 # context.set_details(result.error.message)
                 error_data.code = result.error.code
@@ -149,7 +149,7 @@ class TranslateGrpcWrapper(translate_pb2_grpc.TranslateServiceServicer):
                     )
                     yield translate_pb2.TranslateResponse(error=error_data)
                     break
-                if response.error and response.error.code != 0:
+                if response.error and response.error.code != ErrorCodes.SUCCESS:
                     # context.set_code(grpc.StatusCode.INTERNAL)
                     # context.set_details(response.error.message)
                     error_data.code = response.error.code

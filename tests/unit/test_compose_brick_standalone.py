@@ -107,7 +107,7 @@ async def test_simple_compose_unary():
     ]
     request = ComposeRequest(input_documents=docs, target_format="json")
     response = await brick.run_unary(request)
-    assert response.error.code == 0
+    assert response.error.code == ErrorCodes.SUCCESS
     assert response.output["echo"] == ["A", "B"]
     assert response.output["target_format"] == "json"
 
@@ -134,7 +134,7 @@ async def test_streaming_compose_output_streaming():
     request = ComposeRequest(input_documents=docs, target_format="markdown")
     results = []
     async for response in brick.run_output_streaming(request):
-        assert response.error.code == 0
+        assert response.error.code == ErrorCodes.SUCCESS
         results.append(response.output["title"])
     assert results == ["X", "Y"]
 

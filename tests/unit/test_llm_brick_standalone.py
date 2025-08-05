@@ -86,7 +86,7 @@ async def test_unary():
     assert resp.text == "Echo: Test prompt"
     assert resp.tokens == ["echo"]
     assert resp.is_final is True
-    assert resp.error.code == 0
+    assert resp.error.code == ErrorCodes.SUCCESS
 
 @pytest.mark.asyncio
 async def test_output_streaming():
@@ -142,11 +142,11 @@ async def test_error_response():
                 text="",
                 tokens=[],
                 is_final=True,
-                error=ErrorDetail(code=500, message="Internal error"),
+                error=ErrorDetail(code=ErrorCodes.INTERNAL_ERROR, message="Internal error"),
             )
 
     brick = ErrorLLMBrick(default_prompt="Z")
     req = LLMRequest(prompt="Err", context=[])
     resp = await brick.run_unary(req)
-    assert resp.error.code == 500
+    assert resp.error.code == ErrorCodes.INTERNAL_ERROR
     assert "Internal error" in resp.error.message

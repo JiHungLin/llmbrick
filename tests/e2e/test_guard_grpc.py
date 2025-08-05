@@ -119,7 +119,7 @@ async def test_error_handling(grpc_client: _TestGuardBrick) -> None:
             elif request.text == "error":
                 return GuardResponse(
                     results=[],
-                    error=ErrorDetail(code=500, message="Business logic error")
+                    error=ErrorDetail(code=ErrorCodes.INTERNAL_ERROR, message="Business logic error")
                 )
             else:
                 return GuardResponse(
@@ -130,10 +130,10 @@ async def test_error_handling(grpc_client: _TestGuardBrick) -> None:
     brick = ErrorGuardBrick(verbose=False)
     normal_request = GuardRequest(text="normal")
     response = await brick.run_unary(normal_request)
-    assert response.error.code == 0
+    assert response.error.code == ErrorCodes.SUCCESS
     error_request = GuardRequest(text="error")
     response = await brick.run_unary(error_request)
-    assert response.error.code == 500
+    assert response.error.code == ErrorCodes.INTERNAL_ERROR
     exception_request = GuardRequest(text="raise")
     with pytest.raises(ValueError):
         await brick.run_unary(exception_request)

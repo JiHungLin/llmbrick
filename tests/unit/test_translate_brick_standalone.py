@@ -94,7 +94,7 @@ async def test_unary_translate():
     assert response.text.endswith("(translated to zh)")
     assert response.language_code == "zh"
     assert response.is_final
-    assert response.error.code == 0
+    assert response.error.code == ErrorCodes.SUCCESS
 
 @pytest.mark.asyncio
 async def test_output_streaming_translate():
@@ -150,7 +150,7 @@ async def test_error_handling():
                 tokens=[],
                 language_code="",
                 is_final=True,
-                error=ErrorDetail(code=400, message="Simulated error", detail="Test error"),
+                error=ErrorDetail(code=ErrorCodes.INTERNAL_ERROR, message="Simulated error", detail="Test error"),
             )
     brick = ErrorBrick(verbose=False)
     request = TranslateRequest(
@@ -163,5 +163,5 @@ async def test_error_handling():
         source_language="zh",
     )
     response = await brick.run_unary(request)
-    assert response.error.code == 400
+    assert response.error.code == ErrorCodes.INTERNAL_ERROR
     assert "Simulated error" in response.error.message

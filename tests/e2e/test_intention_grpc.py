@@ -142,13 +142,13 @@ async def grpc_client_error(
 async def test_unary_error_code(grpc_client_error: ErrorCodeIntentionBrick):
     request = IntentionRequest(text="bad", client_id="cid")
     response = await grpc_client_error.run_unary(request)
-    assert response.error.code == 400
+    assert response.error.code == ErrorCodes.BAD_REQUEST
     assert "Bad request" in response.error.message
 
 @pytest.mark.asyncio
 async def test_get_service_info_error_code(grpc_client_error: ErrorCodeIntentionBrick):
     info = await grpc_client_error.run_get_service_info()
-    assert info.error.code == 500
+    assert info.error.code == ErrorCodes.INTERNAL_ERROR
     assert "Service down" in info.error.detail
 
 class TypeErrorIntentionBrick(IntentionBrick):
@@ -184,7 +184,7 @@ async def test_unary_type_error(grpc_client_type_error: TypeErrorIntentionBrick)
     request = IntentionRequest(text="type", client_id="cid")
     response = await grpc_client_type_error.run_unary(request)
     # gRPC wrapper 會回傳 error.code = grpc.StatusCode.INTERNAL.value[0]
-    assert response.error.code != 0
+    assert response.error.code != ErrorCodes.SUCCESS
     assert "Invalid unary response type" in response.error.message
 
 class ExceptionIntentionBrick(IntentionBrick):
@@ -218,6 +218,6 @@ async def grpc_client_exception(
 async def test_unary_exception(grpc_client_exception: ExceptionIntentionBrick):
     request = IntentionRequest(text="exception", client_id="cid")
     res = await grpc_client_exception.run_unary(request)
-    assert res.error.code != 0
+    assert res.error.code != ErrorCodes.SUCCESS
     assert "Simulated server error" in res.error.message
     

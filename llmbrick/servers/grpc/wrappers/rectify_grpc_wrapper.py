@@ -55,7 +55,7 @@ class RectifyGrpcWrapper(rectify_pb2_grpc.RectifyServiceServicer):
                 )
                 response = common_pb2.ServiceInfoResponse(error=error_data)
                 return response
-            if result.error and result.error.code != 0:
+            if result.error and result.error.code != ErrorCodes.SUCCESS:
                 # context.set_code(grpc.StatusCode.INTERNAL)
                 # context.set_details(result.error.message)
                 error_data.code = result.error.code
@@ -99,7 +99,7 @@ class RectifyGrpcWrapper(rectify_pb2_grpc.RectifyServiceServicer):
                     "The response from the brick is not of type RectifyResponse."
                 )
                 return rectify_pb2.RectifyResponse(error=error_data)
-            if result.error and result.error.code != 0:
+            if result.error and result.error.code != ErrorCodes.SUCCESS:
                 # context.set_code(grpc.StatusCode.INTERNAL)
                 # context.set_details(result.error.message)
                 error_data.code = result.error.code

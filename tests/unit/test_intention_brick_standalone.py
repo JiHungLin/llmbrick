@@ -66,7 +66,7 @@ async def test_simple_unary():
     brick = SimpleIntentionBrick(verbose=False)
     request = IntentionRequest(text="test", client_id="cid")
     response = await brick.run_unary(request)
-    assert response.error.code == 0
+    assert response.error.code == ErrorCodes.SUCCESS
     assert response.results[0].intent_category == "echo"
     assert response.results[0].confidence == 0.99
 

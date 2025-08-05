@@ -117,7 +117,7 @@ async def test_init_without_api_key(monkeypatch):
 #     # 驗證結果
 #     assert response.text == "Test response"
 #     assert response.is_final is True
-#     assert response.error.code == 0
+#     assert response.error.code == ErrorCodes.SUCCESS
 #     assert response.error.message == "Success"
     
 #     # 驗證 API 呼叫參數

@@ -1,3 +1,4 @@
+from llmbrick.core.error_codes import ErrorCodes
 from my_brick import MyIntentionBrick
 from llmbrick.protocols.models.bricks.intention_types import IntentionRequest
 import asyncio
@@ -32,7 +33,7 @@ async def main():
             print(f"\nInput text: {text}")
             request = IntentionRequest(text=text, client_id="test_client")
             response = await my_brick.run_unary(request)
-            if response.error and response.error.code != 0:
+            if response.error and response.error.code != ErrorCodes.SUCCESS:
                 print(f"Error: {response.error.message}")
             else:
                 result = response.results[0]

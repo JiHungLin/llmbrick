@@ -57,7 +57,7 @@ class MyComposeBrick(ComposeBrick):
         except Exception as e:
             return ComposeResponse(
                 output={},
-                error=ErrorDetail(code=1, message=f"Error: {e}")
+                error=ErrorDetail(code=ErrorCodes.INTERNAL_ERROR, message=f"Error: {e}")
             )
 
     @output_streaming_handler
@@ -76,7 +76,7 @@ class MyComposeBrick(ComposeBrick):
         except Exception as e:
             yield ComposeResponse(
                 output={},
-                error=ErrorDetail(code=1, message=f"Error: {e}")
+                error=ErrorDetail(code=ErrorCodes.INTERNAL_ERROR, message=f"Error: {e}")
             )
 
     @get_service_info_handler

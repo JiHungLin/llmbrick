@@ -62,7 +62,7 @@ async def test_unary():
     brick = SimpleRetrievalBrick()
     req = RetrievalRequest(query="test", client_id="cid")
     resp = await brick.run_unary(req)
-    assert resp.error.code == 0
+    assert resp.error.code == ErrorCodes.SUCCESS
     assert len(resp.documents) == 1
     assert resp.documents[0].doc_id == "d1"
 
@@ -106,12 +106,12 @@ async def test_error_response():
         async def search(self, request: RetrievalRequest) -> RetrievalResponse:
             return RetrievalResponse(
                 documents=[],
-                error=ErrorDetail(code=400, message="Bad request", detail="Invalid query"),
+                error=ErrorDetail(code=ErrorCodes.BAD_REQUEST, message="Bad request", detail="Invalid query"),
             )
     brick = ErrorBrick()
     req = RetrievalRequest(query="", client_id="cid")
     resp = await brick.run_unary(req)
-    assert resp.error.code == 400
+    assert resp.error.code == ErrorCodes.BAD_REQUEST
     assert "Bad request" in resp.error.message
 
 @pytest.mark.asyncio
@@ -135,5 +135,5 @@ async def test_concurrent_requests():
         req = RetrievalRequest(query="q", client_id="cid")
         return await brick.run_unary(req)
     results = await asyncio.gather(*(make_req() for _ in range(5)))
-    assert all(r.error.code == 0 for r in results)
+    assert all(r.error.code == ErrorCodes.SUCCESS for r in results)
     assert brick.counter == 5

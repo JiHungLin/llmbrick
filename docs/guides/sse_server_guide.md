@@ -328,6 +328,7 @@ import pytest
 from fastapi.testclient import TestClient
 from llmbrick.servers.sse.server import SSEServer
 from llmbrick.protocols.models.http.conversation import ConversationSSEResponse
+from llmbrick.core.error_codes import ErrorCodes
 
 def test_my_handler():
     server = SSEServer()
@@ -354,7 +355,7 @@ def test_my_handler():
         headers={"accept": "text/event-stream"}
     )
     
-    assert response.status_code == 200
+    assert response.status_code == ErrorCodes.SUCCESS
     assert "Test response" in response.content.decode()
 ```
 

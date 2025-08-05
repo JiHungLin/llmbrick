@@ -52,7 +52,7 @@ class GuardGrpcWrapper(guard_pb2_grpc.GuardServiceServicer):
                 )
                 response = common_pb2.ServiceInfoResponse(error=error_data)
                 return response
-            if result.error and result.error.code != 0:
+            if result.error and result.error.code != ErrorCodes.SUCCESS:
                 # context.set_code(grpc.StatusCode.INTERNAL)
                 # context.set_details(result.error.message)
                 error_data.code = result.error.code
@@ -96,7 +96,7 @@ class GuardGrpcWrapper(guard_pb2_grpc.GuardServiceServicer):
                     "The response from the brick is not of type GuardResponse."
                 )
                 return guard_pb2.GuardResponse(error=error_data)
-            if result.error and result.error.code != 0:
+            if result.error and result.error.code != ErrorCodes.SUCCESS:
                 # context.set_code(grpc.StatusCode.INTERNAL)
                 # context.set_details(result.error.message)
                 error_data.code = result.error.code

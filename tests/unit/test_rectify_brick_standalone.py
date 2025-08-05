@@ -32,7 +32,7 @@ class SimpleRectifyBrick(RectifyBrick):
         if not request.text:
             return RectifyResponse(
                 corrected_text="",
-                error=ErrorDetail(code=400, message="Text is empty")
+                error=ErrorDetail(code=ErrorCodes.BAD_REQUEST, message="Text is empty")
             )
         return RectifyResponse(
             corrected_text=request.text.upper(),
@@ -63,7 +63,7 @@ async def test_simple_rectify_unary():
     brick = SimpleRectifyBrick(verbose=False)
     request = RectifyRequest(text="hello world", client_id="cli", session_id="s1", request_id="r1", source_language="en")
     response = await brick.run_unary(request)
-    assert response.error.code == 0
+    assert response.error.code == ErrorCodes.SUCCESS
     assert response.corrected_text == "HELLO WORLD"
 
 @pytest.mark.asyncio
@@ -72,7 +72,7 @@ async def test_simple_rectify_empty_text():
     brick = SimpleRectifyBrick(verbose=False)
     request = RectifyRequest(text="", client_id="cli", session_id="s1", request_id="r1", source_language="en")
     response = await brick.run_unary(request)
-    assert response.error.code == 400
+    assert response.error.code == ErrorCodes.BAD_REQUEST
     assert response.corrected_text == ""
 
 @pytest.mark.asyncio

@@ -56,7 +56,7 @@ class RetrievalGrpcWrapper(retrieval_pb2_grpc.RetrievalServiceServicer):
                 )
                 response = common_pb2.ServiceInfoResponse(error=error_data)
                 return response
-            if result.error and result.error.code != 0:
+            if result.error and result.error.code != ErrorCodes.SUCCESS:
                 # context.set_code(grpc.StatusCode.INTERNAL)
                 # context.set_details(result.error.message)
                 error_data.code = result.error.code
@@ -100,7 +100,7 @@ class RetrievalGrpcWrapper(retrieval_pb2_grpc.RetrievalServiceServicer):
                     "The response from the brick is not of type RetrievalResponse."
                 )
                 return retrieval_pb2.RetrievalResponse(error=error_data)
-            if result.error and result.error.code != 0:
+            if result.error and result.error.code != ErrorCodes.SUCCESS:
                 # context.set_code(grpc.StatusCode.INTERNAL)
                 # context.set_details(result.error.message)
                 error_data.code = result.error.code

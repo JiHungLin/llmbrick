@@ -65,7 +65,7 @@ async def test_simple_guard_unary():
     # 正常情境
     request = GuardRequest(text="This is a normal message")
     response = await brick.run_unary(request)
-    assert response.error.code == 0
+    assert response.error.code == ErrorCodes.SUCCESS
     assert response.results[0].is_attack is False
     # 攻擊情境
     attack_request = GuardRequest(text="This is an attack!")
@@ -93,7 +93,7 @@ async def test_guard_error_handling():
             elif request.text == "error":
                 return GuardResponse(
                     results=[],
-                    error=ErrorDetail(code=500, message="Business logic error")
+                    error=ErrorDetail(code=ErrorCodes.INTERNAL_ERROR, message="Business logic error")
                 )
             else:
                 return GuardResponse(
@@ -104,11 +104,11 @@ async def test_guard_error_handling():
     # 正常情境
     normal_request = GuardRequest(text="normal")
     response = await brick.run_unary(normal_request)
-    assert response.error.code == 0
+    assert response.error.code == ErrorCodes.SUCCESS
     # 業務邏輯錯誤
     error_request = GuardRequest(text="error")
     response = await brick.run_unary(error_request)
-    assert response.error.code == 500
+    assert response.error.code == ErrorCodes.INTERNAL_ERROR
     # 例外情境
     exception_request = GuardRequest(text="raise")
     with pytest.raises(ValueError):
