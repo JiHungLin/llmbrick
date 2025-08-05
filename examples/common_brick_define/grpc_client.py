@@ -41,6 +41,8 @@ if __name__ == "__main__":
         async def example():
             async def input_stream():
                 for i in range(3):
+                    await asyncio.sleep(0.5)  # Simulate async operation
+                    print(f"Input {i + 1}")
                     yield CommonRequest(data={"text": f"Input {i + 1}"})
                 yield CommonRequest(data={})  # Simulating an empty input
 
@@ -62,6 +64,7 @@ if __name__ == "__main__":
             if is_test_error:
                 request.data["text"] = ""
             async for response in my_brick.run_output_streaming(request):
+                await asyncio.sleep(0.5)  # Simulate async operation
                 print(response)
 
         asyncio.run(example())
@@ -78,10 +81,13 @@ if __name__ == "__main__":
         async def example():
             async def bidi_input_stream():
                 for i in range(3):
+                    await asyncio.sleep(0.5)  # Simulate async operation
+                    print(f"Bidirectional input {i + 1}")
                     yield CommonRequest(data={"text": f"Bidirectional input {i + 1}"})
                 yield CommonRequest(data={})
 
             async for response in my_brick.run_bidi_streaming(bidi_input_stream()):
+                await asyncio.sleep(0.5)  # Simulate async operation
                 print(response)
 
         asyncio.run(example())

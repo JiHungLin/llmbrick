@@ -33,6 +33,8 @@ async def main():
         print("Normal case:")
         async def input_stream():
             for i in range(3):
+                await asyncio.sleep(0.5)  # Simulate async operation
+                print(f"Input {i + 1}")
                 yield CommonRequest(data={"text": f"Input {i + 1}"})
 
         response = await my_brick.run_input_streaming(input_stream())
@@ -41,6 +43,8 @@ async def main():
         print("\nError case:")
         async def error_input_stream():
             for i in range(3):
+                await asyncio.sleep(0.5)  # Simulate async operation
+                print(f"Input {i + 1}")
                 yield CommonRequest(data={"text": f"Input {i + 1}"})
             yield CommonRequest(data={})  # Empty input to trigger error
 
@@ -55,11 +59,13 @@ async def main():
         print("Normal case:")
         request = CommonRequest(data={"text": "Streaming output"})
         async for response in my_brick.run_output_streaming(request):
+            await asyncio.sleep(0.5)  # Simulate async operation
             print(response)
 
         print("\nError case:")
         request = CommonRequest(data={"text": ""})
         async for response in my_brick.run_output_streaming(request):
+            await asyncio.sleep(0.5)  # Simulate async operation
             print(response)
     except Exception as e:
         print(f"Error in output streaming: {e}")
@@ -70,18 +76,24 @@ async def main():
         print("Normal case:")
         async def bidi_input_stream():
             for i in range(3):
+                await asyncio.sleep(0.5)  # Simulate async operation
+                print(f"Bidirectional input {i + 1}")
                 yield CommonRequest(data={"text": f"Bidirectional input {i + 1}"})
 
         async for response in my_brick.run_bidi_streaming(bidi_input_stream()):
+            await asyncio.sleep(0.5)  # Simulate async operation
             print(response)
 
         print("\nError case:")
         async def error_bidi_input_stream():
             for i in range(3):
+                await asyncio.sleep(0.5)  # Simulate async operation
+                print(f"Bidirectional input {i + 1}")
                 yield CommonRequest(data={"text": f"Bidirectional input {i + 1}"})
             yield CommonRequest(data={})  # Empty input to trigger error
 
         async for response in my_brick.run_bidi_streaming(error_bidi_input_stream()):
+            await asyncio.sleep(0.5)  # Simulate async operation
             print(response)
     except Exception as e:
         print(f"Error in bidirectional streaming: {e}")
