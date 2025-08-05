@@ -3,7 +3,6 @@ syntax = "proto3";
 package protocols.grpc.translate;
 
 import "protocols/grpc/common/common.proto";
-import "google/protobuf/struct.proto";
 
 // Translate Brick 相關訊息
 message TranslateRequest {
