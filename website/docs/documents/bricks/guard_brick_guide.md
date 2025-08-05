@@ -126,8 +126,6 @@ async def use_grpc_client():
         request = GuardRequest(text="attack detected")
         response = await client_brick.run_unary(request)
         print(f"gRPC result: {response.results[0].is_attack}")  # True
-    finally:
-        await client_brick._grpc_channel.close()
 
 asyncio.run(use_grpc_client())
 ```
@@ -146,7 +144,6 @@ async def check(brick, text):
 
 result1 = await check(local_brick, "attack")
 result2 = await check(remote_brick, "attack")
-await remote_brick._grpc_channel.close()
 ```
 
 ## 最佳實踐

@@ -58,7 +58,7 @@ async def test_async_grpc_server_startup() -> None:
     server = GrpcServer(port=50057)
     server.register_service(llm_brick)
 
-    assert server.server is not None
+    assert len(server._pending_bricks) > 0
     assert server.port == 50057
 
     print("✓ 伺服器建立成功")
@@ -84,7 +84,6 @@ async def grpc_client(grpc_server: Any) -> AsyncIterator[_TestRectifyBrick]:
         remote_address="127.0.0.1:50058", verbose=False
     )
     yield client_brick
-    await client_brick._grpc_channel.close()
 
 @pytest.mark.asyncio
 async def test_unary(grpc_client: _TestRectifyBrick) -> None:

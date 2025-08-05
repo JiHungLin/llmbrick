@@ -134,7 +134,6 @@ async def use_grpc_client():
     req = LLMRequest(prompt="gRPC test", context=[])
     resp = await client_brick.run_unary(req)
     print(resp.text)
-    await client_brick._grpc_channel.close()
 
 asyncio.run(use_grpc_client())
 ```
@@ -153,7 +152,6 @@ async def process(brick, prompt):
 
 result1 = await process(local_brick, "hi")
 result2 = await process(remote_brick, "hi")
-await remote_brick._grpc_channel.close()
 ```
 
 ---

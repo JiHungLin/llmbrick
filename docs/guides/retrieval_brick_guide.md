@@ -125,7 +125,6 @@ async def use_grpc_client():
     req = RetrievalRequest(query="test", client_id="cid")
     resp = await client_brick.run_unary(req)
     print(resp.documents)
-    await client_brick._grpc_channel.close()
 
 asyncio.run(use_grpc_client())
 ```
@@ -144,7 +143,6 @@ async def process(brick, query):
 
 result1 = await process(local_brick, "foo")
 result2 = await process(remote_brick, "bar")
-await remote_brick._grpc_channel.close()
 ```
 
 ## 最佳實踐

@@ -226,10 +226,6 @@ async def use_grpc_client():
             CommonRequest(data={"count": 3})
         ):
             print(f"gRPC stream: {response.data}")
-            
-    finally:
-        # 關閉連接
-        await client_brick._grpc_channel.close()
 
 asyncio.run(use_grpc_client())
 ```
@@ -254,8 +250,6 @@ async def process_data(brick, data):
 result1 = await process_data(local_brick, {"value": 10})
 result2 = await process_data(remote_brick, {"value": 10})
 
-# 清理遠程連接
-await remote_brick._grpc_channel.close()
 ```
 
 這種設計讓開發人員可以在不修改業務邏輯代碼的情況下，輕鬆在本地和分散式部署之間切換。所有的 Brick 類型（CommonBrick、LLMBrick、GuardBrick 等）都遵循相同的模式，都有自己的 `toGrpcClient()` 實現。

@@ -97,7 +97,6 @@ async def grpc_client(grpc_server: Any) -> AsyncIterator[LLMBrick]:
         remote_address="127.0.0.1:50060", default_prompt="gRPC default", verbose=False
     )
     yield client_brick
-    await client_brick._grpc_channel.close()
 
 @pytest.mark.asyncio
 async def test_grpc_unary(grpc_client: LLMBrick):
@@ -148,7 +147,6 @@ async def test_grpc_error_response(grpc_server):
     resp = await client.run_unary(req)
     assert resp.error.code == 501
     assert "gRPC error" in resp.error.message
-    await client._grpc_channel.close()
     await server.stop()
     server_task.cancel()
     try:

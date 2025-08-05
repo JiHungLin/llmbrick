@@ -187,9 +187,6 @@ async def use_grpc_client():
         ):
             print(f"gRPC stream: {response.output}")
 
-    finally:
-        await client_brick._grpc_channel.close()
-
 asyncio.run(use_grpc_client())
 ```
 
@@ -213,7 +210,6 @@ docs = [
 ]
 result1 = await process_data(local_brick, docs)
 result2 = await process_data(remote_brick, docs)
-await remote_brick._grpc_channel.close()
 ```
 
 ## 最佳實踐

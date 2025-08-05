@@ -96,7 +96,6 @@ async def main():
     client_brick = HelloBrick.toGrpcClient("127.0.0.1:50051")
     resp = await client_brick.run_unary(CommonRequest(data={"name": "Bob"}))
     print(resp.data["message"])  # 輸出: Hello, Bob!
-    await client_brick._grpc_channel.close()
 
 if __name__ == "__main__":
     asyncio.run(main())

@@ -61,7 +61,7 @@ async def test_async_grpc_server_startup() -> None:
     retrieval_brick = _TestRetrievalBrick()
     server = GrpcServer(port=50140)
     server.register_service(retrieval_brick)
-    assert server.server is not None
+    assert len(server._pending_bricks) > 0
     assert server.port == 50140
 
 
@@ -87,7 +87,6 @@ async def grpc_client(
 ) -> AsyncIterator[_TestRetrievalBrick]:
     client_brick = _TestRetrievalBrick.toGrpcClient(remote_address="127.0.0.1:50141")
     yield client_brick
-    await client_brick._grpc_channel.close()
 
 
 @pytest.mark.asyncio

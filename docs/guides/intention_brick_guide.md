@@ -122,8 +122,6 @@ async def use_grpc_client():
         request = IntentionRequest(text="hello", client_id="cid")
         response = await client_brick.run_unary(request)
         print(f"gRPC Intent: {response.results[0].intent_category}")
-    finally:
-        await client_brick._grpc_channel.close()
 
 asyncio.run(use_grpc_client())
 ```
@@ -142,7 +140,6 @@ async def process(brick, text):
 
 result1 = await process(local_brick, "hi")
 result2 = await process(remote_brick, "hi")
-await remote_brick._grpc_channel.close()
 ```
 
 ## 最佳實踐

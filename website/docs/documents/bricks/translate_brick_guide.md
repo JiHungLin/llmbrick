@@ -162,7 +162,6 @@ async def use_grpc_client():
     )
     response = await client_brick.run_unary(request)
     print(response.text)
-    await client_brick._grpc_channel.close()
 
 asyncio.run(use_grpc_client())
 ```
@@ -189,7 +188,6 @@ async def process(brick, text):
 
 result1 = await process(local_brick, "Hello")
 result2 = await process(remote_brick, "Hello")
-await remote_brick._grpc_channel.close()
 ```
 > API 完全一致，僅建構方式不同。
 

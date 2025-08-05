@@ -79,7 +79,7 @@ async def test_async_grpc_server_startup():
     brick = _TestTranslateBrick()
     server = GrpcServer(port=50066)
     server.register_service(brick)
-    assert server.server is not None
+    assert len(server._pending_bricks) > 0
     assert server.port == 50066
 
 @pytest_asyncio.fixture
@@ -103,7 +103,6 @@ async def grpc_client(grpc_server: Any) -> AsyncIterator[_TestTranslateBrick]:
         remote_address="127.0.0.1:50068", verbose=False
     )
     yield client_brick
-    await client_brick._grpc_channel.close()
 
 @pytest.mark.asyncio
 async def test_unary(grpc_client: _TestTranslateBrick):
@@ -193,7 +192,6 @@ async def test_error_handling(grpc_server):
     response = await client_brick.run_unary(request)
     assert response.error.code == 400
     assert "Simulated error" in response.error.message
-    await client_brick._grpc_channel.close()
     await server.stop()
     server_task.cancel()
     try:
