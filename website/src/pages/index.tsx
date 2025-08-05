@@ -65,6 +65,29 @@ function HomepageHeader() {
           一個強調「模組化設計」、「明確協定定義」、「靈活組裝」與「易於擴展」的 LLM 應用開發框架。
         </p>
         <div>
+          <a
+            href="https://pypi.org/project/llmbrick/"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'inline-block',
+              marginTop: '1.5rem',
+            }}
+          >
+            <img
+              src="https://img.shields.io/pypi/v/llmbrick?label=PyPI%20llmbrick&style=for-the-badge"
+              alt="PyPI Version"
+              style={{
+                height: '44px',
+                minWidth: '180px',
+                borderRadius: '8px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.10)',
+                background: '#fff',
+                padding: '0 8px',
+                objectFit: 'contain',
+              }}
+            />
+          </a>
         </div>
       </div>
     </header>
