@@ -3,7 +3,7 @@
 [![Python Version](https://img.shields.io/pypi/pyversions/llmbrick)](https://www.python.org/downloads/)
 [![PyPI Version](https://img.shields.io/pypi/v/llmbrick)](https://pypi.org/project/llmbrick/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/JiHungLin/llmbrick/blob/main/LICENSE)
-[![Documentation](https://img.shields.io/badge/docs-latest-brightgreen)](https://llmbrick.readthedocs.io)
+[![Documentation](https://img.shields.io/badge/docs-latest-brightgreen)](https://jihunglin.github.io/llmbrick/)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/JiHungLin/llmbrick)
 
 一個強調「模組化設計」、「明確協定定義」、「靈活組裝」與「易於擴展」的 LLM 應用開發框架。
@@ -358,15 +358,15 @@ if __name__ == "__main__":
 
 ## 📚 文檔
 
-- [完整線上文檔（ReadTheDocs）](https://llmbrick.readthedocs.io/)
+- [完整線上文檔（Docusaurus）](https://jihunglin.github.io/llmbrick/)
   包含所有指南、API 參考、教學與部署說明，建議優先查閱。
-- [快速開始](https://llmbrick.readthedocs.io/zh-tw/latest/quickstart/)
+- [快速開始](https://jihunglin.github.io/llmbrick/docs/quickstart)
   最精簡的安裝與第一個 Brick 實作步驟。
-- [API 參考](https://llmbrick.readthedocs.io/zh-tw/latest/api_reference/)
+- [API 參考](https://jihunglin.github.io/llmbrick/docs/documents/api)
   各類 Brick 與核心方法的 API 文件。
-- [教學範例](https://llmbrick.readthedocs.io/zh-tw/latest/tutorials/)
+- [教學範例](https://jihunglin.github.io/llmbrick/docs/quickstart/examples)
   Step-by-step 教學與開發實例。
-- [元件指南（Brick Guides）](https://llmbrick.readthedocs.io/zh-tw/latest/guides/)
+- [元件指南（Brick Guides）](https://jihunglin.github.io/llmbrick/docs/category/bricks)
   詳細說明各類 Brick（如 CommonBrick、LLMBrick、GuardBrick 等）的設計理念、實作範例與最佳實踐。
 
 > 文檔結構說明：
@@ -374,7 +374,7 @@ if __name__ == "__main__":
 > - **API 參考**：查詢各元件方法與型別
 > - **教學範例**：實戰案例、進階應用
 > - **元件指南**：每種 Brick 的設計與最佳實踐
-> - **完整文檔**：建議直接瀏覽 ReadTheDocs 以獲得最佳閱讀體驗
+> - **完整文檔**：建議直接瀏覽 Docusaurus 以獲得最佳閱讀體驗
 
 ## 授權
 
