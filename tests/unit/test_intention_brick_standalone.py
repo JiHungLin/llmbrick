@@ -25,6 +25,7 @@ from llmbrick.protocols.models.bricks.common_types import (
     ModelInfo,
     ServiceInfoResponse,
 )
+from llmbrick.core.error_codes import ErrorCodes
 
 class SimpleIntentionBrick(IntentionBrick):
     """
@@ -39,7 +40,7 @@ class SimpleIntentionBrick(IntentionBrick):
             results=[
                 IntentionResult(intent_category="echo", confidence=0.99)
             ],
-            error=ErrorDetail(code=0, message="Success"),
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"),
         )
 
     @get_service_info_handler
@@ -56,7 +57,7 @@ class SimpleIntentionBrick(IntentionBrick):
                     description="Simple intention service",
                 )
             ],
-            error=ErrorDetail(code=0, message="Success"),
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"),
         )
 
 @pytest.mark.asyncio
@@ -65,7 +66,7 @@ async def test_simple_unary():
     brick = SimpleIntentionBrick(verbose=False)
     request = IntentionRequest(text="test", client_id="cid")
     response = await brick.run_unary(request)
-    assert response.error.code == 0
+    assert response.error.code == ErrorCodes.SUCCESS
     assert response.results[0].intent_category == "echo"
     assert response.results[0].confidence == 0.99
 
@@ -93,7 +94,7 @@ async def test_not_implemented_handlers():
         async def only_unary(self, request: IntentionRequest) -> IntentionResponse:
             return IntentionResponse(
                 results=[IntentionResult(intent_category="only", confidence=1.0)],
-                error=ErrorDetail(code=0, message="Success"),
+                error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"),
             )
 
     brick = PartialIntentionBrick(verbose=False)

@@ -19,6 +19,7 @@ from llmbrick.protocols.models.bricks.intention_types import (
     IntentionResult,
 )
 from llmbrick.servers.grpc.server import GrpcServer
+from llmbrick.core.error_codes import ErrorCodes
 
 class _TestIntentionBrick(IntentionBrick):
     """測試用的 Intention Brick"""
@@ -28,7 +29,7 @@ class _TestIntentionBrick(IntentionBrick):
         await asyncio.sleep(0.1)
         result = IntentionResult(intent_category="test", confidence=0.88)
         return IntentionResponse(
-            results=[result], error=ErrorDetail(code=0, message="No error", detail="")
+            results=[result], error=ErrorDetail(code=ErrorCodes.SUCCESS, message="No error", detail="")
         )
 
     @get_service_info_handler
@@ -46,7 +47,7 @@ class _TestIntentionBrick(IntentionBrick):
                     description="test",
                 )
             ],
-            error=ErrorDetail(code=0, message="No error"),
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="No error"),
         )
 
 @pytest.mark.asyncio
@@ -141,13 +142,13 @@ async def grpc_client_error(
 async def test_unary_error_code(grpc_client_error: ErrorCodeIntentionBrick):
     request = IntentionRequest(text="bad", client_id="cid")
     response = await grpc_client_error.run_unary(request)
-    assert response.error.code == 400
+    assert response.error.code == ErrorCodes.BAD_REQUEST
     assert "Bad request" in response.error.message
 
 @pytest.mark.asyncio
 async def test_get_service_info_error_code(grpc_client_error: ErrorCodeIntentionBrick):
     info = await grpc_client_error.run_get_service_info()
-    assert info.error.code == 500
+    assert info.error.code == ErrorCodes.INTERNAL_ERROR
     assert "Service down" in info.error.detail
 
 class TypeErrorIntentionBrick(IntentionBrick):
@@ -183,7 +184,7 @@ async def test_unary_type_error(grpc_client_type_error: TypeErrorIntentionBrick)
     request = IntentionRequest(text="type", client_id="cid")
     response = await grpc_client_type_error.run_unary(request)
     # gRPC wrapper 會回傳 error.code = grpc.StatusCode.INTERNAL.value[0]
-    assert response.error.code != 0
+    assert response.error.code != ErrorCodes.SUCCESS
     assert "Invalid unary response type" in response.error.message
 
 class ExceptionIntentionBrick(IntentionBrick):
@@ -217,6 +218,6 @@ async def grpc_client_exception(
 async def test_unary_exception(grpc_client_exception: ExceptionIntentionBrick):
     request = IntentionRequest(text="exception", client_id="cid")
     res = await grpc_client_exception.run_unary(request)
-    assert res.error.code != 0
+    assert res.error.code != ErrorCodes.SUCCESS
     assert "Simulated server error" in res.error.message
     

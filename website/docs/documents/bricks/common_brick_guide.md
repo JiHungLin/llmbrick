@@ -49,6 +49,7 @@ from llmbrick.core.brick import unary_handler, get_service_info_handler
 from llmbrick.protocols.models.bricks.common_types import (
     CommonRequest, CommonResponse, ErrorDetail, ServiceInfoResponse
 )
+from llmbrick.core.error_codes import ErrorCodes
 ```
 
 ### 最簡單的 Brick 實現
@@ -59,7 +60,7 @@ class SimpleBrick(CommonBrick):
     async def process(self, request: CommonRequest) -> CommonResponse:
         return CommonResponse(
             data={"message": f"Hello, {request.data.get('name', 'World')}!"},
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
     
     @get_service_info_handler
@@ -68,7 +69,7 @@ class SimpleBrick(CommonBrick):
             service_name="SimpleBrick",
             version="1.0.0",
             models=[],
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
 ```
 
@@ -111,7 +112,7 @@ class FullFeatureBrick(CommonBrick):
         result = request.data.get("value", 0) * 2
         return CommonResponse(
             data={"result": result},
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
     
     @output_streaming_handler
@@ -122,7 +123,7 @@ class FullFeatureBrick(CommonBrick):
             await asyncio.sleep(0.1)
             yield CommonResponse(
                 data={"index": i, "value": i * i},
-                error=ErrorDetail(code=0, message="Success")
+                error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
             )
     
     @input_streaming_handler
@@ -136,7 +137,7 @@ class FullFeatureBrick(CommonBrick):
         
         return CommonResponse(
             data={"sum": total, "count": count, "average": total/count if count > 0 else 0},
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
     
     @bidi_streaming_handler
@@ -146,7 +147,7 @@ class FullFeatureBrick(CommonBrick):
             value = req.data.get("value", 0)
             yield CommonResponse(
                 data={"original": value, "doubled": value * 2},
-                error=ErrorDetail(code=0, message="Success")
+                error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
             )
 ```
 
@@ -295,7 +296,7 @@ class BestPracticeBrick(CommonBrick):
                     "processed_at": asyncio.get_event_loop().time(),
                     "request_id": self.request_count
                 },
-                error=ErrorDetail(code=0, message="Success")
+                error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
             )
             
         except Exception as e:
@@ -327,7 +328,7 @@ class RobustBrick(CommonBrick):
             
             return CommonResponse(
                 data={"result": result},
-                error=ErrorDetail(code=0, message="Success")
+                error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
             )
             
         except ValueError as e:
@@ -391,7 +392,7 @@ class PerformantBrick(CommonBrick):
             
             return CommonResponse(
                 data={"results": processed_results},
-                error=ErrorDetail(code=0, message="Success")
+                error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
             )
     
     async def _task_1(self, data):
@@ -605,7 +606,7 @@ class ConcurrentBrick(CommonBrick):
             result = await coro
             yield CommonResponse(
                 data=result,
-                error=ErrorDetail(code=0, message="Success")
+                error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
             )
 ```
 
@@ -640,7 +641,7 @@ class MemoryEfficientBrick(CommonBrick):
         
         return CommonResponse(
             data={"total": total, "count": count, "average": total/count if count > 0 else 0},
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
 ```
 
@@ -667,7 +668,7 @@ class LongRunningBrick(CommonBrick):
                     "progress": f"{progress:.1f}%",
                     "completed": step + 1 == total_steps
                 },
-                error=ErrorDetail(code=0, message="Success")
+                error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
             )
 ```
 
@@ -688,7 +689,7 @@ class TimeoutBrick(CommonBrick):
             
             return CommonResponse(
                 data={"result": result},
-                error=ErrorDetail(code=0, message="Success")
+                error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
             )
             
         except asyncio.TimeoutError:
@@ -721,7 +722,7 @@ class RetryBrick(CommonBrick):
                 result = await self._unreliable_operation(request.data)
                 return CommonResponse(
                     data={"result": result, "attempts": attempt + 1},
-                    error=ErrorDetail(code=0, message="Success")
+                    error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
                 )
                 
             except Exception as e:

@@ -30,6 +30,7 @@ from llmbrick.protocols.models.bricks.common_types import (
     ErrorDetail,
     ModelInfo,
 )
+from llmbrick.core.error_codes import ErrorCodes
 
 class SimpleLLMBrick(LLMBrick):
     """
@@ -46,7 +47,7 @@ class SimpleLLMBrick(LLMBrick):
             text=f"Echo: {request.prompt or self.default_prompt}",
             tokens=["echo"],
             is_final=True,
-            error=ErrorDetail(code=0, message="Success"),
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"),
         )
 
     @output_streaming_handler
@@ -57,7 +58,7 @@ class SimpleLLMBrick(LLMBrick):
                 text=f"Stream {i}: {request.prompt or self.default_prompt}",
                 tokens=[str(i)],
                 is_final=(i == 2),
-                error=ErrorDetail(code=0, message="Success"),
+                error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"),
             )
 
     @get_service_info_handler
@@ -74,7 +75,7 @@ class SimpleLLMBrick(LLMBrick):
                     description="Simple echo LLM",
                 )
             ],
-            error=ErrorDetail(code=0, message="Success"),
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"),
         )
 
 @pytest.mark.asyncio
@@ -85,7 +86,7 @@ async def test_unary():
     assert resp.text == "Echo: Test prompt"
     assert resp.tokens == ["echo"]
     assert resp.is_final is True
-    assert resp.error.code == 0
+    assert resp.error.code == ErrorCodes.SUCCESS
 
 @pytest.mark.asyncio
 async def test_output_streaming():
@@ -117,7 +118,7 @@ async def test_not_implemented_handlers():
                 text="Only unary",
                 tokens=["only"],
                 is_final=True,
-                error=ErrorDetail(code=0, message="Success"),
+                error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"),
             )
 
     brick = PartialLLMBrick(default_prompt="X")
@@ -141,11 +142,11 @@ async def test_error_response():
                 text="",
                 tokens=[],
                 is_final=True,
-                error=ErrorDetail(code=500, message="Internal error"),
+                error=ErrorDetail(code=ErrorCodes.INTERNAL_ERROR, message="Internal error"),
             )
 
     brick = ErrorLLMBrick(default_prompt="Z")
     req = LLMRequest(prompt="Err", context=[])
     resp = await brick.run_unary(req)
-    assert resp.error.code == 500
+    assert resp.error.code == ErrorCodes.INTERNAL_ERROR
     assert "Internal error" in resp.error.message

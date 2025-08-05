@@ -9,6 +9,7 @@ from llmbrick.protocols.models.bricks.translate_types import (
     TranslateRequest,
     TranslateResponse,
 )
+from llmbrick.core.error_codes import ErrorCodes
 
 # /protocols/grpc/translate/translate.proto
 # translate_pb2
@@ -35,7 +36,7 @@ class TranslateGrpcWrapper(translate_pb2_grpc.TranslateServiceServicer):
         self.brick = brick
 
     async def GetServiceInfo(self, request, context):
-        error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
+        error_data = common_pb2.ErrorDetail(code=ErrorCodes.SUCCESS, message="", detail="")
         try:
             result = await self.brick.run_get_service_info()
             if result is None:
@@ -56,7 +57,7 @@ class TranslateGrpcWrapper(translate_pb2_grpc.TranslateServiceServicer):
                 )
                 response = common_pb2.ServiceInfoResponse(error=error_data)
                 return response
-            if result.error and result.error.code != 0:
+            if result.error and result.error.code != ErrorCodes.SUCCESS:
                 # context.set_code(grpc.StatusCode.INTERNAL)
                 # context.set_details(result.error.message)
                 error_data.code = result.error.code
@@ -87,7 +88,7 @@ class TranslateGrpcWrapper(translate_pb2_grpc.TranslateServiceServicer):
             return common_pb2.ServiceInfoResponse(error=error_data)
 
     async def Unary(self, request: translate_pb2.TranslateRequest, context):
-        error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
+        error_data = common_pb2.ErrorDetail(code=ErrorCodes.SUCCESS, message="", detail="")
         try:
             request = TranslateRequest.from_pb2_model(request)
             result: TranslateResponse = await self.brick.run_unary(request)
@@ -100,7 +101,7 @@ class TranslateGrpcWrapper(translate_pb2_grpc.TranslateServiceServicer):
                     "The response from the brick is not of type TranslateResponse."
                 )
                 return translate_pb2.TranslateResponse(error=error_data)
-            if result.error and result.error.code != 0:
+            if result.error and result.error.code != ErrorCodes.SUCCESS:
                 # context.set_code(grpc.StatusCode.INTERNAL)
                 # context.set_details(result.error.message)
                 error_data.code = result.error.code
@@ -137,7 +138,7 @@ class TranslateGrpcWrapper(translate_pb2_grpc.TranslateServiceServicer):
         request = TranslateRequest.from_pb2_model(request)
         try:
             async for response in self.brick.run_output_streaming(request):
-                error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
+                error_data = common_pb2.ErrorDetail(code=ErrorCodes.SUCCESS, message="", detail="")
                 if not isinstance(response, TranslateResponse):
                     # context.set_code(grpc.StatusCode.INTERNAL)
                     # context.set_details('Invalid output streaming response type!')
@@ -148,7 +149,7 @@ class TranslateGrpcWrapper(translate_pb2_grpc.TranslateServiceServicer):
                     )
                     yield translate_pb2.TranslateResponse(error=error_data)
                     break
-                if response.error and response.error.code != 0:
+                if response.error and response.error.code != ErrorCodes.SUCCESS:
                     # context.set_code(grpc.StatusCode.INTERNAL)
                     # context.set_details(response.error.message)
                     error_data.code = response.error.code

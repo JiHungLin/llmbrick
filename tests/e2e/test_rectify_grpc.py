@@ -13,6 +13,7 @@ from llmbrick.core.brick import unary_handler, get_service_info_handler
 from llmbrick.protocols.models.bricks.rectify_types import RectifyRequest, RectifyResponse
 from llmbrick.protocols.models.bricks.common_types import ErrorDetail, ModelInfo, ServiceInfoResponse
 from llmbrick.servers.grpc.server import GrpcServer
+from llmbrick.core.error_codes import ErrorCodes
 
 class _TestRectifyBrick(RectifyBrick):
     """測試用的 Rectify Brick"""
@@ -27,13 +28,13 @@ class _TestRectifyBrick(RectifyBrick):
             )
         return RectifyResponse(
             corrected_text=request.text[::-1],  # 反轉字串作為校正
-            error=ErrorDetail(code=0, message="No error")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="No error")
         )
 
     @get_service_info_handler
     async def get_service_info_handler(self) -> ServiceInfoResponse:
         await asyncio.sleep(0.01)
-        error = ErrorDetail(code=0, message="No error")
+        error = ErrorDetail(code=ErrorCodes.SUCCESS, message="No error")
         return ServiceInfoResponse(
             service_name="TestRectifyBrick",
             version="9.9.9",
@@ -91,13 +92,13 @@ async def test_unary(grpc_client: _TestRectifyBrick) -> None:
     response = await grpc_client.run_unary(request)
     assert response is not None
     assert response.corrected_text == "FEDcba"
-    assert response.error.code == 0
+    assert response.error.code == ErrorCodes.SUCCESS
 
 @pytest.mark.asyncio
 async def test_unary_empty_text(grpc_client: _TestRectifyBrick) -> None:
     request = RectifyRequest(text="", client_id="cli", session_id="s1", request_id="r1", source_language="en")
     response = await grpc_client.run_unary(request)
-    assert response.error.code == 400
+    assert response.error.code == ErrorCodes.BAD_REQUEST
     assert response.corrected_text == ""
 
 @pytest.mark.asyncio

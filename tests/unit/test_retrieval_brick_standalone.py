@@ -25,6 +25,7 @@ from llmbrick.protocols.models.bricks.retrieval_types import (
     RetrievalResponse,
     Document,
 )
+from llmbrick.core.error_codes import ErrorCodes
 
 class SimpleRetrievalBrick(RetrievalBrick):
     """簡單的 RetrievalBrick 實作，展示基本功能"""
@@ -35,7 +36,7 @@ class SimpleRetrievalBrick(RetrievalBrick):
         doc = Document(doc_id="d1", title="標題", snippet="內容", score=0.88)
         return RetrievalResponse(
             documents=[doc],
-            error=ErrorDetail(code=0, message="Success"),
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"),
         )
 
     @get_service_info_handler
@@ -52,7 +53,7 @@ class SimpleRetrievalBrick(RetrievalBrick):
                     description="Simple retrieval service",
                 )
             ],
-            error=ErrorDetail(code=0, message="Success"),
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"),
         )
 
 @pytest.mark.asyncio
@@ -61,7 +62,7 @@ async def test_unary():
     brick = SimpleRetrievalBrick()
     req = RetrievalRequest(query="test", client_id="cid")
     resp = await brick.run_unary(req)
-    assert resp.error.code == 0
+    assert resp.error.code == ErrorCodes.SUCCESS
     assert len(resp.documents) == 1
     assert resp.documents[0].doc_id == "d1"
 
@@ -91,7 +92,7 @@ def test_handler_not_async():
     class BadBrick(RetrievalBrick):
         @unary_handler
         def bad_search(self, request: RetrievalRequest):
-            return RetrievalResponse(documents=[], error=ErrorDetail(code=0, message="ok"))
+            return RetrievalResponse(documents=[], error=ErrorDetail(code=ErrorCodes.SUCCESS, message="ok"))
     brick = BadBrick()
     req = RetrievalRequest(query="test", client_id="cid")
     with pytest.raises(TypeError):
@@ -105,12 +106,12 @@ async def test_error_response():
         async def search(self, request: RetrievalRequest) -> RetrievalResponse:
             return RetrievalResponse(
                 documents=[],
-                error=ErrorDetail(code=400, message="Bad request", detail="Invalid query"),
+                error=ErrorDetail(code=ErrorCodes.BAD_REQUEST, message="Bad request", detail="Invalid query"),
             )
     brick = ErrorBrick()
     req = RetrievalRequest(query="", client_id="cid")
     resp = await brick.run_unary(req)
-    assert resp.error.code == 400
+    assert resp.error.code == ErrorCodes.BAD_REQUEST
     assert "Bad request" in resp.error.message
 
 @pytest.mark.asyncio
@@ -127,12 +128,12 @@ async def test_concurrent_requests():
             await asyncio.sleep(0.01)
             return RetrievalResponse(
                 documents=[],
-                error=ErrorDetail(code=0, message=f"count={self.counter}"),
+                error=ErrorDetail(code=ErrorCodes.SUCCESS, message=f"count={self.counter}"),
             )
     brick = CounterBrick()
     async def make_req():
         req = RetrievalRequest(query="q", client_id="cid")
         return await brick.run_unary(req)
     results = await asyncio.gather(*(make_req() for _ in range(5)))
-    assert all(r.error.code == 0 for r in results)
+    assert all(r.error.code == ErrorCodes.SUCCESS for r in results)
     assert brick.counter == 5

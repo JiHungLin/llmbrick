@@ -58,6 +58,7 @@ from llmbrick.protocols.models.bricks.retrieval_types import (
 from llmbrick.protocols.models.bricks.common_types import (
     ErrorDetail, ServiceInfoResponse
 )
+from llmbrick.core.error_codes import ErrorCodes
 ```
 
 ### 最簡單的 RetrievalBrick 實現
@@ -68,7 +69,7 @@ class SimpleRetrievalBrick(RetrievalBrick):
     async def search(self, request: RetrievalRequest) -> RetrievalResponse:
         return RetrievalResponse(
             documents=[],
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
 
     @get_service_info_handler
@@ -77,7 +78,7 @@ class SimpleRetrievalBrick(RetrievalBrick):
             service_name="SimpleRetrievalBrick",
             version="1.0.0",
             models=[],
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
 ```
 
@@ -155,7 +156,7 @@ result2 = await process(remote_brick, "bar")
 class BadBrick(RetrievalBrick):
     @unary_handler
     def bad_search(self, request: RetrievalRequest):  # 錯誤：缺少 async
-        return RetrievalResponse(documents=[], error=ErrorDetail(code=0, message="ok"))
+        return RetrievalResponse(documents=[], error=ErrorDetail(code=ErrorCodes.SUCCESS, message="ok"))
 # 執行 brick.run_unary() 會拋出 TypeError
 ```
 
@@ -169,7 +170,7 @@ async def robust_search(self, request: RetrievalRequest) -> RetrievalResponse:
     try:
         # 檢索邏輯
         ...
-        return RetrievalResponse(documents=[...], error=ErrorDetail(code=0, message="Success"))
+        return RetrievalResponse(documents=[...], error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"))
     except ValueError as e:
         return RetrievalResponse(documents=[], error=ErrorDetail(code=400, message=str(e)))
     except Exception as e:

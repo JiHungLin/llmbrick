@@ -1,5 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
+from http import HTTPStatus
 from llmbrick.servers.sse.server import SSEServer
 from llmbrick.protocols.models.http.conversation import ConversationSSEResponse
 
@@ -41,7 +42,7 @@ def test_post_chat_completions_accept_header(sse_server, valid_request):
     client = TestClient(sse_server.fastapi_app)
     # 缺少 accept header，應回 406
     resp = client.post("/chat/completions", json=valid_request)
-    assert resp.status_code == 406
+    assert resp.status_code == HTTPStatus.NOT_ACCEPTABLE
     # 有 accept header
     resp = client.post(
         "/chat/completions",
@@ -49,7 +50,7 @@ def test_post_chat_completions_accept_header(sse_server, valid_request):
         headers={"accept": "text/event-stream"},
     )
     # 由於 StreamingResponse，狀態碼應為 200
-    assert resp.status_code == 200
+    assert resp.status_code == HTTPStatus.OK
 
 def test_post_chat_completions_empty_body(sse_server):
     client = TestClient(sse_server.fastapi_app)
@@ -58,7 +59,7 @@ def test_post_chat_completions_empty_body(sse_server):
         data="",
         headers={"accept": "text/event-stream"},
     )
-    assert resp.status_code == 422  # FastAPI returns 422 for request validation errors
+    assert resp.status_code == HTTPStatus.UNPROCESSABLE_ENTITY  # FastAPI returns 422 for request validation errors
     assert resp.json().get("detail") is not None  # FastAPI provides validation details
 
 def test_invalid_json_body(sse_server):
@@ -68,7 +69,7 @@ def test_invalid_json_body(sse_server):
         data="invalid json",
         headers={"accept": "text/event-stream", "content-type": "application/json"},
     )
-    assert resp.status_code == 422  # FastAPI returns 422 for JSON parse errors
+    assert resp.status_code == HTTPStatus.UNPROCESSABLE_ENTITY  # FastAPI returns 422 for JSON parse errors
     assert resp.json().get("detail") is not None  # FastAPI provides error details
 
 def test_invalid_request_schema(sse_server):
@@ -79,7 +80,7 @@ def test_invalid_request_schema(sse_server):
         json=invalid_request,
         headers={"accept": "text/event-stream"},
     )
-    assert resp.status_code == 422
+    assert resp.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
     detail = resp.json().get("detail", [])
     assert any("field required" in str(err).lower() for err in detail)  # FastAPI validation error format
 
@@ -96,7 +97,7 @@ def test_unsupported_model(sse_server):
         json=invalid_model_request,
         headers={"accept": "text/event-stream"},
     )
-    assert resp.status_code == 200
+    assert resp.status_code == HTTPStatus.OK
     # 檢查串流回應中包含業務驗證錯誤
     content = resp.content.decode()
     assert "Business validation failed" in content
@@ -119,7 +120,7 @@ def test_invalid_messages_structure(sse_server):
         json=invalid_messages_request,
         headers={"accept": "text/event-stream"},
     )
-    assert resp.status_code == 200
+    assert resp.status_code == HTTPStatus.OK
     content = resp.content.decode()
     assert "Only one system message allowed" in content
 
@@ -130,7 +131,7 @@ def test_valid_request_flow(sse_server, valid_request):
         json=valid_request,
         headers={"accept": "text/event-stream"},
     )
-    assert resp.status_code == 200
+    assert resp.status_code == HTTPStatus.OK
     content = resp.content.decode()
     assert "Hello World" in content
     assert "IN_PROGRESS" in content
@@ -177,7 +178,7 @@ def test_custom_validator():
         json=valid_request,
         headers={"accept": "text/event-stream"},
     )
-    assert resp.status_code == 200
+    assert resp.status_code == HTTPStatus.OK
     content = resp.content.decode()
     assert "Custom validation passed" in content
     
@@ -195,6 +196,6 @@ def test_custom_validator():
         json=invalid_request,
         headers={"accept": "text/event-stream"},
     )
-    assert resp.status_code == 200
+    assert resp.status_code == HTTPStatus.OK
     content = resp.content.decode()
     assert "Temperature too high" in content

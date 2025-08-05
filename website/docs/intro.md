@@ -87,11 +87,12 @@ async def main():
 from llmbrick.protocols.models.bricks.common_types import (
     CommonRequest, CommonResponse, ErrorDetail
 )
+from llmbrick.core.error_codes import ErrorCodes
 
 async def process(request: CommonRequest) -> CommonResponse:
     return CommonResponse(
         data={"result": "處理完成"},
-        error=ErrorDetail(code=0, message="Success")
+        error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
     )
 ```
 

@@ -55,7 +55,7 @@ class SimpleRectifyBrick(RectifyBrick):
     async def rectify_handler(self, request: RectifyRequest) -> RectifyResponse:
         return RectifyResponse(
             corrected_text=request.text.upper(),
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
 
     @get_service_info_handler
@@ -64,7 +64,7 @@ class SimpleRectifyBrick(RectifyBrick):
             service_name="SimpleRectifyBrick",
             version="1.0.0",
             models=[],
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
 ```
 

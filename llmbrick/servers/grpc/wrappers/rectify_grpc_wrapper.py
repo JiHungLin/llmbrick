@@ -9,6 +9,7 @@ from llmbrick.protocols.models.bricks.rectify_types import (
     RectifyRequest,
     RectifyResponse,
 )
+from llmbrick.core.error_codes import ErrorCodes
 
 # /protocols/grpc/rectify/rectify.proto
 # rectify_pb2
@@ -33,7 +34,7 @@ class RectifyGrpcWrapper(rectify_pb2_grpc.RectifyServiceServicer):
         self.brick = brick
 
     async def GetServiceInfo(self, request, context):
-        error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
+        error_data = common_pb2.ErrorDetail(code=ErrorCodes.SUCCESS, message="", detail="")
         try:
             result = await self.brick.run_get_service_info()
             if result is None:
@@ -54,7 +55,7 @@ class RectifyGrpcWrapper(rectify_pb2_grpc.RectifyServiceServicer):
                 )
                 response = common_pb2.ServiceInfoResponse(error=error_data)
                 return response
-            if result.error and result.error.code != 0:
+            if result.error and result.error.code != ErrorCodes.SUCCESS:
                 # context.set_code(grpc.StatusCode.INTERNAL)
                 # context.set_details(result.error.message)
                 error_data.code = result.error.code
@@ -85,7 +86,7 @@ class RectifyGrpcWrapper(rectify_pb2_grpc.RectifyServiceServicer):
             return common_pb2.ServiceInfoResponse(error=error_data)
 
     async def Unary(self, request: rectify_pb2.RectifyRequest, context):
-        error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
+        error_data = common_pb2.ErrorDetail(code=ErrorCodes.SUCCESS, message="", detail="")
         try:
             request = RectifyRequest.from_pb2_model(request)
             result: RectifyResponse = await self.brick.run_unary(request)
@@ -98,7 +99,7 @@ class RectifyGrpcWrapper(rectify_pb2_grpc.RectifyServiceServicer):
                     "The response from the brick is not of type RectifyResponse."
                 )
                 return rectify_pb2.RectifyResponse(error=error_data)
-            if result.error and result.error.code != 0:
+            if result.error and result.error.code != ErrorCodes.SUCCESS:
                 # context.set_code(grpc.StatusCode.INTERNAL)
                 # context.set_details(result.error.message)
                 error_data.code = result.error.code
