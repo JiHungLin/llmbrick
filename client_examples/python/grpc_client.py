@@ -44,10 +44,6 @@ async def test_llm_grpc_client() -> None:
 
     except Exception as e:
         print(f"錯誤: {e}")
-    finally:
-        # 清理資源
-        if hasattr(llm_client, "_grpc_channel"):
-            await llm_client._grpc_channel.close()
 
 
 async def test_common_grpc_client() -> None:
@@ -101,10 +97,6 @@ async def test_common_grpc_client() -> None:
 
     except Exception as e:
         print(f"錯誤: {e}")
-    finally:
-        # 清理資源
-        if hasattr(common_client, "_grpc_channel"):
-            await common_client._grpc_channel.close()
 
 
 async def main() -> None:

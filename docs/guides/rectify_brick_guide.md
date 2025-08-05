@@ -120,8 +120,6 @@ async def use_grpc_client():
         request = RectifyRequest(text="abc", client_id="cli", session_id="s1", request_id="r1", source_language="en")
         response = await client_brick.run_unary(request)
         print(f"gRPC result: {response.corrected_text}")  # CBA
-    finally:
-        await client_brick._grpc_channel.close()
 
 asyncio.run(use_grpc_client())
 ```
@@ -140,7 +138,6 @@ async def process(brick, text):
 
 result1 = await process(local_brick, "abc")
 result2 = await process(remote_brick, "abc")
-await remote_brick._grpc_channel.close()
 ```
 
 ## 最佳實踐
@@ -173,9 +170,6 @@ A: 目前 RectifyBrick 僅支援 unary/get_service_info，若需 streaming，需
 
 ### Q2: handler 必須是 async function 嗎？
 A: 是，所有 handler 必須 async，否則會出現執行錯誤。
-
-### Q3: gRPC client 使用完要關閉 channel 嗎？
-A: 是，請呼叫 `await brick._grpc_channel.close()` 釋放資源。
 
 
 ## 總結

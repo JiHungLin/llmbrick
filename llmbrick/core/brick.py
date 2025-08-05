@@ -6,24 +6,27 @@ from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse
 from llmbrick.utils.logging import log_function
 
 
+InputT = TypeVar("InputT")
+OutputT = TypeVar("OutputT")
+
 # --- 強型別 decorator，避免字串錯誤 ---
-def unary_handler(func):
+def unary_handler(func: Callable[[InputT], Awaitable[OutputT]]):
     return _brick_handler("unary")(func)
+    
 
-
-def output_streaming_handler(func):
+def output_streaming_handler(func: Callable[[InputT], AsyncIterator[OutputT]]):
     return _brick_handler("output_streaming")(func)
 
 
-def input_streaming_handler(func):
+def input_streaming_handler(func: Callable[[AsyncIterator[InputT]], Awaitable[OutputT]]):
     return _brick_handler("input_streaming")(func)
 
 
-def bidi_streaming_handler(func):
+def bidi_streaming_handler(func: Callable[[AsyncIterator[InputT]], AsyncIterator[OutputT]]):
     return _brick_handler("bidi_streaming")(func)
 
 
-def get_service_info_handler(func):
+def get_service_info_handler(func: Callable[[], ServiceInfoResponse]):
     return _brick_handler("get_service_info")(func)
 
 
@@ -40,8 +43,6 @@ def _brick_handler(call_type: str):
     return decorator
 
 
-InputT = TypeVar("InputT")
-OutputT = TypeVar("OutputT")
 
 UnaryHandler = Callable[[InputT], Awaitable[OutputT]]
 OutputStreamingHandler = Callable[[InputT], AsyncIterator[OutputT]]

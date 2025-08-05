@@ -55,7 +55,7 @@ async def test_async_grpc_server_startup() -> None:
     intention_brick = _TestIntentionBrick()
     server = GrpcServer(port=50120)
     server.register_service(intention_brick)
-    assert server.server is not None
+    assert len(server._pending_bricks) > 0
     assert server.port == 50120
 
 @pytest_asyncio.fixture
@@ -79,7 +79,6 @@ async def grpc_client(
 ) -> AsyncIterator[_TestIntentionBrick]:
     client_brick = _TestIntentionBrick.toGrpcClient(remote_address="127.0.0.1:50121")
     yield client_brick
-    await client_brick._grpc_channel.close()
 
 @pytest.mark.asyncio
 async def test_unary(grpc_client: _TestIntentionBrick) -> None:
@@ -137,7 +136,6 @@ async def grpc_client_error(
 ) -> AsyncIterator[ErrorCodeIntentionBrick]:
     client_brick = ErrorCodeIntentionBrick.toGrpcClient(remote_address="127.0.0.1:50122")
     yield client_brick
-    await client_brick._grpc_channel.close()
 
 @pytest.mark.asyncio
 async def test_unary_error_code(grpc_client_error: ErrorCodeIntentionBrick):
@@ -179,7 +177,6 @@ async def grpc_client_type_error(
 ) -> AsyncIterator[TypeErrorIntentionBrick]:
     client_brick = TypeErrorIntentionBrick.toGrpcClient(remote_address="127.0.0.1:50123")
     yield client_brick
-    await client_brick._grpc_channel.close()
 
 @pytest.mark.asyncio
 async def test_unary_type_error(grpc_client_type_error: TypeErrorIntentionBrick):
@@ -215,7 +212,6 @@ async def grpc_client_exception(
 ) -> AsyncIterator[ExceptionIntentionBrick]:
     client_brick = ExceptionIntentionBrick.toGrpcClient(remote_address="127.0.0.1:50124")
     yield client_brick
-    await client_brick._grpc_channel.close()
 
 @pytest.mark.asyncio
 async def test_unary_exception(grpc_client_exception: ExceptionIntentionBrick):
