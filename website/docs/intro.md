@@ -38,9 +38,9 @@ LLMBrick 是一個專注於 LLM（大型語言模型）應用開發的框架，�
 - 支援多層次組裝
 - 單一 Brick 可輕鬆轉換為獨立服務
 
-<a href="/img/BricksUML.svg" target="_blank" rel="noopener noreferrer">
+<a href="/llmbrick/img/BricksUML.svg" target="_blank" rel="noopener noreferrer">
     <img
-        src="/img/BricksUML.svg"
+        src="/llmbrick/img/BricksUML.svg"
         alt="Brick Types Architecture"
         style={{ maxWidth: "100%", height: "auto", display: "block", margin: "auto" }}
     />
@@ -74,9 +74,9 @@ async def main():
 - 透過gRPC跨語言、跨協議整合便利
 - 支援本地呼叫與遠端gRPC調用
 
-<a href="/img/BrickDataType.svg" target="_blank" rel="noopener noreferrer">
+<a href="/llmbrick/img/BrickDataType.svg" target="_blank" rel="noopener noreferrer">
     <img
-    src="/img/BrickDataType.svg"
+    src="/llmbrick/img/BrickDataType.svg"
     alt="Brick Types Architecture"
     style={{ maxWidth: "100%", height: "auto", display: "block", margin: "auto" }}
     />

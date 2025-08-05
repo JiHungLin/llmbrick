@@ -6,6 +6,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
   title: 'llmbrick',
+  staticDirectories: ['static'],
   tagline: 'llmbrick 是專為 AI 應用打造的模組化框架',
   favicon: 'img/favicon.ico',
 
