@@ -60,7 +60,7 @@ class SimpleCompose(ComposeBrick):
     async def process(self, request: ComposeRequest) -> ComposeResponse:
         return ComposeResponse(
             output={"message": f"文件數量: {len(request.input_documents)}"},
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
 
     @get_service_info_handler
@@ -69,7 +69,7 @@ class SimpleCompose(ComposeBrick):
             service_name="SimpleCompose",
             version="1.0.0",
             models=[],
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
 ```
 
@@ -104,7 +104,7 @@ class FullFeatureCompose(ComposeBrick):
     async def unary_process(self, request: ComposeRequest) -> ComposeResponse:
         return ComposeResponse(
             output={"count": len(request.input_documents)},
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
 
     @output_streaming_handler
@@ -112,7 +112,7 @@ class FullFeatureCompose(ComposeBrick):
         for idx, doc in enumerate(request.input_documents):
             yield ComposeResponse(
                 output={"index": idx, "title": doc.title},
-                error=ErrorDetail(code=0, message="Success")
+                error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
             )
 
     @get_service_info_handler
@@ -121,7 +121,7 @@ class FullFeatureCompose(ComposeBrick):
             service_name="FullFeatureCompose",
             version="1.0.0",
             models=[],
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
 ```
 

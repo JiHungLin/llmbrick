@@ -9,6 +9,7 @@ from llmbrick.protocols.models.bricks.compose_types import (
     ComposeRequest,
     ComposeResponse,
 )
+from llmbrick.core.error_codes import ErrorCodes
 
 
 # /protocols/grpc/compose/compose.proto
@@ -34,7 +35,7 @@ class ComposeGrpcWrapper(compose_pb2_grpc.ComposeServiceServicer):
 
     async def GetServiceInfo(self, request, context):
         """異步獲取服務信息"""
-        error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
+        error_data = common_pb2.ErrorDetail(code=ErrorCodes.SUCCESS, message="", detail="")
         try:
             result = await self.brick.run_get_service_info()
             if result is None:
@@ -87,7 +88,7 @@ class ComposeGrpcWrapper(compose_pb2_grpc.ComposeServiceServicer):
 
     async def Unary(self, request: compose_pb2.ComposeRequest, context):
         """異步處理單次請求"""
-        error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
+        error_data = common_pb2.ErrorDetail(code=ErrorCodes.SUCCESS, message="", detail="")
         try:
             request = ComposeRequest.from_pb2_model(request)
             result: ComposeResponse = await self.brick.run_unary(request)
@@ -135,7 +136,7 @@ class ComposeGrpcWrapper(compose_pb2_grpc.ComposeServiceServicer):
         request = ComposeRequest.from_pb2_model(request)
         try:
             async for response in self.brick.run_output_streaming(request):
-                error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
+                error_data = common_pb2.ErrorDetail(code=ErrorCodes.SUCCESS, message="", detail="")
                 if not isinstance(response, ComposeResponse):
                     # context.set_code(grpc.StatusCode.INTERNAL)
                     # context.set_details('Invalid output streaming response type!')

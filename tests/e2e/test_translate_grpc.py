@@ -26,6 +26,7 @@ from llmbrick.protocols.models.bricks.common_types import (
     ServiceInfoResponse,
 )
 from llmbrick.servers.grpc.server import GrpcServer
+from llmbrick.core.error_codes import ErrorCodes
 
 class _TestTranslateBrick(TranslateBrick):
     """測試用的 TranslateBrick"""
@@ -38,7 +39,7 @@ class _TestTranslateBrick(TranslateBrick):
             tokens=list(request.text),
             language_code=request.target_language,
             is_final=True,
-            error=ErrorDetail(code=0, message="No error"),
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="No error"),
         )
 
     @output_streaming_handler
@@ -52,7 +53,7 @@ class _TestTranslateBrick(TranslateBrick):
                 tokens=[word],
                 language_code=request.target_language,
                 is_final=(i == len(request.text.split()) - 1),
-                error=ErrorDetail(code=0, message="No error"),
+                error=ErrorDetail(code=ErrorCodes.SUCCESS, message="No error"),
             )
 
     @get_service_info_handler
@@ -70,7 +71,7 @@ class _TestTranslateBrick(TranslateBrick):
                     description="test",
                 )
             ],
-            error=ErrorDetail(code=0, message="No error"),
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="No error"),
         )
 
 @pytest.mark.asyncio

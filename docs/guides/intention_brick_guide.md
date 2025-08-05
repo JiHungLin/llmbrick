@@ -60,7 +60,7 @@ class SimpleIntentionBrick(IntentionBrick):
     async def process(self, request: IntentionRequest) -> IntentionResponse:
         return IntentionResponse(
             results=[IntentionResult(intent_category="greet", confidence=1.0)],
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
 
     @get_service_info_handler
@@ -69,7 +69,7 @@ class SimpleIntentionBrick(IntentionBrick):
             service_name="SimpleIntentionBrick",
             version="1.0.0",
             models=[],
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
 ```
 
@@ -154,7 +154,7 @@ IntentionBrick 不支援 streaming handler，註冊其他 handler 會直接拋�
 
 ### 3. 錯誤處理建議
 
-- 請務必回傳正確的 ErrorDetail，error.code=0 代表成功，非 0 代表錯誤。
+- 請務必回傳正確的 ErrorDetail，error.code=ErrorCodes.SUCCESS 代表成功，非 0 代表錯誤。
 - handler 若回傳型別錯誤，gRPC wrapper 會自動回傳 error code 500。
 - handler 拋出異常時，gRPC 端會回傳 INTERNAL 錯誤。
 

@@ -30,6 +30,7 @@ from llmbrick.protocols.models.bricks.common_types import (
     ModelInfo,
     ServiceInfoResponse,
 )
+from llmbrick.core.error_codes import ErrorCodes
 
 
 class SimpleComposeBrick(ComposeBrick):
@@ -47,7 +48,7 @@ class SimpleComposeBrick(ComposeBrick):
                 "echo": [doc.title for doc in request.input_documents],
                 "target_format": request.target_format,
             },
-            error=ErrorDetail(code=0, message="Success"),
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"),
         )
 
     @get_service_info_handler
@@ -65,7 +66,7 @@ class SimpleComposeBrick(ComposeBrick):
                     description="Simple compose service",
                 )
             ],
-            error=ErrorDetail(code=0, message="Success"),
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"),
         )
 
 
@@ -83,7 +84,7 @@ class StreamingComposeBrick(ComposeBrick):
             await asyncio.sleep(0.01)
             yield ComposeResponse(
                 output={"index": idx, "title": doc.title},
-                error=ErrorDetail(code=0, message="Success"),
+                error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"),
             )
 
     @get_service_info_handler
@@ -92,7 +93,7 @@ class StreamingComposeBrick(ComposeBrick):
             service_name="StreamingComposeBrick",
             version="1.0.0",
             models=[],
-            error=ErrorDetail(code=0, message="Success"),
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"),
         )
 
 
@@ -146,7 +147,7 @@ async def test_not_implemented_handlers():
         async def only_unary(self, request: ComposeRequest) -> ComposeResponse:
             return ComposeResponse(
                 output={"msg": "unary only"},
-                error=ErrorDetail(code=0, message="Success"),
+                error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"),
             )
 
     brick = PartialComposeBrick(verbose=False)

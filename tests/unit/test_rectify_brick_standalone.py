@@ -17,6 +17,7 @@ from llmbrick.bricks.rectify.base_rectify import RectifyBrick
 from llmbrick.core.brick import unary_handler, get_service_info_handler
 from llmbrick.protocols.models.bricks.rectify_types import RectifyRequest, RectifyResponse
 from llmbrick.protocols.models.bricks.common_types import ErrorDetail, ModelInfo, ServiceInfoResponse
+from llmbrick.core.error_codes import ErrorCodes
 
 class SimpleRectifyBrick(RectifyBrick):
     """
@@ -35,7 +36,7 @@ class SimpleRectifyBrick(RectifyBrick):
             )
         return RectifyResponse(
             corrected_text=request.text.upper(),
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
 
     @get_service_info_handler
@@ -53,7 +54,7 @@ class SimpleRectifyBrick(RectifyBrick):
                     description="Simple rectify service",
                 )
             ],
-            error=ErrorDetail(code=0, message="Success"),
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"),
         )
 
 @pytest.mark.asyncio

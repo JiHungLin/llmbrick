@@ -25,6 +25,7 @@ from llmbrick.protocols.models.bricks.retrieval_types import (
     RetrievalResponse,
     Document,
 )
+from llmbrick.core.error_codes import ErrorCodes
 
 class SimpleRetrievalBrick(RetrievalBrick):
     """簡單的 RetrievalBrick 實作，展示基本功能"""
@@ -35,7 +36,7 @@ class SimpleRetrievalBrick(RetrievalBrick):
         doc = Document(doc_id="d1", title="標題", snippet="內容", score=0.88)
         return RetrievalResponse(
             documents=[doc],
-            error=ErrorDetail(code=0, message="Success"),
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"),
         )
 
     @get_service_info_handler
@@ -52,7 +53,7 @@ class SimpleRetrievalBrick(RetrievalBrick):
                     description="Simple retrieval service",
                 )
             ],
-            error=ErrorDetail(code=0, message="Success"),
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"),
         )
 
 @pytest.mark.asyncio
@@ -91,7 +92,7 @@ def test_handler_not_async():
     class BadBrick(RetrievalBrick):
         @unary_handler
         def bad_search(self, request: RetrievalRequest):
-            return RetrievalResponse(documents=[], error=ErrorDetail(code=0, message="ok"))
+            return RetrievalResponse(documents=[], error=ErrorDetail(code=ErrorCodes.SUCCESS, message="ok"))
     brick = BadBrick()
     req = RetrievalRequest(query="test", client_id="cid")
     with pytest.raises(TypeError):
@@ -127,7 +128,7 @@ async def test_concurrent_requests():
             await asyncio.sleep(0.01)
             return RetrievalResponse(
                 documents=[],
-                error=ErrorDetail(code=0, message=f"count={self.counter}"),
+                error=ErrorDetail(code=ErrorCodes.SUCCESS, message=f"count={self.counter}"),
             )
     brick = CounterBrick()
     async def make_req():

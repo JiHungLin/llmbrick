@@ -19,6 +19,7 @@ from llmbrick.protocols.models.bricks.intention_types import (
     IntentionResult,
 )
 from llmbrick.servers.grpc.server import GrpcServer
+from llmbrick.core.error_codes import ErrorCodes
 
 class _TestIntentionBrick(IntentionBrick):
     """測試用的 Intention Brick"""
@@ -28,7 +29,7 @@ class _TestIntentionBrick(IntentionBrick):
         await asyncio.sleep(0.1)
         result = IntentionResult(intent_category="test", confidence=0.88)
         return IntentionResponse(
-            results=[result], error=ErrorDetail(code=0, message="No error", detail="")
+            results=[result], error=ErrorDetail(code=ErrorCodes.SUCCESS, message="No error", detail="")
         )
 
     @get_service_info_handler
@@ -46,7 +47,7 @@ class _TestIntentionBrick(IntentionBrick):
                     description="test",
                 )
             ],
-            error=ErrorDetail(code=0, message="No error"),
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="No error"),
         )
 
 @pytest.mark.asyncio

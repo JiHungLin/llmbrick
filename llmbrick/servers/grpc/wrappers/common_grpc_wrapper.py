@@ -10,6 +10,7 @@ from llmbrick.protocols.models.bricks.common_types import (
     CommonResponse,
     ServiceInfoResponse,
 )
+from llmbrick.core.error_codes import ErrorCodes
 
 # common_pb2
 # message CommonRequest {
@@ -42,7 +43,7 @@ class CommonGrpcWrapper(common_pb2_grpc.CommonServiceServicer):
 
     async def GetServiceInfo(self, request, context):
         """異步獲取服務信息"""
-        error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
+        error_data = common_pb2.ErrorDetail(code=ErrorCodes.SUCCESS, message="", detail="")
         try:
             result = await self.brick.run_get_service_info()
             if result is None:
@@ -95,7 +96,7 @@ class CommonGrpcWrapper(common_pb2_grpc.CommonServiceServicer):
 
     async def Unary(self, request: common_pb2.CommonRequest, context):
         """異步處理單次請求"""
-        error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
+        error_data = common_pb2.ErrorDetail(code=ErrorCodes.SUCCESS, message="", detail="")
         try:
             request = CommonRequest.from_pb2_model(request)
             result: CommonResponse = await self.brick.run_unary(request)
@@ -145,7 +146,7 @@ class CommonGrpcWrapper(common_pb2_grpc.CommonServiceServicer):
         request = CommonRequest.from_pb2_model(request)
         try:
             async for response in self.brick.run_output_streaming(request):
-                error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
+                error_data = common_pb2.ErrorDetail(code=ErrorCodes.SUCCESS, message="", detail="")
                 if not isinstance(response, CommonResponse):
                     # context.set_code(grpc.StatusCode.INTERNAL)
                     # context.set_details('Invalid output streaming response type!')
@@ -192,7 +193,7 @@ class CommonGrpcWrapper(common_pb2_grpc.CommonServiceServicer):
             async for request in request_iterator:
                 yield CommonRequest.from_pb2_model(request)
 
-        error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
+        error_data = common_pb2.ErrorDetail(code=ErrorCodes.SUCCESS, message="", detail="")
         try:
             result = await self.brick.run_input_streaming(async_request_iterator())
             if not isinstance(result, CommonResponse):
@@ -243,7 +244,7 @@ class CommonGrpcWrapper(common_pb2_grpc.CommonServiceServicer):
 
         try:
             async for response in self.brick.run_bidi_streaming(async_request_iterator()):
-                error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
+                error_data = common_pb2.ErrorDetail(code=ErrorCodes.SUCCESS, message="", detail="")
                 if not isinstance(response, CommonResponse):
                     # context.set_code(grpc.StatusCode.INTERNAL)
                     # context.set_details('Invalid bidi streaming response type!')

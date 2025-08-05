@@ -29,7 +29,7 @@ class HelloBrick(CommonBrick):
         name = request.data.get("name", "World")
         return CommonResponse(
             data={"message": f"Hello, {name}!"},
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
 ```
 

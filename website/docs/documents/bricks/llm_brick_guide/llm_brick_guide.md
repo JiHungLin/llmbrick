@@ -56,6 +56,7 @@ from llmbrick.bricks.llm.base_llm import LLMBrick
 from llmbrick.core.brick import unary_handler, output_streaming_handler, get_service_info_handler
 from llmbrick.protocols.models.bricks.llm_types import LLMRequest, LLMResponse, Context
 from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse, ErrorDetail
+from llmbrick.core.error_codes import ErrorCodes
 ```
 
 ---
@@ -78,7 +79,7 @@ class SimpleLLMBrick(LLMBrick):
             text=f"Echo: {request.prompt or self.default_prompt}",
             tokens=["echo"],  # tokens 必須為 List[str]
             is_final=True,
-            error=ErrorDetail(code=0, message="Success"),
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"),
         )
 
     @get_service_info_handler
@@ -87,7 +88,7 @@ class SimpleLLMBrick(LLMBrick):
             service_name="SimpleLLMBrick",
             version="1.0.0",
             models=[],
-            error=ErrorDetail(code=0, message="Success"),
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"),
         )
 
 async def main():
@@ -199,7 +200,7 @@ result2 = await process(remote_brick, "hi")
 
 ## 錯誤處理
 
-- handler 回傳的 error 欄位應為 ErrorDetail，code=0 表示成功
+- handler 回傳的 error 欄位應為 ErrorDetail，code=ErrorCodes.SUCCESS 表示成功
 - 未註冊 handler 會 raise NotImplementedError
 - gRPC 包裝器自動將異常轉為 error 欄位回傳
 - 建議使用框架內建 ErrorCodes 工具類

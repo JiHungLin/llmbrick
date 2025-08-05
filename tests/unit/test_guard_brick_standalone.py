@@ -17,6 +17,7 @@ from llmbrick.bricks.guard.base_guard import GuardBrick
 from llmbrick.core.brick import unary_handler, get_service_info_handler
 from llmbrick.protocols.models.bricks.guard_types import GuardRequest, GuardResponse, GuardResult
 from llmbrick.protocols.models.bricks.common_types import ErrorDetail, ServiceInfoResponse, ModelInfo
+from llmbrick.core.error_codes import ErrorCodes
 
 class SimpleGuardBrick(GuardBrick):
     """
@@ -36,7 +37,7 @@ class SimpleGuardBrick(GuardBrick):
         )
         return GuardResponse(
             results=[result],
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
 
     @get_service_info_handler
@@ -54,7 +55,7 @@ class SimpleGuardBrick(GuardBrick):
                     description="Simple guard service"
                 )
             ],
-            error=ErrorDetail(code=0, message="Success"),
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"),
         )
 
 @pytest.mark.asyncio
@@ -97,7 +98,7 @@ async def test_guard_error_handling():
             else:
                 return GuardResponse(
                     results=[GuardResult(is_attack=False, confidence=1.0, detail="ok")],
-                    error=ErrorDetail(code=0, message="Success")
+                    error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
                 )
     brick = ErrorGuardBrick(verbose=False)
     # 正常情境

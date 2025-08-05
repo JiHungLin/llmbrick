@@ -212,7 +212,7 @@ server.run()
 常見錯誤碼與處理方式：
 - `ValueError`: API 金鑰未設置
 - `ErrorDetail(code=1)`: API 調用失敗
-- `ErrorDetail(code=0)`: 成功
+- `ErrorDetail(code=ErrorCodes.SUCCESS)`: 成功
 
 ---
 

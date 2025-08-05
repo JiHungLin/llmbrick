@@ -93,7 +93,7 @@ class SimpleBrick(CommonBrick):
     async def process(self, request: CommonRequest) -> CommonResponse:
         return CommonResponse(
             data={"message": f"Hello, {request.data.get('name', 'World')}!"},
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
 
     @get_service_info_handler
@@ -102,7 +102,7 @@ class SimpleBrick(CommonBrick):
             service_name="SimpleBrick",
             version="1.0.0",
             models=[],
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
 ```
 
@@ -121,7 +121,7 @@ class SimpleLLMBrick(LLMBrick):
             text=f"Echo: {request.prompt}",
             tokens=["echo"],
             is_final=True,
-            error=ErrorDetail(code=0, message="Success"),
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"),
         )
 
     @get_service_info_handler
@@ -130,7 +130,7 @@ class SimpleLLMBrick(LLMBrick):
             service_name="SimpleLLMBrick",
             version="1.0.0",
             models=[],
-            error=ErrorDetail(code=0, message="Success"),
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"),
         )
 ```
 
@@ -147,7 +147,7 @@ class SimpleCompose(ComposeBrick):
     async def process(self, request: ComposeRequest) -> ComposeResponse:
         return ComposeResponse(
             output={"message": f"文件數量: {len(request.input_documents)}"},
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
 
     @get_service_info_handler
@@ -156,7 +156,7 @@ class SimpleCompose(ComposeBrick):
             service_name="SimpleCompose",
             version="1.0.0",
             models=[],
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
 ```
 
@@ -179,7 +179,7 @@ class SimpleGuard(GuardBrick):
         )
         return GuardResponse(
             results=[result],
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
 
     @get_service_info_handler
@@ -188,7 +188,7 @@ class SimpleGuard(GuardBrick):
             service_name="SimpleGuard",
             version="1.0.0",
             models=[],
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
 ```
 
@@ -205,7 +205,7 @@ class SimpleIntentionBrick(IntentionBrick):
     async def process(self, request: IntentionRequest) -> IntentionResponse:
         return IntentionResponse(
             results=[IntentionResult(intent_category="greet", confidence=1.0)],
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
 
     @get_service_info_handler
@@ -214,7 +214,7 @@ class SimpleIntentionBrick(IntentionBrick):
             service_name="SimpleIntentionBrick",
             version="1.0.0",
             models=[],
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
 ```
 
@@ -231,7 +231,7 @@ class SimpleRectifyBrick(RectifyBrick):
     async def rectify_handler(self, request: RectifyRequest) -> RectifyResponse:
         return RectifyResponse(
             corrected_text=request.text.upper(),
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
 
     @get_service_info_handler
@@ -240,7 +240,7 @@ class SimpleRectifyBrick(RectifyBrick):
             service_name="SimpleRectifyBrick",
             version="1.0.0",
             models=[],
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
 ```
 
@@ -257,7 +257,7 @@ class SimpleRetrievalBrick(RetrievalBrick):
     async def search(self, request: RetrievalRequest) -> RetrievalResponse:
         return RetrievalResponse(
             documents=[],
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
 
     @get_service_info_handler
@@ -266,7 +266,7 @@ class SimpleRetrievalBrick(RetrievalBrick):
             service_name="SimpleRetrievalBrick",
             version="1.0.0",
             models=[],
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
 ```
 
@@ -286,7 +286,7 @@ class SimpleTranslator(TranslateBrick):
             tokens=[1, 2, 3],
             language_code=request.target_language,
             is_final=True,
-            error=ErrorDetail(code=0, message="Success"),
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"),
         )
 
     @get_service_info_handler
@@ -295,7 +295,7 @@ class SimpleTranslator(TranslateBrick):
             service_name="SimpleTranslator",
             version="1.0.0",
             models=[],
-            error=ErrorDetail(code=0, message="Success"),
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"),
         )
 ```
 

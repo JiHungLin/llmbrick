@@ -39,6 +39,7 @@ pip install llmbrick
 from llmbrick.bricks.common.common import CommonBrick
 from llmbrick.core.brick import unary_handler
 from llmbrick.protocols.models.bricks.common_types import CommonRequest, CommonResponse, ErrorDetail
+from llmbrick.core.error_codes import ErrorCodes
 
 class HelloBrick(CommonBrick):
     @unary_handler
@@ -46,7 +47,7 @@ class HelloBrick(CommonBrick):
         name = request.data.get("name", "World")
         return CommonResponse(
             data={"message": f"Hello, {name}!"},
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
 ```
 

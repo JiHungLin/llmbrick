@@ -28,6 +28,7 @@ from llmbrick.bricks.compose.base_compose import ComposeBrick
 from llmbrick.protocols.models.bricks.compose_types import ComposeRequest, ComposeResponse
 from llmbrick.protocols.models.bricks.common_types import ErrorDetail, ServiceInfoResponse
 from llmbrick.core.brick import unary_handler, output_streaming_handler, get_service_info_handler
+from llmbrick.core.error_codes import ErrorCodes
 
 class MyComposeBrick(ComposeBrick):
     """
@@ -51,7 +52,7 @@ class MyComposeBrick(ComposeBrick):
                     "count": count,
                     "format": fmt
                 },
-                error=ErrorDetail(code=0, message="Success")
+                error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
             )
         except Exception as e:
             return ComposeResponse(
@@ -70,7 +71,7 @@ class MyComposeBrick(ComposeBrick):
                         "title": getattr(doc, "title", ""),
                         "format": request.target_format or self.default_format
                     },
-                    error=ErrorDetail(code=0, message="Success")
+                    error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
                 )
         except Exception as e:
             yield ComposeResponse(
@@ -84,7 +85,7 @@ class MyComposeBrick(ComposeBrick):
             service_name="MyComposeBrick",
             version="1.0.0",
             models=[],
-            error=ErrorDetail(code=0, message=f"Default format: {self.default_format}, Desc prefix: {self.desc_prefix}")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message=f"Default format: {self.default_format}, Desc prefix: {self.desc_prefix}")
         )
 ```
 

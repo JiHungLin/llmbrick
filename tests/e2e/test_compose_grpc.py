@@ -24,6 +24,7 @@ from llmbrick.protocols.models.bricks.common_types import (
     ServiceInfoResponse,
 )
 from llmbrick.servers.grpc.server import GrpcServer
+from llmbrick.core.error_codes import ErrorCodes
 
 
 class _TestComposeBrick(ComposeBrick):
@@ -32,7 +33,7 @@ class _TestComposeBrick(ComposeBrick):
     @unary_handler
     async def unary_handler(self, request: ComposeRequest) -> ComposeResponse:
         await asyncio.sleep(0.05)
-        error = ErrorDetail(code=0, message="No error")
+        error = ErrorDetail(code=ErrorCodes.SUCCESS, message="No error")
         return ComposeResponse(
             output={
                 "echo": [doc.title for doc in request.input_documents],
@@ -47,7 +48,7 @@ class _TestComposeBrick(ComposeBrick):
     ) -> AsyncIterator[ComposeResponse]:
         for idx, doc in enumerate(request.input_documents):
             await asyncio.sleep(0.02)
-            error = ErrorDetail(code=0, message="No error")
+            error = ErrorDetail(code=ErrorCodes.SUCCESS, message="No error")
             yield ComposeResponse(
                 output={"index": idx, "title": doc.title},
                 error=error,
@@ -56,7 +57,7 @@ class _TestComposeBrick(ComposeBrick):
     @get_service_info_handler
     async def get_service_info_handler(self) -> ServiceInfoResponse:
         await asyncio.sleep(0.01)
-        error = ErrorDetail(code=0, message="No error")
+        error = ErrorDetail(code=ErrorCodes.SUCCESS, message="No error")
         return ServiceInfoResponse(
             service_name="TestComposeBrick",
             version="9.9.9",

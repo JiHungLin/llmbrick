@@ -60,7 +60,7 @@ class SimpleGuard(GuardBrick):
         )
         return GuardResponse(
             results=[result],
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
 
     @get_service_info_handler
@@ -69,7 +69,7 @@ class SimpleGuard(GuardBrick):
             service_name="SimpleGuard",
             version="1.0.0",
             models=[],
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
 ```
 
@@ -179,7 +179,7 @@ async def robust_handler(self, request: GuardRequest) -> GuardResponse:
         ...
         return GuardResponse(
             results=[GuardResult(is_attack=False, confidence=1.0, detail="ok")],
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
     except ValueError as e:
         return GuardResponse(
@@ -236,7 +236,7 @@ async def robust_handler(self, request: GuardRequest) -> GuardResponse:
         ...
         return GuardResponse(
             results=[GuardResult(is_attack=False, confidence=1.0, detail="ok")],
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
     except Exception as e:
         return GuardResponse(

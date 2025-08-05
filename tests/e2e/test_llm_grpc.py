@@ -26,6 +26,7 @@ from llmbrick.protocols.models.bricks.common_types import (
     ModelInfo,
 )
 from llmbrick.servers.grpc.server import GrpcServer
+from llmbrick.core.error_codes import ErrorCodes
 
 # Server 端專用 LLMBrick，需有 handler
 class ServerLLMBrick(LLMBrick):
@@ -39,7 +40,7 @@ class ServerLLMBrick(LLMBrick):
             text=f"gRPC Echo: {request.prompt or self.default_prompt}",
             tokens=["echo"],  # tokens 必須為 List[str]
             is_final=True,
-            error=ErrorDetail(code=0, message="Success"),
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"),
         )
 
     @output_streaming_handler
@@ -50,7 +51,7 @@ class ServerLLMBrick(LLMBrick):
                 text=f"gRPC Stream {i}: {request.prompt or self.default_prompt}",
                 tokens=[str(i)],  # tokens 必須為 List[str]
                 is_final=(i == 1),
-                error=ErrorDetail(code=0, message="Success"),
+                error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"),
             )
 
     @get_service_info_handler
@@ -67,7 +68,7 @@ class ServerLLMBrick(LLMBrick):
                     description="gRPC test LLM",
                 )
             ],
-            error=ErrorDetail(code=0, message="Success"),
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"),
         )
 
 # Client 端專用 LLMBrick，handler 由 toGrpcClient 註冊

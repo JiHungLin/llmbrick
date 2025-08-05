@@ -250,9 +250,6 @@ if __name__ == "__main__":
 - **Q: 如何擴充自訂欄位？**  
   A: 於 `MyBrick.__init__` 或各方法中自訂屬性與邏輯即可，並可透過 `CommonRequest.data` 傳遞任意結構資料。
 
-- **Q: 如何串接多個 Brick？**  
-  A: 可於伺服器端註冊多個 Brick，或於 client 端建立多個代理物件。
-
 ---
 
 本教學涵蓋了 CommonBrick 的完整定義、實作與使用流程，適合初學者與進階開發者快速上手 LLMBrick 框架的自訂模組開發。

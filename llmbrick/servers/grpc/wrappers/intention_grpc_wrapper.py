@@ -9,6 +9,7 @@ from llmbrick.protocols.models.bricks.intention_types import (
     IntentionRequest,
     IntentionResponse,
 )
+from llmbrick.core.error_codes import ErrorCodes
 
 # /protocols/grpc/intention/intention.proto
 # intention_pb2
@@ -33,7 +34,7 @@ class IntentionGrpcWrapper(intention_pb2_grpc.IntentionServiceServicer):
         self.brick = brick
 
     async def GetServiceInfo(self, request, context):
-        error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
+        error_data = common_pb2.ErrorDetail(code=ErrorCodes.SUCCESS, message="", detail="")
         try:
             result = await self.brick.run_get_service_info()
             if result is None:
@@ -84,7 +85,7 @@ class IntentionGrpcWrapper(intention_pb2_grpc.IntentionServiceServicer):
             )
             return common_pb2.ServiceInfoResponse(error=error_data)
     async def Unary(self, request: intention_pb2.IntentionRequest, context):
-        error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
+        error_data = common_pb2.ErrorDetail(code=ErrorCodes.SUCCESS, message="", detail="")
         try:
             request = IntentionRequest.from_pb2_model(request)
             result: IntentionResponse = await self.brick.run_unary(request)

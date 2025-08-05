@@ -34,7 +34,7 @@ class MyLLM(LLMBrick):
             text=f"你說了：{request.prompt}",
             tokens=["你", "說", "了"],
             is_final=True,
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
 ```
 

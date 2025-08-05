@@ -30,6 +30,7 @@ from llmbrick.protocols.models.bricks.common_types import (
     ModelInfo,
     ServiceInfoResponse,
 )
+from llmbrick.core.error_codes import ErrorCodes
 
 class SimpleTranslateBrick(TranslateBrick):
     """
@@ -45,7 +46,7 @@ class SimpleTranslateBrick(TranslateBrick):
             tokens=[1, 2, 3],
             language_code=request.target_language,
             is_final=True,
-            error=ErrorDetail(code=0, message="Success"),
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"),
         )
 
     @output_streaming_handler
@@ -57,7 +58,7 @@ class SimpleTranslateBrick(TranslateBrick):
                 tokens=[i],
                 language_code=request.target_language,
                 is_final=(i == len(request.text.split()) - 1),
-                error=ErrorDetail(code=0, message="Success"),
+                error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"),
             )
 
     @get_service_info_handler
@@ -74,7 +75,7 @@ class SimpleTranslateBrick(TranslateBrick):
                     description="Simple streaming translator",
                 )
             ],
-            error=ErrorDetail(code=0, message="Success"),
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"),
         )
 
 @pytest.mark.asyncio
