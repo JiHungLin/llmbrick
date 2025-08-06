@@ -132,7 +132,6 @@ async def process_request(request):
 
 ### 1. 官方資源
 - [GitHub Repository](https://github.com/JiHungLin/llmbrick)
-- [Docusaurus 文件](https://jihunglin.github.io/llmbrick/)
 - [範例程式碼](https://github.com/JiHungLin/llmbrick/tree/main/examples)
 
 ### 2. 社群資源
