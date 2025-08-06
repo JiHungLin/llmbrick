@@ -1,6 +1,6 @@
 # ComposeBrick 完整使用指南
 
-本指南詳細說明 [`llmbrick/bricks/compose/base_compose.py`](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/bricks/compose/base_compose.py) 中的 ComposeBrick 實作，這是 LLMBrick 框架中專為「多文件統整、格式轉換、摘要翻譯」等複合型任務設計的高階組件。
+本指南詳細說明 [llmbrick/bricks/compose/base_compose.py](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/bricks/compose/base_compose.py#L1) 中的 ComposeBrick 實作，這是 LLMBrick 框架中專為「多文件統整、格式轉換、摘要翻譯」等複合型任務設計的高階組件。
 
 ---
 
@@ -52,28 +52,28 @@ LLMBrick Framework
 
 ### 核心模組詳細說明
 
-#### 1. [`BaseBrick`](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/core/brick.py) - 抽象基礎類別
+#### 1. [BaseBrick](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/core/brick.py#L1) - 抽象基礎類別
 
 - **職責**：所有 Brick 的基礎類別，定義標準介面、型別、裝飾器與執行流程。
 - **泛型支援**：`BaseBrick[InputT, OutputT]`，型別安全。
 - **處理器管理**：自動註冊與管理多種 handler。
 - **錯誤處理**：統一異常捕獲與日誌。
 
-#### 2. [`ComposeBrick`](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/bricks/compose/base_compose.py) - 複合統整 Brick
+#### 2. [ComposeBrick](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/bricks/compose/base_compose.py#L1) - 複合統整 Brick
 
 - **職責**：多文件統整、格式轉換、翻譯等複合型任務的標準服務。
 - **gRPC 對應**：僅支援 `Unary`、`OutputStreaming`、`GetServiceInfo` 三種 handler。
 - **型別限制**：僅允許註冊 `unary`、`output_streaming`、`get_service_info` 三種處理器。
 - **gRPC 客戶端轉換**：`toGrpcClient()` 可自動產生 gRPC client。
 
-#### 3. [`compose.proto`](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/protocols/grpc/compose/compose.proto) - gRPC 協定定義
+#### 3. [compose.proto](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/protocols/grpc/compose/compose.proto#L1) - gRPC 協定定義
 
 - **Document**：單一文件結構
 - **ComposeRequest**：多文件統整請求
 - **ComposeResponse**：統整結果
 - **ComposeService**：gRPC 服務，含三個方法
 
-#### 4. [`compose_types.py`](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/protocols/models/bricks/compose_types.py) - 資料模型
+#### 4. [compose_types.py](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/protocols/models/bricks/compose_types.py#L1) - 資料模型
 
 - **Document**：文件物件
 - **ComposeRequest**：請求物件
@@ -256,7 +256,7 @@ asyncio.run(grpc_client_example())
 
 ## 核心 API / 類別 / 函式深度解析
 
-### [`ComposeBrick`](llmbrick/bricks/compose/base_compose.py:17) 類別
+### [ComposeBrick](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/bricks/compose/base_compose.py#L17) 類別
 
 #### 類別簽名與繼承關係
 
@@ -269,7 +269,7 @@ class ComposeBrick(BaseBrick[ComposeRequest, ComposeResponse]):
 - **僅允許三種 handler**：unary、output_streaming、get_service_info
 - **不支援 input_streaming、bidi_streaming**（呼叫會拋出 NotImplementedError）
 
-#### [`toGrpcClient()`](llmbrick/bricks/compose/base_compose.py:67) - gRPC 客戶端轉換
+#### [toGrpcClient()](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/bricks/compose/base_compose.py#L67) - gRPC 客戶端轉換
 
 ```python
 @classmethod
@@ -285,7 +285,7 @@ def toGrpcClient(cls, remote_address: str, **kwargs) -> ComposeBrick
 
 #### 標準執行方法
 
-##### [`run_unary()`](llmbrick/core/brick.py:233) - 單次請求
+##### [run_unary()](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/core/brick.py#L233) - 單次請求
 
 ```python
 async def run_unary(self, input_data: ComposeRequest) -> ComposeResponse
@@ -294,7 +294,7 @@ async def run_unary(self, input_data: ComposeRequest) -> ComposeResponse
 - **參數**：`input_data` 為 ComposeRequest
 - **回傳**：ComposeResponse
 
-##### [`run_output_streaming()`](llmbrick/core/brick.py:258) - 流式輸出
+##### [run_output_streaming()](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/core/brick.py#L258) - 流式輸出
 
 ```python
 async def run_output_streaming(self, input_data: ComposeRequest) -> AsyncIterator[ComposeResponse]
@@ -302,7 +302,7 @@ async def run_output_streaming(self, input_data: ComposeRequest) -> AsyncIterato
 - **功能**：將多份文件逐步流式輸出
 - **回傳**：異步迭代器，逐步產生 ComposeResponse
 
-##### [`run_get_service_info()`](llmbrick/core/brick.py:245) - 服務資訊查詢
+##### [run_get_service_info()](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/core/brick.py#L245) - 服務資訊查詢
 
 ```python
 async def run_get_service_info(self) -> ServiceInfoResponse
@@ -311,7 +311,7 @@ async def run_get_service_info(self) -> ServiceInfoResponse
 
 #### 資料模型
 
-##### [`Document`](llmbrick/protocols/models/bricks/compose_types.py:11)
+##### [Document](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/protocols/models/bricks/compose_types.py#L11)
 
 ```python
 @dataclass
@@ -323,7 +323,7 @@ class Document:
     metadata: Dict[str, Any]
 ```
 
-##### [`ComposeRequest`](llmbrick/protocols/models/bricks/compose_types.py:33)
+##### [ComposeRequest](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/protocols/models/bricks/compose_types.py#L33)
 
 ```python
 @dataclass
@@ -336,7 +336,7 @@ class ComposeRequest:
     source_language: str
 ```
 
-##### [`ComposeResponse`](llmbrick/protocols/models/bricks/compose_types.py:72)
+##### [ComposeResponse](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/protocols/models/bricks/compose_types.py#L72)
 
 ```python
 @dataclass
@@ -393,7 +393,7 @@ class ComposeResponse:
 
 - [LLMBrick 框架介紹](../../intro.md)
 - [gRPC Server 使用指南](../servers/grpc_server_guide.md)
-- [BaseBrick API 文件](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/core/brick.py)
+- [BaseBrick API 文件](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/core/brick.py#L1)
 - [ComposeBrick 範例程式碼](https://github.com/JiHungLin/llmbrick/tree/main/examples/compose_brick_define)
 - [Protocol Buffer 官方文件](https://developers.google.com/protocol-buffers)
 - [gRPC Python 官方文件](https://grpc.io/docs/languages/python/)
