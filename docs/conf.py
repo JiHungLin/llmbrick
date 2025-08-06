@@ -1,7 +1,7 @@
 # -- Project information -----------------------------------------------------
 project = 'llmbrick'
 author = 'llmbrick contributors'
-release = '0.2.3'
+release = '0.2.4'
 
 # -- General configuration ---------------------------------------------------
 extensions = [
