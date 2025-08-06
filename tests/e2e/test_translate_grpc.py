@@ -75,7 +75,7 @@ class _TestTranslateBrick(TranslateBrick):
         )
 
 @pytest.mark.asyncio
-async def test_async_grpc_server_startup():
+async def test_async_grpc_server_startup() -> None:
     """測試異步 gRPC 伺服器啟動"""
     brick = _TestTranslateBrick()
     server = GrpcServer(port=50066)

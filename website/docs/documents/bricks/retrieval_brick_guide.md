@@ -174,15 +174,13 @@ import asyncio
 from llmbrick.servers.grpc.server import GrpcServer
 from examples.retrieval_brick_define.my_brick import MyRetrievalBrick
 
-async def start_grpc_server():
-    server = GrpcServer(port=50052)
-    brick = MyRetrievalBrick(index_name="grpc_index")
-    server.register_service(brick)
-    print("🚀 gRPC 服務器啟動中... (localhost:50052)")
-    await server.start()
+server = GrpcServer(port=50052)
+brick = MyRetrievalBrick(index_name="grpc_index")
+server.register_service(brick)
 
 if __name__ == "__main__":
-    asyncio.run(start_grpc_server())
+    print("🚀 gRPC 服務器啟動中... (localhost:50052)")
+    server.run()
 ```
 
 ### 3. gRPC 客戶端連接與使用

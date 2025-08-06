@@ -192,15 +192,13 @@ import asyncio
 from llmbrick.servers.grpc.server import GrpcServer
 from my_intention_brick import MyIntentionBrick  # 需自訂
 
-async def start_grpc_server():
-    server = GrpcServer(port=50051)
-    brick = MyIntentionBrick()
-    server.register_service(brick)
-    print("🚀 gRPC 服務器啟動中...")
-    await server.start()
+server = GrpcServer(port=50051)
+brick = MyIntentionBrick()
+server.register_service(brick)
 
 if __name__ == "__main__":
-    asyncio.run(start_grpc_server())
+    print("🚀 gRPC 服務器啟動中...")
+    server.run()
 ```
 
 ---

@@ -16,10 +16,4 @@ my_brick = MyIntentionBrick(
 grpc_server.register_service(my_brick)
 
 if __name__ == "__main__":
-    print("Starting gRPC server on port 50051...")
-    try:
-        asyncio.run(grpc_server.start())
-    except KeyboardInterrupt:
-        print("\nServer stopped by user")
-    except Exception as e:
-        print(f"Server error: {e}")
+    grpc_server.run()

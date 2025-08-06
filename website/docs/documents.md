@@ -96,7 +96,7 @@ from llmbrick.servers.grpc import GrpcServer
 # 建立翻譯服務
 translator = TranslateBrick()
 server = GrpcServer(translator, port=50051)
-server.start()
+server.run()
 ```
 
 ### 3. 知識檢索系統

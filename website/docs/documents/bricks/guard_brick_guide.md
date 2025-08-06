@@ -190,8 +190,8 @@ my_brick = MyGuardBrick(sensitivity=0.7, verbose=True)
 grpc_server.register_service(my_brick)
 
 if __name__ == "__main__":
-    import asyncio
-    asyncio.run(grpc_server.start())
+    print("🚀 gRPC 服務器啟動中...")
+    grpc_server.run()
 ```
 
 ### 4. gRPC 客戶端呼叫

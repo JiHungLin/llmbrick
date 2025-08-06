@@ -201,15 +201,13 @@ import asyncio
 from llmbrick.servers.grpc.server import GrpcServer
 from my_translate_brick import MyTranslateBrick  # 需自訂
 
-async def start_grpc_server():
-    server = GrpcServer(port=50052)
-    translate_brick = MyTranslateBrick()
-    server.register_service(translate_brick)
-    print("🚀 gRPC 服務器啟動中... 監聽 localhost:50052")
-    await server.start()
+server = GrpcServer(port=50052)
+translate_brick = MyTranslateBrick()
+server.register_service(translate_brick)
 
 if __name__ == "__main__":
-    asyncio.run(start_grpc_server())
+    print("🚀 gRPC 服務器啟動中... 監聽 localhost:50052")
+    server.run()
 ```
 
 ---

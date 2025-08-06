@@ -158,7 +158,7 @@ from your_customer_brick import HelloBrick
 brick = HelloBrick()
 server = GrpcServer(port=50051)
 server.register_service(brick)
-await server.start()
+server.run()
 
 # 客戶端調用
 client_brick = HelloBrick.toGrpcClient("localhost:50051")

@@ -191,15 +191,13 @@ import asyncio
 from llmbrick.servers.grpc.server import GrpcServer
 from examples.rectify_brick_define.my_brick import MyRectifyBrick
 
-async def start_grpc_server():
-    server = GrpcServer(port=50051)
-    rectify_brick = MyRectifyBrick()
-    server.register_service(rectify_brick)
-    print("🚀 RectifyBrick gRPC 服務器啟動中...")
-    await server.start()
+server = GrpcServer(port=50051)
+rectify_brick = MyRectifyBrick()
+server.register_service(rectify_brick)
 
 if __name__ == "__main__":
-    asyncio.run(start_grpc_server())
+    print("🚀 RectifyBrick gRPC 服務器啟動中...")
+    server.run()
 ```
 
 ### 4. gRPC 客戶端連接與使用

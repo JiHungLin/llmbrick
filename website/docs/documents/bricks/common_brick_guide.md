@@ -462,44 +462,31 @@ asyncio.run(advanced_example())
 import asyncio
 from llmbrick.servers.grpc.server import GrpcServer
 from text_processor_brick import TextProcessorBrick
+    
+# 建立 gRPC 服務器
+server = GrpcServer(
+    port=50051,
+    max_workers=10,
+    options=[
+        ('grpc.keepalive_time_ms', 30000),
+        ('grpc.keepalive_timeout_ms', 5000),
+        ('grpc.keepalive_permit_without_calls', True),
+        ('grpc.http2.max_pings_without_data', 0),
+        ('grpc.http2.min_time_between_pings_ms', 10000),
+        ('grpc.http2.min_ping_interval_without_data_ms', 300000)
+    ]
+)
 
-async def start_grpc_server():
-    """啟動 gRPC 服務端"""
-    
-    # 建立 gRPC 服務器
-    server = GrpcServer(
-        port=50051,
-        max_workers=10,
-        options=[
-            ('grpc.keepalive_time_ms', 30000),
-            ('grpc.keepalive_timeout_ms', 5000),
-            ('grpc.keepalive_permit_without_calls', True),
-            ('grpc.http2.max_pings_without_data', 0),
-            ('grpc.http2.min_time_between_pings_ms', 10000),
-            ('grpc.http2.min_ping_interval_without_data_ms', 300000)
-        ]
-    )
-    
-    # 建立並註冊 Brick 服務
-    text_processor = TextProcessorBrick(
-        processor_name="ProductionTextProcessor",
-        verbose=True  # 啟用詳細日誌
-    )
-    
-    server.register_service(text_processor)
-    
-    print("🚀 gRPC 服務器啟動中...")
-    print(f"📡 監聽地址: localhost:50051")
-    print(f"🔧 服務名稱: {text_processor.processor_name}")
-    
-    try:
-        await server.start()
-    except KeyboardInterrupt:
-        print("\n⏹️  服務器關閉中...")
-        await server.stop()
+# 建立並註冊 Brick 服務
+text_processor = TextProcessorBrick(
+    processor_name="ProductionTextProcessor",
+    verbose=True  # 啟用詳細日誌
+)
+
+server.register_service(text_processor)
 
 if __name__ == "__main__":
-    asyncio.run(start_grpc_server())
+    server.run()
 ```
 
 ### 4. gRPC 客戶端連接與使用

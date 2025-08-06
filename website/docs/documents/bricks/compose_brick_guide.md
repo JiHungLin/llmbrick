@@ -215,15 +215,13 @@ import asyncio
 from llmbrick.servers.grpc.server import GrpcServer
 from my_compose_brick import MyComposeBrick  # 需自訂
 
-async def start_grpc_server():
-    server = GrpcServer(port=50052)
-    brick = MyComposeBrick()
-    server.register_service(brick)
-    print("🚀 ComposeBrick gRPC 服務器啟動中...")
-    await server.start()
+server = GrpcServer(port=50052)
+brick = MyComposeBrick()
+server.register_service(brick)
 
 if __name__ == "__main__":
-    asyncio.run(start_grpc_server())
+    print("🚀 ComposeBrick gRPC 服務器啟動中...")
+    server.run()
 ```
 
 ### 4. gRPC 客戶端連接與使用
