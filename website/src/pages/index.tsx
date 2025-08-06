@@ -110,7 +110,7 @@ export default function Home() {
           <div className="container" style={{display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: '2rem'}}>
             <div style={{flex: '1 1 350px', maxWidth: '400px', textAlign: 'center'}}>
               <img
-                src="https://raw.githubusercontent.com/JiHungLin/llmbrick/main/examples/openai_chatbot/openai_chatbot.gif"
+                src="https://raw.githubusercontent.com/JiHungLin/llmbrick/main/examples/openai_chatbot/openai_chatbot_small.gif"
                 alt="llmbrick demo"
                 style={{maxWidth: '100%', width: '100%', borderRadius: '8px', cursor: 'pointer'}}
                 onClick={() => setPopupOpen(true)}

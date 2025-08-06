@@ -7,7 +7,7 @@ sidebar_label: OpenAI 聊天機器人
 
 [GitHub 範例程式碼](https://github.com/JiHungLin/llmbrick/tree/main/examples/openai_chatbot)
 
-![](/img/openai_chatbot.gif)
+![](https://raw.githubusercontent.com/JiHungLin/llmbrick/main/examples/openai_chatbot/openai_chatbot_small.gif)
 
 ---
 
