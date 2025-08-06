@@ -137,7 +137,6 @@ async def process_request(request):
 
 ### 2. 社群資源
 - [問題回報](https://github.com/JiHungLin/llmbrick/issues)
-- [討論區](https://github.com/JiHungLin/llmbrick/discussions)
 - [更新日誌](https://github.com/JiHungLin/llmbrick/blob/main/CHANGELOG.md)
 
 ### 3. 相關技術文件

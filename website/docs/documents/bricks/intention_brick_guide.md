@@ -328,7 +328,6 @@ class IntentionResult:
 - [LLMBrick 框架介紹](../../intro.md)
 - [GitHub 範例程式碼](https://github.com/JiHungLin/llmbrick/tree/main/examples/intention_brick_define)
 - [問題回報](https://github.com/JiHungLin/llmbrick/issues)
-- [討論區](https://github.com/JiHungLin/llmbrick/discussions)
 
 ---
 

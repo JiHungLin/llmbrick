@@ -1735,7 +1735,6 @@ class GuardBrick(CommonBrick):
 
 - [GitHub 範例程式碼](https://github.com/JiHungLin/llmbrick/tree/main/examples/common_brick_define) - 完整範例程式碼
 - [問題回報](https://github.com/JiHungLin/llmbrick/issues) - 回報 Bug 或功能請求
-- [討論區](https://github.com/JiHungLin/llmbrick/discussions) - 社群討論和經驗分享
 
 ---
 

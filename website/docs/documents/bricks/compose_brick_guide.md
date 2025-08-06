@@ -399,7 +399,6 @@ class ComposeResponse:
 - [gRPC Python 官方文件](https://grpc.io/docs/languages/python/)
 - [asyncio 官方文件](https://docs.python.org/3/library/asyncio.html)
 - [問題回報](https://github.com/JiHungLin/llmbrick/issues)
-- [討論區](https://github.com/JiHungLin/llmbrick/discussions)
 
 ---
 
