@@ -304,16 +304,14 @@ class SimpleTranslator(TranslateBrick):
 ```python
 # 服務端
 from llmbrick.servers.grpc.server import GrpcServer
+from llmbrick.bricks.llm.base_llm import LLMBrick
 import asyncio
 
-async def start_grpc_server():
-    from llmbrick.bricks.llm.base_llm import LLMBrick
-    brick = LLMBrick(default_prompt="你好")
-    server = GrpcServer(port=50051)
-    server.register_service(brick)
-    await server.start()
+brick = LLMBrick(default_prompt="你好")
+server = GrpcServer(port=50051)
+server.register_service(brick)
+server.run()
 
-asyncio.run(start_grpc_server())
 
 # 客戶端
 from llmbrick.bricks.llm.base_llm import LLMBrick

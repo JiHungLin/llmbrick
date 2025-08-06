@@ -181,8 +181,7 @@ my_brick = MyBrick(
 grpc_server.register_service(my_brick)
 
 if __name__ == "__main__":
-    import asyncio
-    asyncio.run(grpc_server.start())
+    grpc_server.run()
 ```
 
 ---

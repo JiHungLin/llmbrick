@@ -30,7 +30,6 @@ LLMBrick 框架採用模組化設計，通過標準化的 Brick（積木）組�
 #### 通訊協定支援
 - **SSE（Server-Sent Events）**
 - **gRPC**
-- **WebSocket/WebRTC**（規劃中）
 
 #### 資料協定
 - 明確的型別定義
@@ -75,7 +74,6 @@ server = SSEServer(
 - 日誌設定
 - 效能監控
 - 錯誤處理
-- 安全設定
 
 ## 使用情境分析
 
@@ -98,7 +96,7 @@ from llmbrick.servers.grpc import GrpcServer
 # 建立翻譯服務
 translator = TranslateBrick()
 server = GrpcServer(translator, port=50051)
-server.start()
+server.run()
 ```
 
 ### 3. 知識檢索系統
@@ -134,12 +132,10 @@ async def process_request(request):
 
 ### 1. 官方資源
 - [GitHub Repository](https://github.com/JiHungLin/llmbrick)
-- [Docusaurus 文件](https://jihunglin.github.io/llmbrick/)
 - [範例程式碼](https://github.com/JiHungLin/llmbrick/tree/main/examples)
 
 ### 2. 社群資源
 - [問題回報](https://github.com/JiHungLin/llmbrick/issues)
-- [討論區](https://github.com/JiHungLin/llmbrick/discussions)
 - [更新日誌](https://github.com/JiHungLin/llmbrick/blob/main/CHANGELOG.md)
 
 ### 3. 相關技術文件

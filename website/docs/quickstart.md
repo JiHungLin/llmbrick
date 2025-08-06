@@ -87,14 +87,12 @@ import asyncio
 from hello_brick import HelloBrick
 from llmbrick.servers.grpc.server import GrpcServer
 
-async def main():
-    brick = HelloBrick()
-    server = GrpcServer(port=50051)
-    server.register_service(brick)
-    await server.start()
+brick = HelloBrick()
+server = GrpcServer(port=50051)
+server.register_service(brick)
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    server.run()
 ```
 
 ---

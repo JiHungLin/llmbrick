@@ -1,278 +1,405 @@
 # ComposeBrick
 
-## 目錄
-- [概述](#概述)
-- [架構設計](#架構設計)
-- [快速開始](#快速開始)
-- [單機版使用](#單機版使用)
-- [gRPC 版使用](#grpc-版使用)
-- [無縫切換示例](#無縫切換示例)
-- [最佳實踐](#最佳實踐)
-- [錯誤處理](#錯誤處理)
-- [性能考慮](#性能考慮)
-- [常見問題](#常見問題)
-- [總結](#總結)
+本指南詳細說明 [llmbrick/bricks/compose/base_compose.py](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/bricks/compose/base_compose.py#L1) 中的 ComposeBrick 實作，這是 LLMBrick 框架中專為「多文件統整、格式轉換、摘要翻譯」等複合型任務設計的高階組件。
 
-## 概述
+---
 
-ComposeBrick 是 LLMBrick 框架中專為「資料統整、轉換、翻譯」等複合型服務設計的核心組件。  
-它提供統一的異步處理介面，支援本地調用和遠端 gRPC 調用的無縫切換。  
-**僅支援三種處理模式**：
-- Unary（單次請求-回應）
-- Output Streaming（單次請求-流式回應）
-- GetServiceInfo（服務資訊查詢）
+## 專案概述與目標
 
-## 架構設計
+### 🎯 設計目標與解決問題
 
-### 設計模式
+ComposeBrick 旨在解決以下場景的需求：
 
-1. **裝飾器模式**：使用 `@unary_handler`, `@output_streaming_handler`, `@get_service_info_handler` 註冊處理函數
-2. **適配器模式**：`ComposeGrpcWrapper` 提供 gRPC 與本地調用的適配
-3. **工廠模式**：`toGrpcClient()` 動態創建 gRPC 客戶端
-4. **策略模式**：支援本地/遠端多種調用策略
+- **多文件統整**：將多份文件（如搜尋結果、摘要、段落）彙整為一份結構化資料。
+- **格式轉換**：支援多種目標格式（如 JSON、HTML、Markdown），方便下游應用。
+- **語言轉換/翻譯**：可於統整過程中進行語言轉換，支援多語系應用。
+- **gRPC 標準化服務**：提供統一的 gRPC 介面，便於跨語言、跨服務串接。
+- **高效串流支援**：針對大型資料可用流式（streaming）方式逐步產生結果，提升效能與用戶體驗。
 
-### 核心組件
+### 🔧 核心功能特色
 
+- **三種通訊模式**：Unary（單次）、Output Streaming（流式輸出）、GetServiceInfo（服務資訊查詢）
+- **嚴格型別資料模型**：明確定義 Document、ComposeRequest、ComposeResponse
+- **gRPC 協定自動對應**：與 Protocol Buffer 完美對接
+- **可擴展處理器註冊**：支援動態/靜態註冊處理器
+- **錯誤處理標準化**：回應皆含 ErrorDetail，便於追蹤與除錯
+
+---
+
+## 專案結構圖與模組詳解
+
+### 整體架構圖
+
+```plaintext
+LLMBrick Framework
+├── llmbrick/
+│   ├── bricks/
+│   │   └── compose/
+│   │       ├── __init__.py
+│   │       └── base_compose.py         # ComposeBrick 主體實作
+│   ├── protocols/
+│   │   ├── grpc/
+│   │   │   └── compose/
+│   │   │       ├── compose.proto       # Protocol Buffer 定義
+│   │   │       ├── compose_pb2.py      # 自動生成的訊息類別
+│   │   │       └── compose_pb2_grpc.py # gRPC 服務存根
+│   │   └── models/
+│   │       └── bricks/
+│   │           └── compose_types.py    # Compose 資料模型
+│   └── core/
+│       └── brick.py                    # BaseBrick 抽象基礎類別
 ```
-ComposeBrick (核心類)
-├── BaseBrick (基礎類)
-├── ComposeGrpcWrapper (gRPC 包裝器)
-├── ComposeRequest/ComposeResponse (數據模型)
-└── 處理器裝飾器 (@unary_handler, @output_streaming_handler, @get_service_info_handler)
+
+### 核心模組詳細說明
+
+#### 1. [BaseBrick](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/core/brick.py#L1) - 抽象基礎類別
+
+- **職責**：所有 Brick 的基礎類別，定義標準介面、型別、裝飾器與執行流程。
+- **泛型支援**：`BaseBrick[InputT, OutputT]`，型別安全。
+- **處理器管理**：自動註冊與管理多種 handler。
+- **錯誤處理**：統一異常捕獲與日誌。
+
+#### 2. [ComposeBrick](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/bricks/compose/base_compose.py#L1) - 複合統整 Brick
+
+- **職責**：多文件統整、格式轉換、翻譯等複合型任務的標準服務。
+- **gRPC 對應**：僅支援 `Unary`、`OutputStreaming`、`GetServiceInfo` 三種 handler。
+- **型別限制**：僅允許註冊 `unary`、`output_streaming`、`get_service_info` 三種處理器。
+- **gRPC 客戶端轉換**：`toGrpcClient()` 可自動產生 gRPC client。
+
+#### 3. [compose.proto](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/protocols/grpc/compose/compose.proto#L1) - gRPC 協定定義
+
+- **Document**：單一文件結構
+- **ComposeRequest**：多文件統整請求
+- **ComposeResponse**：統整結果
+- **ComposeService**：gRPC 服務，含三個方法
+
+#### 4. [compose_types.py](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/protocols/models/bricks/compose_types.py#L1) - 資料模型
+
+- **Document**：文件物件
+- **ComposeRequest**：請求物件
+- **ComposeResponse**：回應物件，含 output 與 error 欄位
+
+---
+
+## 安裝與環境設定指南
+
+### 依賴需求
+
+ComposeBrick 需依賴以下核心套件：
+
+```bash
+# 必要依賴
+grpcio>=1.50.0
+grpcio-tools>=1.50.0
+protobuf>=4.21.0
+google-protobuf>=4.21.0
 ```
 
-## 快速開始
+### 自動化安裝步驟
 
-### 基本安裝
+#### 1. 安裝 LLMBrick 套件
+
+```bash
+# 從 PyPI 安裝
+pip install llmbrick
+
+# 或從源碼安裝
+git clone https://github.com/JiHungLin/llmbrick.git
+cd llmbrick
+pip install -e .
+```
+
+#### 2. 驗證安裝
 
 ```python
 from llmbrick.bricks.compose.base_compose import ComposeBrick
-from llmbrick.core.brick import unary_handler, output_streaming_handler, get_service_info_handler
 from llmbrick.protocols.models.bricks.compose_types import ComposeRequest, ComposeResponse
-from llmbrick.protocols.models.bricks.common_types import ErrorDetail, ServiceInfoResponse
-from llmbrick.core.error_codes import ErrorCodes
+
+print("✅ ComposeBrick 安裝成功！")
 ```
 
-### 最簡單的 ComposeBrick 實現
+#### 3. 開發環境設定
 
-```python
-class SimpleCompose(ComposeBrick):
-    @unary_handler
-    async def process(self, request: ComposeRequest) -> ComposeResponse:
-        return ComposeResponse(
-            output={"message": f"文件數量: {len(request.input_documents)}"},
-            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
-        )
+```bash
+# 安裝開發依賴
+pip install -r requirements-dev.txt
 
-    @get_service_info_handler
-    async def get_info(self) -> ServiceInfoResponse:
-        return ServiceInfoResponse(
-            service_name="SimpleCompose",
-            version="1.0.0",
-            models=[],
-            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
-        )
+# 設定環境變數（可選）
+export LLMBRICK_LOG_LEVEL=INFO
+export LLMBRICK_GRPC_PORT=50052
 ```
 
-## 單機版使用
+---
 
-### 1. 創建和使用 ComposeBrick
+## 逐步範例：從基礎到進階
+
+### 1. 最簡單的 ComposeBrick 使用
 
 ```python
 import asyncio
-from llmbrick.protocols.models.bricks.compose_types import ComposeRequest
+from llmbrick.bricks.compose.base_compose import ComposeBrick
+from llmbrick.protocols.models.bricks.compose_types import ComposeRequest, ComposeResponse, Document
 
-async def main():
-    brick = SimpleCompose(verbose=False)
+async def basic_example():
+    # 建立 ComposeBrick 實例
+    brick = ComposeBrick()
+
+    # 註冊單次統整處理器
+    @brick.unary()
+    async def compose_handler(request: ComposeRequest) -> ComposeResponse:
+        # 將所有文件標題串接
+        titles = [doc.title for doc in request.input_documents]
+        output = {
+            "summary": "；".join(titles),
+            "format": request.target_format or "plain"
+        }
+        return ComposeResponse(output=output)
+
+    # 執行請求
     docs = [
-        type("Doc", (), {"doc_id": "1", "title": "A", "snippet": "", "score": 1.0, "metadata": {}})(),
-        type("Doc", (), {"doc_id": "2", "title": "B", "snippet": "", "score": 2.0, "metadata": {}})(),
+        Document(doc_id="1", title="文件A", snippet="內容A"),
+        Document(doc_id="2", title="文件B", snippet="內容B"),
     ]
     request = ComposeRequest(input_documents=docs, target_format="json")
     response = await brick.run_unary(request)
-    print(f"Response: {response.output['message']}")
+    print(f"統整結果: {response.output}")
 
-asyncio.run(main())
+asyncio.run(basic_example())
 ```
 
-### 2. 實現所有支援的處理模式
+### 2. 類別繼承方式定義 ComposeBrick
 
 ```python
+from llmbrick.bricks.compose.base_compose import ComposeBrick
+from llmbrick.protocols.models.bricks.compose_types import ComposeRequest, ComposeResponse, Document
+from llmbrick.core.brick import unary_handler, output_streaming_handler
 from typing import AsyncIterator
 
-class FullFeatureCompose(ComposeBrick):
+class MyComposeBrick(ComposeBrick):
+    """自訂複合統整 Brick 範例"""
+
     @unary_handler
-    async def unary_process(self, request: ComposeRequest) -> ComposeResponse:
-        return ComposeResponse(
-            output={"count": len(request.input_documents)},
-            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
-        )
+    async def summarize_titles(self, request: ComposeRequest) -> ComposeResponse:
+        titles = [doc.title for doc in request.input_documents]
+        return ComposeResponse(output={"summary": "、".join(titles)})
 
     @output_streaming_handler
-    async def stream_titles(self, request: ComposeRequest) -> AsyncIterator[ComposeResponse]:
-        for idx, doc in enumerate(request.input_documents):
-            yield ComposeResponse(
-                output={"index": idx, "title": doc.title},
-                error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
-            )
+    async def stream_snippets(self, request: ComposeRequest) -> AsyncIterator[ComposeResponse]:
+        for doc in request.input_documents:
+            yield ComposeResponse(output={"doc_id": doc.doc_id, "snippet": doc.snippet})
 
-    @get_service_info_handler
-    async def get_info(self) -> ServiceInfoResponse:
-        return ServiceInfoResponse(
-            service_name="FullFeatureCompose",
-            version="1.0.0",
-            models=[],
-            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
-        )
-```
-
-### 3. 使用範例
-
-```python
-async def demonstrate_all_modes():
-    brick = FullFeatureCompose(verbose=False)
+# 使用範例
+async def advanced_example():
+    brick = MyComposeBrick()
     docs = [
-        type("Doc", (), {"doc_id": "1", "title": "A", "snippet": "", "score": 1.0, "metadata": {}})(),
-        type("Doc", (), {"doc_id": "2", "title": "B", "snippet": "", "score": 2.0, "metadata": {}})(),
+        Document(doc_id="1", title="A", snippet="內容A"),
+        Document(doc_id="2", title="B", snippet="內容B"),
     ]
+    request = ComposeRequest(input_documents=docs)
+    # 單次統整
+    response = await brick.run_unary(request)
+    print("摘要:", response.output)
+    # 流式輸出
+    async for resp in brick.run_output_streaming(request):
+        print("流式片段:", resp.output)
 
-    # 1. Unary 調用
-    response = await brick.run_unary(ComposeRequest(input_documents=docs, target_format="json"))
-    print(f"Unary result: {response.output['count']}")  # 2
-
-    # 2. Output Streaming
-    async for response in brick.run_output_streaming(ComposeRequest(input_documents=docs, target_format="json")):
-        print(f"Stream output: {response.output}")
-
-    # 3. GetServiceInfo
-    info = await brick.run_get_service_info()
-    print(f"Service name: {info.service_name}")
-```
-
-## gRPC 版使用
-
-### 1. 服務端設置
-
-```python
-from llmbrick.servers.grpc.server import GrpcServer
 import asyncio
-
-async def start_grpc_server():
-    brick = FullFeatureCompose(verbose=True)
-    server = GrpcServer(port=50051)
-    server.register_service(brick)
-    await server.start()
-
-asyncio.run(start_grpc_server())
+asyncio.run(advanced_example())
 ```
 
-### 2. 客戶端使用
+### 3. gRPC 服務端建立與部署
 
 ```python
-async def use_grpc_client():
-    client_brick = FullFeatureCompose.toGrpcClient(
-        remote_address="127.0.0.1:50051",
-        verbose=False
-    )
-    try:
-        docs = [
-            type("Doc", (), {"doc_id": "1", "title": "A", "snippet": "", "score": 1.0, "metadata": {}})(),
-        ]
-        response = await client_brick.run_unary(
-            ComposeRequest(input_documents=docs, target_format="json")
-        )
-        print(f"gRPC result: {response.output['count']}")  # 1
+# grpc_server.py
+import asyncio
+from llmbrick.servers.grpc.server import GrpcServer
+from my_compose_brick import MyComposeBrick  # 需自訂
 
-        async for response in client_brick.run_output_streaming(
-            ComposeRequest(input_documents=docs, target_format="json")
-        ):
-            print(f"gRPC stream: {response.output}")
+server = GrpcServer(port=50052)
+brick = MyComposeBrick()
+server.register_service(brick)
 
-asyncio.run(use_grpc_client())
+if __name__ == "__main__":
+    print("🚀 ComposeBrick gRPC 服務器啟動中...")
+    server.run()
 ```
 
-## 無縫切換示例
-
-ComposeBrick 支援本地與遠端（gRPC）兩種模式，API 完全一致：
+### 4. gRPC 客戶端連接與使用
 
 ```python
-# 本地使用
-local_brick = FullFeatureCompose(verbose=False)
+# grpc_client.py
+import asyncio
+from llmbrick.bricks.compose.base_compose import ComposeBrick
+from llmbrick.protocols.models.bricks.compose_types import ComposeRequest, Document
 
-# 遠端使用
-remote_brick = FullFeatureCompose.toGrpcClient("127.0.0.1:50051", verbose=False)
-
-async def process_data(brick, docs):
+async def grpc_client_example():
+    # 建立 gRPC 客戶端
+    client = ComposeBrick.toGrpcClient("localhost:50052")
+    docs = [
+        Document(doc_id="1", title="A", snippet="內容A"),
+        Document(doc_id="2", title="B", snippet="內容B"),
+    ]
     request = ComposeRequest(input_documents=docs, target_format="json")
-    return await brick.run_unary(request)
+    # 單次請求
+    response = await client.run_unary(request)
+    print("gRPC 統整結果:", response.output)
+    # 流式請求
+    async for resp in client.run_output_streaming(request):
+        print("gRPC 流式片段:", resp.output)
 
-docs = [
-    type("Doc", (), {"doc_id": "1", "title": "A", "snippet": "", "score": 1.0, "metadata": {}})(),
-]
-result1 = await process_data(local_brick, docs)
-result2 = await process_data(remote_brick, docs)
+asyncio.run(grpc_client_example())
 ```
 
-## 最佳實踐
+---
 
-### 1. 嚴格使用 async function
+## 核心 API / 類別 / 函式深度解析
 
-- 所有 handler 必須是 async function，且加上正確型別註解。
-- 回傳型別必須為 ComposeResponse 或 ServiceInfoResponse。
-- 若 handler 未正確註冊或型別錯誤，會在 runtime 報錯。
+### [ComposeBrick](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/bricks/compose/base_compose.py#L17) 類別
 
-### 2. 錯誤處理
+#### 類別簽名與繼承關係
 
-- handler 內部務必做好錯誤處理，回傳標準化的 error 結構。
-- 建議使用 ErrorDetail，並明確標註 code/message。
+```python
+class ComposeBrick(BaseBrick[ComposeRequest, ComposeResponse]):
+    brick_type = BrickType.COMPOSE
+    allowed_handler_types = {"unary", "output_streaming", "get_service_info"}
+```
 
-### 3. 測試覆蓋
+- **僅允許三種 handler**：unary、output_streaming、get_service_info
+- **不支援 input_streaming、bidi_streaming**（呼叫會拋出 NotImplementedError）
 
-- 建議同時測試本地與 gRPC 兩種模式，確保一致性。
-- 可參考 `tests/unit/test_compose_brick_standalone.py` 及 `tests/e2e/test_compose_grpc.py`。
+#### [toGrpcClient()](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/bricks/compose/base_compose.py#L67) - gRPC 客戶端轉換
 
-### 4. 不支援的 handler
+```python
+@classmethod
+def toGrpcClient(cls, remote_address: str, **kwargs) -> ComposeBrick
+```
 
-- ComposeBrick 僅支援 unary、output_streaming、get_service_info，若註冊 input_streaming 或 bidi_streaming 會直接丟出 NotImplementedError。
+- **功能**：產生一個可直接呼叫 gRPC 服務的 ComposeBrick 實例
+- **參數**：
+  - `remote_address: str` - 伺服器位址（如 "localhost:50052"）
+  - `**kwargs` - 傳遞給建構子的其他參數
+- **回傳**：gRPC 客戶端型態的 ComposeBrick
+- **注意**：每次呼叫都會建立新的 gRPC channel，適合短期用，長期建議自行管理連線池
 
-### 5. 文件與型別設計
+#### 標準執行方法
 
-- 輸入文件（input_documents）建議使用 dataclass 或 namedtuple，需包含 doc_id、title、snippet、score、metadata 等欄位。
+##### [run_unary()](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/core/brick.py#L233) - 單次請求
 
-## 錯誤處理
+```python
+async def run_unary(self, input_data: ComposeRequest) -> ComposeResponse
+```
+- **功能**：執行單次統整/轉換任務
+- **參數**：`input_data` 為 ComposeRequest
+- **回傳**：ComposeResponse
 
-- ComposeGrpcWrapper 會自動將 handler 例外轉換為 gRPC error response，方便除錯。
-- handler 回傳型別錯誤時，會有明確的錯誤訊息。
-- 建議所有 handler 都要有 try/except 包裝，並回傳 ErrorDetail。
+##### [run_output_streaming()](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/core/brick.py#L258) - 流式輸出
 
-## 性能考慮
+```python
+async def run_output_streaming(self, input_data: ComposeRequest) -> AsyncIterator[ComposeResponse]
+```
+- **功能**：將多份文件逐步流式輸出
+- **回傳**：異步迭代器，逐步產生 ComposeResponse
 
-- 建議在 output_streaming handler 中使用 async for/yield，避免一次回傳大量資料造成記憶體壓力。
-- 可利用 asyncio.Semaphore 控制並發數量。
+##### [run_get_service_info()](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/core/brick.py#L245) - 服務資訊查詢
 
-## 常見問題
+```python
+async def run_get_service_info(self) -> ServiceInfoResponse
+```
+- **功能**：查詢服務名稱、版本、支援模型等資訊
 
-### Q1: 為什麼 input_streaming/bidi_streaming 會報錯？
-A: ComposeBrick 僅支援 unary、output_streaming、get_service_info，其他 handler 會直接丟出 NotImplementedError。
+#### 資料模型
 
-### Q2: handler 必須是 async function 嗎？
-A: 是，所有 handler 必須是 async function，否則會在 runtime 報錯。
+##### [Document](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/protocols/models/bricks/compose_types.py#L11)
 
-### Q3: 如何自訂輸入文件型別？
-A: 輸入文件建議使用 dataclass 或 namedtuple，需包含 doc_id、title、snippet、score、metadata 等欄位。
+```python
+@dataclass
+class Document:
+    doc_id: str
+    title: str
+    snippet: str
+    score: float
+    metadata: Dict[str, Any]
+```
 
-### Q4: 如何切換本地與遠端？
-A: 只需分別用 `ComposeBrick()` 或 `ComposeBrick.toGrpcClient(address)` 建立實例，API 完全一致。
+##### [ComposeRequest](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/protocols/models/bricks/compose_types.py#L33)
 
-## 總結
+```python
+@dataclass
+class ComposeRequest:
+    input_documents: List[Document]
+    target_format: str
+    client_id: str
+    session_id: str
+    request_id: str
+    source_language: str
+```
 
-ComposeBrick 提供聚焦於資料統整/轉換/翻譯的高效異步服務框架，  
-其主要優點包括：
-1. **統一 API**：本地與遠端調用完全一致
-2. **明確聚焦**：僅支援最常用的三種模式，簡潔易懂
-3. **優雅錯誤處理**：自動型別檢查與錯誤回報
-4. **高性能**：基於 asyncio 的高效異步處理
-5. **易於測試**：介面清晰、測試工具齊全
+##### [ComposeResponse](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/protocols/models/bricks/compose_types.py#L72)
 
-建議開發人員嚴格遵循 async function 定義、型別註解與錯誤處理最佳實踐，  
-即可輕鬆打造穩定、靈活的 Compose 服務。
+```python
+@dataclass
+class ComposeResponse:
+    output: Dict[str, Any]
+    error: Optional[ErrorDetail]
+```
+
+---
+
+## 常見錯誤與排解
+
+- **註冊不支援的 handler**  
+  - 僅允許註冊 `unary`、`output_streaming`、`get_service_info`，否則會拋出 NotImplementedError。
+- **gRPC 連線失敗**  
+  - 檢查 remote_address 是否正確、gRPC server 是否啟動。
+- **資料型別不符**  
+  - 請確保 input_documents 為 Document 物件列表，output 為 dict。
+- **Protocol Buffer 版本不符**  
+  - 請確保 grpcio、protobuf 版本與專案需求一致。
+
+---
+
+## 效能優化與最佳實踐
+
+- **流式輸出**：對於大量文件，建議使用 output_streaming，減少記憶體壓力。
+- **gRPC 客戶端重用**：長期大量請求時，建議自行管理 channel，避免頻繁建立/關閉。
+- **資料驗證**：在 handler 內部加強對 input_documents、target_format 等欄位的檢查。
+- **錯誤回報**：務必填寫 ComposeResponse.error，便於前後端協作除錯。
+
+---
+
+## FAQ / 進階問答
+
+### Q1: ComposeBrick 與 CommonBrick 差異？
+
+**A**：ComposeBrick 專為「多文件統整、格式轉換」等複合型任務設計，僅支援 unary/output_streaming，且資料模型更嚴謹（Document/ComposeRequest/ComposeResponse）。CommonBrick 則為通用型，支援所有通訊模式。
+
+### Q2: 可以串接 LLMBrick/GuardBrick 嗎？
+
+**A**：可以。ComposeBrick 可作為前置/後置處理，與其他 Brick 組合實現更複雜的 AI pipeline。
+
+### Q3: 如何自訂 output 格式？
+
+**A**：在 handler 內部依據 request.target_format 動態產生 output（如 JSON、HTML、Markdown），並填入 ComposeResponse.output。
+
+### Q4: 為什麼 input_streaming/bidi_streaming 會報錯？
+
+**A**：ComposeBrick 僅設計支援 unary/output_streaming，呼叫 input_streaming/bidi_streaming 會直接拋出 NotImplementedError，請改用支援的模式。
+
+---
+
+## 參考資源與延伸閱讀
+
+- [LLMBrick 框架介紹](../../intro.md)
+- [gRPC Server 使用指南](../servers/grpc_server_guide.md)
+- [BaseBrick API 文件](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/core/brick.py#L1)
+- [ComposeBrick 範例程式碼](https://github.com/JiHungLin/llmbrick/tree/main/examples/compose_brick_define)
+- [Protocol Buffer 官方文件](https://developers.google.com/protocol-buffers)
+- [gRPC Python 官方文件](https://grpc.io/docs/languages/python/)
+- [asyncio 官方文件](https://docs.python.org/3/library/asyncio.html)
+- [問題回報](https://github.com/JiHungLin/llmbrick/issues)
+
+---
+
+ComposeBrick 是構建多文件統整、格式轉換、AI 輔助摘要等應用的強大基石。熟練掌握其用法，能大幅提升 AI 產品的開發效率與可維護性。
+
+*本指南持續更新中，歡迎社群貢獻與討論！*
