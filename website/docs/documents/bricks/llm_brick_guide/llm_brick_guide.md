@@ -1,4 +1,4 @@
-# LLMBrick 完整使用指南
+# LLMBrick
 
 本指南詳細說明 [`llmbrick/bricks/llm/base_llm.py`](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/bricks/llm/base_llm.py#L14) 中的 LLMBrick 實作，這是 LLMBrick 框架中專為大型語言模型（LLM）應用設計的核心組件。
 

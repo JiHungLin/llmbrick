@@ -1,4 +1,4 @@
-# gRPC Server 使用指南
+# gRPC Server
 
 本指南詳細說明 [`llmbrick/servers/grpc/server.py`](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/servers/grpc/server.py) 中的 gRPC Server 實作，適合初學者與團隊成員快速上手與深入理解。
 

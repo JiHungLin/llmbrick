@@ -1,4 +1,4 @@
-# TranslateBrick 完整使用指南
+# TranslateBrick
 
 本指南詳細說明 [`llmbrick/bricks/translate/base_translate.py`](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/bricks/translate/base_translate.py#L1) 中的 TranslateBrick 實作，這是 LLMBrick 框架中專為「翻譯/轉換」場景設計的高階組件。
 

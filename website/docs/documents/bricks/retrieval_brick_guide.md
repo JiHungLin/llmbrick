@@ -1,4 +1,4 @@
-# RetrievalBrick 完整使用指南
+# RetrievalBrick
 
 本指南詳細說明 [`llmbrick/bricks/retrieval/base_retrieval.py`](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/bricks/retrieval/base_retrieval.py#L1) 中的 RetrievalBrick 實作，這是 LLMBrick 框架中專為「檢索」場景設計的組件。
 

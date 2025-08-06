@@ -1,4 +1,4 @@
-# ComposeBrick 完整使用指南
+# ComposeBrick
 
 本指南詳細說明 [llmbrick/bricks/compose/base_compose.py](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/bricks/compose/base_compose.py#L1) 中的 ComposeBrick 實作，這是 LLMBrick 框架中專為「多文件統整、格式轉換、摘要翻譯」等複合型任務設計的高階組件。
 

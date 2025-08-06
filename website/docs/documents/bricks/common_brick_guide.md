@@ -1,4 +1,4 @@
-# CommonBrick 完整使用指南
+# CommonBrick
 
 本指南詳細說明 [`llmbrick/bricks/common/common.py`](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/bricks/common/common.py) 中的 CommonBrick 實作，這是 LLMBrick 框架中最基礎且重要的組件。
 

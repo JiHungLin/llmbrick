@@ -1,4 +1,4 @@
-# GuardBrick 完整使用指南
+# GuardBrick
 
 本指南詳細說明 [llmbrick/bricks/guard/base_guard.py](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/bricks/guard/base_guard.py#L1) 中 GuardBrick 的設計理念、架構、安裝方式、實作範例、API 詳解、常見錯誤與最佳實踐。適合初學者與團隊成員快速上手與深入應用。
 

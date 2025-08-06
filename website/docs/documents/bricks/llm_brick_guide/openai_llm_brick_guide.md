@@ -1,4 +1,4 @@
-# OpenAI LLM Brick 完整使用指南
+# OpenAI LLM Brick
 
 本指南詳細說明 [`llmbrick/bricks/llm/openai_llm.py`](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/bricks/llm/openai_llm.py#L1) 中的 OpenAIGPTBrick 實作，這是 LLMBrick 框架中專為 OpenAI GPT API 串接設計的 LLM Brick。
 

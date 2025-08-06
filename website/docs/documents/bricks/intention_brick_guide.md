@@ -1,4 +1,4 @@
-# IntentionBrick 完整使用指南
+# IntentionBrick
 
 本指南詳細說明 [`llmbrick/bricks/intention/base_intention.py`](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/bricks/intention/base_intention.py#L1) 中的 IntentionBrick 實作，這是 LLMBrick 框架中專為「意圖檢查」與「用戶行為保護」設計的專用組件。
 

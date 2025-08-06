@@ -1,4 +1,4 @@
-# RectifyBrick 完整使用指南
+# RectifyBrick
 
 本指南詳細說明 [`llmbrick/bricks/rectify/base_rectify.py`](https://github.com/JiHungLin/llmbrick/blob/main/llmbrick/bricks/rectify/base_rectify.py#L1) 中 RectifyBrick 的設計理念、架構、用法與最佳實踐。RectifyBrick 是 LLMBrick 框架中專為「文本校正」打造的標準組件，支援 gRPC 服務，並提供統一的請求/回應資料模型。
 
