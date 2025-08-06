@@ -30,7 +30,6 @@ LLMBrick 框架採用模組化設計，通過標準化的 Brick（積木）組�
 #### 通訊協定支援
 - **SSE（Server-Sent Events）**
 - **gRPC**
-- **WebSocket/WebRTC**（規劃中）
 
 #### 資料協定
 - 明確的型別定義
