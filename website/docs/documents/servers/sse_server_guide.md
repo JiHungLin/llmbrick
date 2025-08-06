@@ -19,18 +19,21 @@ LLMBrick SSE Server 是一個基於 FastAPI 的 Server-Sent Events (SSE) 服務�
 
 ```python
 from llmbrick.servers.sse.server import SSEServer
-from llmbrick.protocols.models.http.conversation import ConversationSSEResponse
+from llmbrick.protocols.models.http.conversation import ConversationSSEResponse, ConversationSSERequest
 
 # 創建 SSE Server
 server = SSEServer()
 
 # 定義處理函數
 @server.handler
-async def my_handler(request_data):
+async def my_handler(request_data: ConversationSSERequest):
+    """
+    request_data: ConversationSSERequest
+    """
     # 處理邏輯
     yield ConversationSSEResponse(
         id="msg-1",
-        type="text", 
+        type="text",
         text="Hello World",
         progress="IN_PROGRESS"
     )
@@ -65,13 +68,158 @@ config = SSEServerConfig(
 server = SSEServer(config=config)
 
 @server.handler
-async def advanced_handler(request_data):
+async def advanced_handler(request_data: ConversationSSERequest):
+    """
+    request_data: ConversationSSERequest
+    """
     # 配置會自動驗證請求
     # 業務邏輯處理...
     pass
 
 server.run()
 ```
+
+---
+
+## SSE Server 類別參數與操作說明
+
+### SSE Server 建構子參數
+
+```python
+SSEServer(
+    handler: Optional[Callable[[ConversationSSERequest], AsyncGenerator[ConversationSSEResponse, None]]] = None,
+    config: Optional[SSEServerConfig] = None,
+    chat_completions_path: Optional[str] = None,
+    prefix: Optional[str] = None,
+    custom_validator: Optional[Any] = None,
+    enable_test_page: bool = False,
+)
+```
+
+| 參數名稱              | 類型/預設值         | 說明                                                                                   |
+|----------------------|---------------------|----------------------------------------------------------------------------------------|
+| `handler`            | Callable/None       | 主 SSE 處理函數，必須為 async generator，負責處理每個請求並 yield `ConversationSSEResponse`。可用裝飾器或 set_handler 設定。|
+| `config`             | SSEServerConfig/None| 伺服器設定物件，詳細參見下方「SSEServerConfig」。未提供時會自動建立預設設定。                |
+| `chat_completions_path` | str/None         | API 路徑（舊版相容），如 `/chat/completions`。若有設定會覆蓋 config 內對應欄位。             |
+| `prefix`             | str/None            | API 路徑前綴（舊版相容），如 `/api`。若有設定會覆蓋 config 內對應欄位。                      |
+| `custom_validator`   | Any/None            | 自定義驗證器，需實作 `validate(request, ...)` 靜態方法。可用於特殊業務驗證。                 |
+| `enable_test_page`   | bool/False          | 是否啟用內建測試頁面（僅開發/測試用）。啟用後可於 `/` 路徑存取互動測試頁。                   |
+
+#### 參數互動與注意事項
+
+- `config`、`chat_completions_path`、`prefix` 會互相覆蓋，優先順序為：建構子參數 > config 物件 > 預設值。
+- `handler` 可於初始化時傳入，也可後續用 `@server.handler` 裝飾器或 `set_handler()` 設定。
+- `custom_validator` 若有設定，會取代預設驗證器，於每次請求時進行業務驗證。
+- `enable_test_page=True` 時，需確保 `llmbrick/servers/sse/templates/test_page.html` 存在，否則會有警告。
+
+---
+
+### 參數實例與操作範例
+
+#### 1. 設定自訂 API 路徑與前綴
+
+```python
+server = SSEServer(
+    prefix="/api/v1",
+    chat_completions_path="/mychat"
+)
+# API 實際路徑為 /api/v1/mychat
+```
+
+#### 2. 註冊主 handler（兩種方式）
+
+- **建構子傳入：**
+  ```python
+  async def my_handler(request_data: ConversationSSERequest):
+      """
+      request_data: ConversationSSERequest
+      """
+      yield ConversationSSEResponse(...)
+  server = SSEServer(handler=my_handler)
+  ```
+
+- **裝飾器註冊：**
+  ```python
+  server = SSEServer()
+  @server.handler
+  async def my_handler(request_data: ConversationSSERequest):
+      """
+      request_data: ConversationSSERequest
+      """
+      yield ConversationSSEResponse(...)
+  ```
+
+#### 3. 啟用測試頁面
+
+```python
+server = SSEServer(enable_test_page=True)
+# 啟動後可於 http://localhost:8000/ 互動測試
+```
+
+#### 4. 使用自定義驗證器
+
+```python
+class MyValidator:
+    @staticmethod
+    def validate(request, allowed_models=None, max_message_length=10000, max_messages_count=100):
+        # 基本驗證
+        ...
+        # 自訂規則
+        if request.temperature > 2.0:
+            raise ValidationException("Temperature too high")
+
+server = SSEServer(custom_validator=MyValidator())
+```
+
+---
+
+### 操作流程與常見問題
+
+#### 路徑組合規則
+
+- `prefix` 與 `chat_completions_path` 會自動補齊 `/`，避免重複或遺漏。
+- 例如：`prefix="/api"`, `chat_completions_path="chat"` → 實際路徑為 `/api/chat`
+
+#### Handler 設定失敗
+
+- 若未設定 handler，API 會回傳 404 錯誤。
+- 測試頁面會顯示警告：「No handler is configured. Requests will fail until a handler is set.」
+
+#### 測試頁面模板遺失
+
+- 若 `test_page.html` 不存在，啟動時會有 logger 警告，但不影響主 API 運作。
+
+#### 自定義驗證器錯誤
+
+- 若驗證器未正確實作 `validate` 靜態方法，請求會直接失敗，建議參考預設驗證器實作。
+
+---
+
+### 進階：SSE Server 主要方法
+
+- `set_handler(func)`：直接設定主 handler，會自動重設路由。
+- `handler(func)`：裝飾器用法，註冊主 handler。
+- `run(host=None, port=None)`：啟動伺服器，host/port 可覆蓋 config 設定。
+- `fastapi_app`：取得底層 FastAPI app，可用於註冊中間件或自訂路由。
+
+---
+
+### 常見錯誤與排除
+
+- **406 Not Acceptable**：請求 header 缺少 `Accept: text/event-stream`
+- **404 Handler not set**：未註冊 handler
+- **422 Validation Error**：請求格式或業務驗證失敗
+- **測試頁面無法載入**：檢查 `test_page.html` 是否存在於 templates 目錄
+
+---
+
+### 實用建議
+
+- **開發階段建議啟用 `debug_mode` 與 `enable_test_page`，便於除錯與測試。**
+- **生產環境請關閉測試頁面，避免資訊外洩。**
+- **自訂驗證器時，務必呼叫父類別的 validate 以保證基本驗證不被跳過。**
+
+---
 
 ## API 參考
 
@@ -106,6 +254,34 @@ class SSEServerConfig:
 
 SSE Server 接受符合 `ConversationSSERequest` 格式的請求：
 
+#### ConversationSSERequest 欄位說明
+
+| 欄位名稱         | 型態         | 必填 | 說明 |
+|------------------|--------------|------|------|
+| `model`          | str          | ✔    | 指定模型名稱，例如 `"gpt-4o"`、`"sonar"` |
+| `messages`       | List[Message]| ✔    | 對話訊息陣列，每則訊息需包含 `role` 與 `content`，詳見下方 |
+| `stream`         | bool         | ✔    | 是否啟用串流，SSE 必須為 `true` |
+| `clientId`       | str          |      | 客戶端識別碼（選填，前端可自訂） |
+| `sessionId`      | str          | ✔    | 對話 session id，標記本次對話所屬 |
+| `temperature`    | float        |      | 回應多樣性（選填，0~2，愈高愈隨機） |
+| `maxTokens`      | int          |      | 生成最大 token 數（選填） |
+| `tools`          | List[Any]    |      | 工具列表（選填，function calling 用） |
+| `toolChoice`     | Any          |      | 工具選擇（選填） |
+| `sourceLanguage` | str          |      | 源語言（選填，翻譯任務用） |
+
+#### Message 欄位說明
+
+| 欄位名稱 | 型態 | 必填 | 說明 |
+|----------|------|------|------|
+| `role`   | str  | ✔    | 訊息角色，如 `"system"`、`"user"`、`"assistant"` |
+| `content`| str  | ✔    | 訊息內容 |
+
+> **備註：**
+> - 所有欄位預設禁止額外欄位（extra="forbid"），多餘欄位會驗證失敗。
+> - 欄位名稱支援駝峰式（如 `clientId`、`sessionId`、`maxTokens`）。
+
+#### 範例 JSON
+
 ```json
 {
     "model": "gpt-4o",
@@ -114,9 +290,13 @@ SSE Server 接受符合 `ConversationSSERequest` 格式的請求：
         {"role": "user", "content": "Hello!"}
     ],
     "stream": true,
+    "clientId": "client123",
     "sessionId": "session-123",
     "temperature": 0.7,
-    "maxTokens": 1000
+    "maxTokens": 1000,
+    "tools": [],
+    "toolChoice": null,
+    "sourceLanguage": "en"
 }
 ```
 
@@ -124,11 +304,44 @@ SSE Server 接受符合 `ConversationSSERequest` 格式的請求：
 
 服務器回傳符合 `ConversationSSEResponse` 格式的 SSE 事件：
 
+#### ConversationSSEResponse 欄位說明
+
+| 欄位名稱    | 型態                | 必填 | 說明 |
+|-------------|---------------------|------|------|
+| `id`        | str                 | ✔    | 唯一識別碼（每個事件唯一） |
+| `type`      | str                 | ✔    | 資料類型，如 `"text"`、`"meta"`、`"done"` |
+| `model`     | str                 |      | 回應的模型名稱（選填） |
+| `text`      | str                 |      | 本次串流新文本（選填，通常 type 為 `"text"` 時有值） |
+| `progress`  | str                 | ✔    | 進度狀態，`"IN_PROGRESS"` 或 `"DONE"` |
+| `context`   | SSEContext          |      | 上下文資訊（選填，包含 conversationId、cursor 等） |
+| `metadata`  | SSEResponseMetadata |      | 輔助資訊（選填，包含 searchResults、attachments 等） |
+
+#### SSEContext 欄位說明
+
+| 欄位名稱         | 型態   | 必填 | 說明 |
+|------------------|--------|------|------|
+| `conversationId` | str    |      | 對話 ID（選填） |
+| `cursor`         | str    |      | 游標（選填，串流進度追蹤） |
+
+#### SSEResponseMetadata 欄位說明
+
+| 欄位名稱      | 型態   | 必填 | 說明 |
+|---------------|--------|------|------|
+| `searchResults`| Any    |      | 搜尋結果（選填，結構依應用而定） |
+| `attachments`  | Any    |      | 附件（選填，結構依應用而定） |
+
+> **備註：**
+> - 所有欄位預設禁止額外欄位（extra="forbid"），多餘欄位會驗證失敗。
+> - 欄位名稱支援駝峰式（如 `conversationId`、`searchResults`）。
+> - `progress` 必須為 `"IN_PROGRESS"` 或 `"DONE"`，否則會驗證失敗。
+
+#### 範例 JSON
+
 ```json
 {
     "id": "msg-1",
     "type": "text",
-    "model": "gpt-4o", 
+    "model": "gpt-4o",
     "text": "Hello! How can I help you?",
     "progress": "IN_PROGRESS",
     "context": {
@@ -262,7 +475,7 @@ async def openai_handler(request_data):
 
 ## 內建測試頁面
 
-SSEServer 提供了一個開發者友善的測試頁面，可透過 `enable_test_page` 參數啟用：
+SSE Server 提供了一個開發者友善的測試頁面，可透過 `enable_test_page` 參數啟用：
 
 ```python
 server = SSEServer(enable_test_page=True)
@@ -341,6 +554,9 @@ def test_my_handler():
             text="Test response",
             progress="DONE"
         )
+    
+    # 若在自定義驗證器中使用 ValidationException，請加上 import
+    from llmbrick.core.exceptions import ValidationException
     
     client = TestClient(server.fastapi_app)
     
