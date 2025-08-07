@@ -2,7 +2,8 @@ import React, { useRef } from 'react';
 import Layout from '@theme/Layout';
 import { useState } from 'react';
 
-const promptText = `LLMBrick: Comprehensive Guide to Custom Brick Development and Library Usage
+const promptText = `
+LLMBrick: Comprehensive Guide to Custom Brick Development and Library Usage
 
 Overview and Purpose
 LLMBrick is a modular Python framework designed to solve the challenges of building, composing, and deploying advanced LLM (Large Language Model) applications. It addresses the need for reusable, composable, and maintainable AI components by introducing the concept of “Bricks”—well-defined, pluggable modules that encapsulate specific logic, workflows, or integrations. LLMBrick enables rapid prototyping, scalable deployment, and robust error handling for LLM-powered systems.
@@ -97,9 +98,43 @@ Handler Decorators and Customization
 
 All handlers are async and can be overridden to implement custom logic. You can add additional methods or properties as needed.
 
-Request/Response Data Types
+Request/Response Data Types — Strict Usage Guidelines
+**Important:** When developing Bricks, you must use the exact request and response types defined by the framework for each Brick type. Do not invent or substitute your own data structures. For example, a GuardBrick must use \`GuardRequest\` and return \`GuardResponse\`. This ensures compatibility, composability, and correct operation across the LLMBrick ecosystem.
+
 - All Bricks use standardized request/response types, typically with a \`.data\` dictionary for inputs/outputs and an \`error\` field for status.
 - Refer to the protocols in \`llmbrick.protocols.models.bricks\` for detailed type definitions.
+- Never create custom error fields or codes outside of the provided \`ErrorDetail\` and \`ErrorCodes\` structures.
+
+**Incorrect Example (Do NOT do this):**
+\`\`\`python
+# ❌ Do NOT define your own request/response or error fields!
+class BadBrick(CommonBrick):
+    @unary_handler
+    async def process(self, request):  # Missing type!
+        # Wrong: using custom dict instead of CommonResponse
+        return {"result": "bad", "error": "fail"}
+\`\`\`
+
+**Correct Example:**
+\`\`\`python
+from llmbrick.protocols.models.bricks.common_types import CommonRequest, CommonResponse, ErrorDetail
+from llmbrick.core.error_codes import ErrorCodes
+
+class GoodBrick(CommonBrick):
+    @unary_handler
+    async def process(self, request: CommonRequest) -> CommonResponse:
+        try:
+            # Your logic here
+            return CommonResponse(
+                data={"result": "ok"},
+                error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
+            )
+        except Exception as e:
+            return CommonResponse(
+                data={},
+                error=ErrorDetail(code=ErrorCodes.INTERNAL_ERROR, message=str(e))
+            )
+\`\`\`
 
 Extending and Customizing Bricks
 - Inherit from any base Brick to add or override handler methods.
@@ -191,9 +226,11 @@ How to Use ErrorCodes in Your Brick:
 - Always set the appropriate error code and message in your response.
 - Use try/except blocks in your handler methods to catch exceptions and return meaningful error information.
 - For custom errors, define your own codes or use the provided ones for consistency.
+- Never create your own error code or error field outside of the provided \`ErrorCodes\` and \`ErrorDetail\`.
 
 Example: Error Handling in a Custom Brick
 \`\`\`python
+from llmbrick.protocols.models.bricks.common_types import CommonRequest, CommonResponse, ErrorDetail
 from llmbrick.core.error_codes import ErrorCodes
 
 class MyCustomBrick(CommonBrick):
@@ -220,6 +257,188 @@ class MyCustomBrick(CommonBrick):
 \`\`\`
 - Always check the \`error\` field in the response when consuming a Brick’s output.
 - Use error codes to implement retry logic, user feedback, or escalation as needed.
+
+[The rest of the previous content remains unchanged, including installation, best practices, and advanced usage.]
+# Appendix: All Official Data Structures (Dataclasses & Models)
+
+**You MUST use only the following dataclasses and models for all Brick requests, responses, and data exchange. Do NOT invent or substitute your own data structures.**
+
+## llmbrick.protocols.models.bricks.common_types
+
+- **ErrorDetail**
+  - code: int
+  - message: str
+  - detail: str = ""
+- **ModelInfo**
+  - model_id: str
+  - version: str
+  - supported_languages: List[str]
+  - support_streaming: bool
+  - description: str
+- **CommonRequest**
+  - data: Dict[str, Any]
+- **CommonResponse**
+  - data: Dict[str, Any]
+  - error: Optional[ErrorDetail]
+- **ServiceInfoRequest**
+  - (no fields)
+- **ServiceInfoResponse**
+  - service_name: str
+  - version: str
+  - models: List[ModelInfo]
+  - error: Optional[ErrorDetail]
+
+## llmbrick.protocols.models.bricks.compose_types
+
+- **Document**
+  - doc_id: str
+  - title: str
+  - snippet: str
+  - score: float
+  - metadata: Dict[str, Any]
+- **ComposeRequest**
+  - input_documents: List[Document]
+  - target_format: str
+  - client_id: str
+  - session_id: str
+  - request_id: str
+  - source_language: str
+- **ComposeResponse**
+  - output: Dict[str, Any]
+  - error: Optional[ErrorDetail]
+
+## llmbrick.protocols.models.bricks.guard_types
+
+- **GuardRequest**
+  - text: str
+  - client_id: str
+  - session_id: str
+  - request_id: str
+  - source_language: str
+- **GuardResult**
+  - is_attack: bool
+  - confidence: float
+  - detail: str
+- **GuardResponse**
+  - results: List[GuardResult]
+  - error: Optional[ErrorDetail]
+
+## llmbrick.protocols.models.bricks.intention_types
+
+- **IntentionRequest**
+  - text: str
+  - client_id: str
+  - session_id: str
+  - request_id: str
+  - source_language: str
+- **IntentionResult**
+  - intent_category: str
+  - confidence: float
+- **IntentionResponse**
+  - results: List[IntentionResult]
+  - error: Optional[ErrorDetail]
+
+## llmbrick.protocols.models.bricks.llm_types
+
+- **Context**
+  - role: str
+  - content: str
+- **LLMRequest**
+  - temperature: float
+  - model_id: str
+  - prompt: str
+  - context: List[Context]
+  - client_id: str
+  - session_id: str
+  - request_id: str
+  - source_language: str
+  - max_tokens: int
+- **LLMResponse**
+  - text: str
+  - tokens: List[str]
+  - is_final: bool
+  - error: Optional[ErrorDetail]
+
+## llmbrick.protocols.models.bricks.rectify_types
+
+- **RectifyRequest**
+  - text: str
+  - client_id: str
+  - session_id: str
+  - request_id: str
+  - source_language: str
+- **RectifyResponse**
+  - corrected_text: str
+  - error: Optional[ErrorDetail]
+
+## llmbrick.protocols.models.bricks.retrieval_types
+
+- **RetrievalRequest**
+  - query: str
+  - max_results: int
+  - client_id: str
+  - session_id: str
+  - request_id: str
+  - source_language: str
+- **Document**
+  - doc_id: str
+  - title: str
+  - snippet: str
+  - score: float
+  - metadata: Dict[str, Any]
+- **RetrievalResponse**
+  - documents: List[Document]
+  - error: Optional[ErrorDetail]
+
+## llmbrick.protocols.models.bricks.translate_types
+
+- **TranslateRequest**
+  - text: str
+  - model_id: str
+  - target_language: str
+  - client_id: str
+  - session_id: str
+  - request_id: str
+  - source_language: str
+- **TranslateResponse**
+  - text: str
+  - tokens: List[str]
+  - language_code: str
+  - is_final: bool
+  - error: Optional[ErrorDetail]
+
+## llmbrick.protocols.models.http.conversation
+
+- **Message** (Pydantic model)
+  - role: str
+  - content: str
+- **ConversationSSERequest** (Pydantic model)
+  - model: str
+  - messages: List[Message]
+  - stream: bool
+  - client_id: Optional[str]
+  - session_id: str
+  - temperature: Optional[float]
+  - max_tokens: Optional[int]
+  - tools: Optional[List[Any]]
+  - tool_choice: Optional[Any]
+  - source_language: Optional[str]
+- **SSEContext** (Pydantic model)
+  - conversation_id: Optional[str]
+  - cursor: Optional[str]
+- **SSEResponseMetadata** (Pydantic model)
+  - search_results: Optional[Any]
+  - attachments: Optional[Any]
+- **ConversationSSEResponse** (Pydantic model)
+  - id: str
+  - type: str
+  - model: Optional[str]
+  - text: Optional[str]
+  - progress: str
+  - context: Optional[SSEContext]
+  - metadata: Optional[SSEResponseMetadata]
+
+**Always refer to these official dataclasses and models for all Brick and API development. Do NOT create or use custom request/response or error types.**
 `;
 
 export default function PromptPage() {
