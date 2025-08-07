@@ -2,6 +2,7 @@ include README.md
 include LICENSE
 include requirements.txt
 include requirements-dev.txt
+include llmbrick/servers/sse/templates/test_page.html
 recursive-include llmbrick *.py
 recursive-include llmbrick *.proto
 recursive-include config *.yaml
