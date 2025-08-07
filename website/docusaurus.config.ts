@@ -74,6 +74,11 @@ const config: Config = {
           position: 'left',
         },
         {
+          label: 'Prompt',
+          to: '/prompt',
+          position: 'left',
+        },
+        {
           href: 'https://github.com/JiHungLin/llmbrick',
           label: 'GitHub',
           position: 'right',
