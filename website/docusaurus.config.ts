@@ -46,7 +46,7 @@ const config: Config = {
   ],
 
   themeConfig: {
-    image: 'img/social-card.jpg',
+    image: 'img/social-card.svg',
     colorMode: {
       defaultMode: 'dark',
       respectPrefersColorScheme: false,
