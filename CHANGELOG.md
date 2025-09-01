@@ -1,23 +1,16 @@
-# Release v0.2.3: Enhanced Error Handling and System Reliability
+# Release v0.2.4: Major gRPC Refactor, Enhanced Async Handling, and Unified Error Codes
 
-This release focuses on improving system reliability through enhanced error handling, particularly in gRPC wrappers, along with various documentation improvements and bug fixes.
+This release delivers significant improvements to the gRPC protocol implementations, introduces unified error handling with ErrorCodes, and enhances async support across bricks. Several new brick definitions and documentation updates are also included.
 
 ## Major Changes
-- Refactored gRPC wrappers across all brick types to improve error handling and response validation
-- Enhanced SSE server request validation and error handling
-- Improved type hints and error handling in OpenAI LLM brick
+- Refactored gRPC retrieval and translation protocols, updated protobuf definitions, and improved service implementations
+- Unified error handling across components and bricks using standardized ErrorCodes for consistent success/failure status
+- Improved async handling in gRPC client and server implementations
+- Added new brick definitions and expanded documentation
 
-## Bug Fixes
-- Fixed chat completions request body validation in SSE server
-- Updated type hints in OpenAI LLM brick for better clarity
-- Improved error handling and mock setup in OpenAI GPT Brick tests
+## Improvements
+- Refactored error handling in various bricks to use ErrorCodes for success status
+- Enhanced local usage examples for gRPC bricks
 
 ## Documentation
-- Reorganized guide entries for better clarity and accessibility
-- Updated README with corrected documentation links
-- Added missing badges and improved link accessibility
-- Fixed various documentation links for better user experience
-
-## Cleanup
-- Removed development notebook and script files
-- Streamlined error handling across all gRPC wrapper implementations
+- Added and updated documentation for new brick definitions and usage patterns

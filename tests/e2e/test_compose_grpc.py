@@ -24,6 +24,7 @@ from llmbrick.protocols.models.bricks.common_types import (
     ServiceInfoResponse,
 )
 from llmbrick.servers.grpc.server import GrpcServer
+from llmbrick.core.error_codes import ErrorCodes
 
 
 class _TestComposeBrick(ComposeBrick):
@@ -32,7 +33,7 @@ class _TestComposeBrick(ComposeBrick):
     @unary_handler
     async def unary_handler(self, request: ComposeRequest) -> ComposeResponse:
         await asyncio.sleep(0.05)
-        error = ErrorDetail(code=0, message="No error")
+        error = ErrorDetail(code=ErrorCodes.SUCCESS, message="No error")
         return ComposeResponse(
             output={
                 "echo": [doc.title for doc in request.input_documents],
@@ -47,7 +48,7 @@ class _TestComposeBrick(ComposeBrick):
     ) -> AsyncIterator[ComposeResponse]:
         for idx, doc in enumerate(request.input_documents):
             await asyncio.sleep(0.02)
-            error = ErrorDetail(code=0, message="No error")
+            error = ErrorDetail(code=ErrorCodes.SUCCESS, message="No error")
             yield ComposeResponse(
                 output={"index": idx, "title": doc.title},
                 error=error,
@@ -56,7 +57,7 @@ class _TestComposeBrick(ComposeBrick):
     @get_service_info_handler
     async def get_service_info_handler(self) -> ServiceInfoResponse:
         await asyncio.sleep(0.01)
-        error = ErrorDetail(code=0, message="No error")
+        error = ErrorDetail(code=ErrorCodes.SUCCESS, message="No error")
         return ServiceInfoResponse(
             service_name="TestComposeBrick",
             version="9.9.9",
@@ -85,8 +86,7 @@ async def test_async_grpc_server_startup() -> None:
     server = GrpcServer(port=50057)
     server.register_service(llm_brick)
 
-    # 測試伺服器建立
-    assert server.server is not None
+    assert len(server._pending_bricks) > 0
     assert server.port == 50057
 
     print("✓ 伺服器建立成功")
@@ -114,7 +114,6 @@ async def grpc_client(grpc_server: Any) -> AsyncIterator[_TestComposeBrick]:
         remote_address="127.0.0.1:50058", verbose=False
     )
     yield client_brick
-    await client_brick._grpc_channel.close()
 
 
 @pytest.mark.asyncio

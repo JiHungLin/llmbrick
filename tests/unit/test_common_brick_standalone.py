@@ -30,6 +30,7 @@ from llmbrick.protocols.models.bricks.common_types import (
     ModelInfo,
     ServiceInfoResponse,
 )
+from llmbrick.core.error_codes import ErrorCodes
 
 
 class SimpleEchoBrick(CommonBrick):
@@ -48,7 +49,7 @@ class SimpleEchoBrick(CommonBrick):
                 "message": "Echo response",
                 "timestamp": asyncio.get_event_loop().time(),
             },
-            error=ErrorDetail(code=0, message="Success"),
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"),
         )
 
     @get_service_info_handler
@@ -66,7 +67,7 @@ class SimpleEchoBrick(CommonBrick):
                     description="Simple echo service",
                 )
             ],
-            error=ErrorDetail(code=0, message="Success"),
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"),
         )
 
 
@@ -94,7 +95,7 @@ class AdvancedProcessingBrick(CommonBrick):
             return CommonResponse(
                 data={},
                 error=ErrorDetail(
-                    code=400, 
+                    code=ErrorCodes.INTERNAL_ERROR, 
                     message="Simulated error", 
                     detail="This is a test error"
                 ),
@@ -108,7 +109,7 @@ class AdvancedProcessingBrick(CommonBrick):
                 "operation": operation,
                 "request_count": self.request_count,
             },
-            error=ErrorDetail(code=0, message="Success"),
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"),
         )
 
     @output_streaming_handler
@@ -128,7 +129,7 @@ class AdvancedProcessingBrick(CommonBrick):
                     "index": i,
                     "total": count,
                 },
-                error=ErrorDetail(code=0, message="Success"),
+                error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"),
             )
 
     @input_streaming_handler
@@ -151,7 +152,7 @@ class AdvancedProcessingBrick(CommonBrick):
                 "count": count,
                 "average": total / count if count > 0 else 0,
             },
-            error=ErrorDetail(code=0, message="Success"),
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"),
         )
 
     @bidi_streaming_handler
@@ -178,7 +179,7 @@ class AdvancedProcessingBrick(CommonBrick):
                     "result": result,
                     "operation": operation,
                 },
-                error=ErrorDetail(code=0, message="Success"),
+                error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"),
             )
 
     @get_service_info_handler
@@ -196,7 +197,7 @@ class AdvancedProcessingBrick(CommonBrick):
                     description="Advanced processing service with streaming support",
                 )
             ],
-            error=ErrorDetail(code=0, message="Success"),
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"),
         )
 
 
@@ -211,7 +212,7 @@ async def test_simple_echo_brick():
     request = CommonRequest(data={"message": "Hello, World!"})
     response = await brick.run_unary(request)
     
-    assert response.error.code == 0
+    assert response.error.code == ErrorCodes.SUCCESS
     assert response.data["echo"]["message"] == "Hello, World!"
     assert "timestamp" in response.data
 
@@ -247,7 +248,7 @@ async def test_advanced_unary_processing():
     # 測試錯誤情況
     error_request = CommonRequest(data={"operation": "error"})
     response = await brick.run_unary(error_request)
-    assert response.error.code == 400
+    assert response.error.code == ErrorCodes.INTERNAL_ERROR
     assert "Simulated error" in response.error.message
 
 
@@ -329,7 +330,7 @@ async def test_error_handling():
             else:
                 return CommonResponse(
                     data={"status": "ok"},
-                    error=ErrorDetail(code=0, message="Success"),
+                    error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"),
                 )
     
     brick = ErrorBrick(verbose=False)
@@ -337,13 +338,13 @@ async def test_error_handling():
     # 測試正常情況
     normal_request = CommonRequest(data={"error_type": "none"})
     response = await brick.run_unary(normal_request)
-    assert response.error.code == 0
+    assert response.error.code == ErrorCodes.SUCCESS
     
     # 測試業務邏輯錯誤
     error_request = CommonRequest(data={"error_type": "error_response"})
     response = await brick.run_unary(error_request)
-    assert response.error.code == 500
-    
+    assert response.error.code == ErrorCodes.INTERNAL_ERROR
+
     # 測試異常情況
     exception_request = CommonRequest(data={"error_type": "exception"})
     with pytest.raises(ValueError):
@@ -414,7 +415,7 @@ async def test_not_implemented_handlers():
         async def unary_only(self, request: CommonRequest) -> CommonResponse:
             return CommonResponse(
                 data={"message": "unary only"},
-                error=ErrorDetail(code=0, message="Success"),
+                error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"),
             )
     
     brick = PartialBrick(verbose=False)

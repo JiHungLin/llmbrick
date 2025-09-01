@@ -24,6 +24,7 @@ from llmbrick.protocols.models.bricks.common_types import (
     ServiceInfoResponse,
 )
 from llmbrick.servers.grpc.server import GrpcServer
+from llmbrick.core.error_codes import ErrorCodes
 
 
 class _TestCommonBrick(CommonBrick):
@@ -32,7 +33,7 @@ class _TestCommonBrick(CommonBrick):
     @unary_handler
     async def unary_handler(self, request: CommonRequest) -> CommonResponse:
         await asyncio.sleep(0.1)
-        error = ErrorDetail(code=0, message="No error")
+        error = ErrorDetail(code=ErrorCodes.SUCCESS, message="No error")
         return CommonResponse(
             data={"echo": request.data, "processed": True}, error=error
         )
@@ -44,7 +45,7 @@ class _TestCommonBrick(CommonBrick):
         count = request.data.get("count", 3) if request.data else 3
         for i in range(int(count)):
             await asyncio.sleep(0.05)
-            error = ErrorDetail(code=0, message="No error")
+            error = ErrorDetail(code=ErrorCodes.SUCCESS, message="No error")
             yield CommonResponse(
                 data={"index": i, "message": f"Stream {i}"}, error=error
             )
@@ -55,7 +56,7 @@ class _TestCommonBrick(CommonBrick):
     ) -> CommonResponse:
         # 將所有 request.data["val"] 相加
         total = 0
-        error = ErrorDetail(code=0, message="No error")
+        error = ErrorDetail(code=ErrorCodes.SUCCESS, message="No error")
         async for req in request_stream:
             total += int(req.data.get("val", 0)) if req.data else 0
         await asyncio.sleep(0.05)
@@ -69,13 +70,13 @@ class _TestCommonBrick(CommonBrick):
         async for req in request_stream:
             val = int(req.data.get("val", 0)) if req.data else 0
             await asyncio.sleep(0.02)
-            error = ErrorDetail(code=0, message="No error")
+            error = ErrorDetail(code=ErrorCodes.SUCCESS, message="No error")
             yield CommonResponse(data={"double": val * 2}, error=error)
 
     @get_service_info_handler
     async def get_service_info_handler(self) -> ServiceInfoResponse:
         await asyncio.sleep(0.01)
-        error = ErrorDetail(code=0, message="No error")
+        error = ErrorDetail(code=ErrorCodes.SUCCESS, message="No error")
         return ServiceInfoResponse(
             service_name="TestCommonBrick",
             version="9.9.9",
@@ -104,8 +105,7 @@ async def test_async_grpc_server_startup() -> None:
     server = GrpcServer(port=50054)
     server.register_service(llm_brick)
 
-    # 測試伺服器建立
-    assert server.server is not None
+    assert len(server._pending_bricks) > 0
     assert server.port == 50054
 
     print("✓ 伺服器建立成功")
@@ -134,7 +134,6 @@ async def grpc_client(grpc_server: Any) -> AsyncIterator[_TestCommonBrick]:
         remote_address="127.0.0.1:50056", verbose=False
     )
     yield client_brick
-    await client_brick._grpc_channel.close()
 
 
 @pytest.mark.asyncio

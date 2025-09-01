@@ -7,6 +7,7 @@ ErrorCodes 類別使用示例和測試
 import pytest
 from llmbrick.core.error_codes import ErrorCodes, ErrorCodeUtils
 from llmbrick.protocols.models.bricks.common_types import ErrorDetail, CommonResponse
+from llmbrick.core.error_codes import ErrorCodes
 
 
 class TestErrorCodes:
@@ -16,16 +17,16 @@ class TestErrorCodes:
         """測試基本錯誤創建"""
         # 使用工廠方法創建常見錯誤
         bad_request = ErrorCodes.bad_request("無效的請求參數", "缺少必需字段 'name'")
-        assert bad_request.code == 400
+        assert bad_request.code == ErrorCodes.BAD_REQUEST
         assert bad_request.message == "無效的請求參數"
         assert bad_request.detail == "缺少必需字段 'name'"
         
         not_found = ErrorCodes.not_found()
-        assert not_found.code == 404
+        assert not_found.code == ErrorCodes.NOT_FOUND
         assert not_found.message == "未找到"
         
         internal_error = ErrorCodes.internal_error("伺服器內部錯誤")
-        assert internal_error.code == 500
+        assert internal_error.code == ErrorCodes.INTERNAL_ERROR
         assert internal_error.message == "伺服器內部錯誤"
     
     def test_create_custom_errors(self):
@@ -36,7 +37,7 @@ class TestErrorCodes:
             "指定的模型不存在",
             "模型 'gpt-4' 在當前環境中不可用"
         )
-        assert custom_error.code == 4001
+        assert custom_error.code == ErrorCodes.MODEL_NOT_FOUND
         assert custom_error.message == "指定的模型不存在"
         assert custom_error.detail == "模型 'gpt-4' 在當前環境中不可用"
     
@@ -44,7 +45,7 @@ class TestErrorCodes:
         """測試默認錯誤訊息"""
         # 不提供訊息時使用默認訊息
         validation_error = ErrorCodes.create_error(ErrorCodes.VALIDATION_ERROR)
-        assert validation_error.code == 2000
+        assert validation_error.code == ErrorCodes.VALIDATION_ERROR
         assert validation_error.message == "驗證錯誤"
         
         # 測試未知錯誤代碼
@@ -55,27 +56,27 @@ class TestErrorCodes:
         """測試特化的工廠方法"""
         # 參數相關錯誤
         missing_param = ErrorCodes.parameter_missing("user_id", "請求中必須包含用戶ID")
-        assert missing_param.code == 2002
+        assert missing_param.code == ErrorCodes.PARAMETER_MISSING
         assert "user_id" in missing_param.message
         
         invalid_param = ErrorCodes.parameter_invalid("age", "年齡必須是正整數")
-        assert invalid_param.code == 2003
+        assert invalid_param.code == ErrorCodes.PARAMETER_INVALID
         assert "age" in invalid_param.message
         
         # 模型相關錯誤
         model_not_found = ErrorCodes.model_not_found("gpt-4", "模型服務暫時不可用")
-        assert model_not_found.code == 4001
+        assert model_not_found.code == ErrorCodes.MODEL_NOT_FOUND
         assert "gpt-4" in model_not_found.message
         
         # 資源相關錯誤
         resource_not_found = ErrorCodes.resource_not_found("用戶", "12345")
-        assert resource_not_found.code == 6001
+        assert resource_not_found.code == ErrorCodes.RESOURCE_NOT_FOUND
         assert "用戶" in resource_not_found.message
         assert "12345" in resource_not_found.message
         
         # 外部服務錯誤
         external_error = ErrorCodes.external_service_error("OpenAI API", "API金鑰無效")
-        assert external_error.code == 5000
+        assert external_error.code == ErrorCodes.EXTERNAL_SERVICE_ERROR
         assert "OpenAI API" in external_error.message
 
 
@@ -137,7 +138,7 @@ class TestErrorCodesIntegration:
             error=error
         )
         assert response.error is not None
-        assert response.error.code == 2000
+        assert response.error.code == ErrorCodes.VALIDATION_ERROR
         assert "驗證失敗" in response.error.message
     
     def test_error_response_serialization(self):
@@ -148,12 +149,12 @@ class TestErrorCodesIntegration:
         # 轉換為字典
         response_dict = response.to_dict()
         assert "error" in response_dict
-        assert response_dict["error"]["code"] == 4001
+        assert response_dict["error"]["code"] == ErrorCodes.MODEL_NOT_FOUND
         assert "gpt-4" in response_dict["error"]["message"]
         
         # 從字典重構
         reconstructed = CommonResponse.from_dict(response_dict)
-        assert reconstructed.error.code == 4001
+        assert reconstructed.error.code == ErrorCodes.MODEL_NOT_FOUND
         assert reconstructed.error.message == error.message
 
 

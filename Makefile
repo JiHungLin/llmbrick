@@ -11,3 +11,11 @@ typecheck:
 
 format:
 	pre-commit run --files $(find llmbrick -type f)
+
+.PHONY: website-deploy website-build
+
+website-build:
+	cd website && yarn build
+
+website-deploy:
+	cd website && USE_SSH=true yarn deploy

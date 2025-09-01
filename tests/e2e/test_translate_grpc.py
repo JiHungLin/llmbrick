@@ -26,6 +26,7 @@ from llmbrick.protocols.models.bricks.common_types import (
     ServiceInfoResponse,
 )
 from llmbrick.servers.grpc.server import GrpcServer
+from llmbrick.core.error_codes import ErrorCodes
 
 class _TestTranslateBrick(TranslateBrick):
     """測試用的 TranslateBrick"""
@@ -38,7 +39,7 @@ class _TestTranslateBrick(TranslateBrick):
             tokens=list(request.text),
             language_code=request.target_language,
             is_final=True,
-            error=ErrorDetail(code=0, message="No error"),
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="No error"),
         )
 
     @output_streaming_handler
@@ -52,7 +53,7 @@ class _TestTranslateBrick(TranslateBrick):
                 tokens=[word],
                 language_code=request.target_language,
                 is_final=(i == len(request.text.split()) - 1),
-                error=ErrorDetail(code=0, message="No error"),
+                error=ErrorDetail(code=ErrorCodes.SUCCESS, message="No error"),
             )
 
     @get_service_info_handler
@@ -70,16 +71,16 @@ class _TestTranslateBrick(TranslateBrick):
                     description="test",
                 )
             ],
-            error=ErrorDetail(code=0, message="No error"),
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="No error"),
         )
 
 @pytest.mark.asyncio
-async def test_async_grpc_server_startup():
+async def test_async_grpc_server_startup() -> None:
     """測試異步 gRPC 伺服器啟動"""
     brick = _TestTranslateBrick()
     server = GrpcServer(port=50066)
     server.register_service(brick)
-    assert server.server is not None
+    assert len(server._pending_bricks) > 0
     assert server.port == 50066
 
 @pytest_asyncio.fixture
@@ -103,7 +104,6 @@ async def grpc_client(grpc_server: Any) -> AsyncIterator[_TestTranslateBrick]:
         remote_address="127.0.0.1:50068", verbose=False
     )
     yield client_brick
-    await client_brick._grpc_channel.close()
 
 @pytest.mark.asyncio
 async def test_unary(grpc_client: _TestTranslateBrick):
@@ -120,7 +120,7 @@ async def test_unary(grpc_client: _TestTranslateBrick):
     assert response.text.endswith("(zh)")
     assert response.language_code == "zh"
     assert response.is_final
-    assert response.error.code == 0
+    assert response.error.code == ErrorCodes.SUCCESS
 
 @pytest.mark.asyncio
 async def test_output_streaming(grpc_client: _TestTranslateBrick):
@@ -173,7 +173,7 @@ async def test_error_handling(grpc_server):
                 tokens=[],
                 language_code="",
                 is_final=True,
-                error=ErrorDetail(code=400, message="Simulated error", detail="Test error"),
+                error=ErrorDetail(code=ErrorCodes.INTERNAL_ERROR, message="Simulated error", detail="Test error"),
             )
     # 啟動一個新的 server
     server = GrpcServer(port=50069)
@@ -191,9 +191,8 @@ async def test_error_handling(grpc_server):
         source_language="zh",
     )
     response = await client_brick.run_unary(request)
-    assert response.error.code == 400
+    assert response.error.code == ErrorCodes.INTERNAL_ERROR
     assert "Simulated error" in response.error.message
-    await client_brick._grpc_channel.close()
     await server.stop()
     server_task.cancel()
     try:

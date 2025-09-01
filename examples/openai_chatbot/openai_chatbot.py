@@ -18,18 +18,18 @@ from llmbrick.protocols.models.http.conversation import (
 from llmbrick.protocols.models.bricks.llm_types import LLMRequest, Context
 from llmbrick.core.exceptions import ValidationException
 from llmbrick.utils.logging import logger
-
+from llmbrick.protocols.models.bricks.common_types import ErrorDetail
 
 class ChatHandler:
     """處理聊天請求的類別，整合 OpenAI GPT Brick 與 SSE 響應"""
     
     def __init__(self):
         # 初始化 OpenAI GPT Brick
-        self.llm = OpenAIGPTBrick(
-            model_id="gpt-4o",  # 默認使用 GPT-4o 模型
-            api_key=os.getenv("OPENAI_API_KEY")
-        )
-        
+        # self.llm = OpenAIGPTBrick(
+        #     model_id="gpt-4o",  # 默認使用 GPT-4o 模型
+        #     api_key=os.getenv("OPENAI_API_KEY")
+        # )
+        self.llm = OpenAIGPTBrick.toGrpcClient(remote_address="127.0.0.1:50051")
         # 追蹤對話 session
         self.sessions: Dict[str, list] = {}
     
@@ -80,7 +80,7 @@ class ChatHandler:
             
             try:
                 async for chunk in self.llm.run_output_streaming(llm_request):
-                    if chunk.error and chunk.error.code != 0:
+                    if chunk.error and chunk.error.code != ErrorCodes.SUCCESS:
                         # 處理 LLM 錯誤
                         yield ConversationSSEResponse(
                             id=f"{response_id}-error",

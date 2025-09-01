@@ -84,12 +84,9 @@ class GuardBrick(BaseBrick[GuardRequest, GuardResponse]):
             配置為異步 gRPC 客戶端的 GuardBrick 實例
         """
         import grpc
+        from llmbrick.protocols.grpc.guard import guard_pb2_grpc, guard_pb2
+        from llmbrick.protocols.grpc.common import common_pb2
 
-        from llmbrick.protocols.grpc.guard import guard_pb2_grpc
-
-        # 建立異步 gRPC 通道和客戶端
-        channel = grpc.aio.insecure_channel(remote_address)
-        grpc_client = guard_pb2_grpc.GuardServiceStub(channel)
 
         # 建立 brick 實例
         brick = cls(**kwargs)
@@ -97,8 +94,10 @@ class GuardBrick(BaseBrick[GuardRequest, GuardResponse]):
         @brick.unary()
         async def unary_handler(request: GuardRequest) -> GuardResponse:
             """異步單次請求處理器"""
-            from llmbrick.protocols.grpc.guard import guard_pb2
 
+            # 建立異步 gRPC 通道和客戶端
+            channel = grpc.aio.insecure_channel(remote_address)
+            grpc_client = guard_pb2_grpc.GuardServiceStub(channel)
             # 建立 gRPC 請求
             grpc_request = guard_pb2.GuardRequest()
             grpc_request.text = request.text
@@ -114,8 +113,10 @@ class GuardBrick(BaseBrick[GuardRequest, GuardResponse]):
         @brick.get_service_info()
         async def get_service_info_handler() -> ServiceInfoResponse:
             """異步服務信息處理器"""
-            from llmbrick.protocols.grpc.common import common_pb2
 
+            # 建立異步 gRPC 通道和客戶端
+            channel = grpc.aio.insecure_channel(remote_address)
+            grpc_client = guard_pb2_grpc.GuardServiceStub(channel)
             request = common_pb2.ServiceInfoRequest()
             response = await grpc_client.GetServiceInfo(request)
             # 將 models 轉為 ModelInfo 物件
@@ -137,6 +138,5 @@ class GuardBrick(BaseBrick[GuardRequest, GuardResponse]):
             )
 
         # 儲存通道引用以便後續清理
-        brick._grpc_channel = channel
 
         return brick

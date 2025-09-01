@@ -90,7 +90,8 @@ class RetrievalBrick(BaseBrick[RetrievalRequest, RetrievalResponse]):
         """
         import grpc
 
-        from llmbrick.protocols.grpc.retrieval import retrieval_pb2_grpc
+        from llmbrick.protocols.grpc.retrieval import retrieval_pb2_grpc, retrieval_pb2
+        from llmbrick.protocols.grpc.common import common_pb2
 
         # 建立異步 gRPC 通道和客戶端
         channel = grpc.aio.insecure_channel(remote_address)
@@ -102,7 +103,10 @@ class RetrievalBrick(BaseBrick[RetrievalRequest, RetrievalResponse]):
         @brick.unary()
         async def unary_handler(request: RetrievalRequest) -> RetrievalResponse:
             """異步單次請求處理器"""
-            from llmbrick.protocols.grpc.retrieval import retrieval_pb2
+
+            # 建立異步 gRPC 通道和客戶端
+            channel = grpc.aio.insecure_channel(remote_address)
+            grpc_client = retrieval_pb2_grpc.RetrievalServiceStub(channel)
 
             # 建立 gRPC 請求
             grpc_request = retrieval_pb2.RetrievalRequest()
@@ -120,8 +124,11 @@ class RetrievalBrick(BaseBrick[RetrievalRequest, RetrievalResponse]):
         @brick.get_service_info()
         async def get_service_info_handler() -> ServiceInfoResponse:
             """異步服務信息處理器"""
-            from llmbrick.protocols.grpc.common import common_pb2
 
+            # 建立異步 gRPC 通道和客戶端
+            channel = grpc.aio.insecure_channel(remote_address)
+            grpc_client = retrieval_pb2_grpc.RetrievalServiceStub(channel)
+            
             request = common_pb2.ServiceInfoRequest()
             response = await grpc_client.GetServiceInfo(request)
             return ServiceInfoResponse(
@@ -139,8 +146,5 @@ class RetrievalBrick(BaseBrick[RetrievalRequest, RetrievalResponse]):
                 ],
                 error=ErrorDetail.from_pb2_model(response.error) if response.error else None,
             )
-
-        # 儲存通道引用以便後續清理
-        brick._grpc_channel = channel
 
         return brick

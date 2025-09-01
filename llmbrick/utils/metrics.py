@@ -1,7 +1,7 @@
 import functools
 import inspect
-import logging
 import time
+from llmbrick.utils.logging import logger
 
 
 def measure_time(func):
@@ -19,7 +19,7 @@ def measure_time(func):
                 return result
             finally:
                 elapsed = time.perf_counter() - start
-                logging.info(
+                logger.info(
                     f"[metrics] {func.__module__}.{func.__name__} execution " +
                     f"time: {elapsed:.6f} seconds"
                 )
@@ -35,7 +35,7 @@ def measure_time(func):
                 return result
             finally:
                 elapsed = time.perf_counter() - start
-                logging.info(
+                logger.info(
                     f"[metrics] {func.__module__}.{func.__name__} execution " +
                     f"time: {elapsed:.6f} seconds"
                 )
@@ -59,7 +59,7 @@ def measure_memory(func):
             result = await func(*args, **kwargs)
             mem_after = process.memory_info().rss
             mem_diff_mb = (mem_after - mem_before) / (1024 * 1024)
-            logging.info(
+            logger.info(
                 f"[metrics] {func.__module__}.{func.__name__} memory " +
                 f"usage diff: {mem_diff_mb:.6f} MB"
             )
@@ -74,7 +74,7 @@ def measure_memory(func):
             result = func(*args, **kwargs)
             mem_after = process.memory_info().rss
             mem_diff_mb = (mem_after - mem_before) / (1024 * 1024)
-            logging.info(
+            logger.info(
                 f"[metrics] {func.__module__}.{func.__name__} memory " +
                 f"usage diff: {mem_diff_mb:.6f} MB"
             )
@@ -100,7 +100,7 @@ def measure_peak_memory(func):
                 result = await func(*args, **kwargs)
                 current, peak = tracemalloc.get_traced_memory()
                 peak_mb = peak / (1024 * 1024)
-                logging.info(
+                logger.info(
                     f"[metrics] {func.__module__}.{func.__name__} peak " +
                     f"memory usage: {peak_mb:.6f} MB (tracemalloc)"
                 )
@@ -118,7 +118,7 @@ def measure_peak_memory(func):
                 result = func(*args, **kwargs)
                 current, peak = tracemalloc.get_traced_memory()
                 peak_mb = peak / (1024 * 1024)
-                logging.info(
+                logger.info(
                     f"[metrics] {func.__module__}.{func.__name__} peak " +
                     f"memory usage: {peak_mb:.6f} MB (tracemalloc)"
                 )

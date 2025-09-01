@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "llmbrick"
-version = "0.2.3"
+version = "0.2.4"
 description = "A modular LLM application development framework"
 readme = "README.md"
 license = {text = "MIT"}
@@ -65,7 +65,7 @@ llmbrick = "llmbrick.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/JiHungLin/llmbrick"
-Documentation = "https://llmbrick.readthedocs.io"
+Documentation = "https://jihunglin.github.io/llmbrick/"
 Repository = "https://github.com/JiHungLin/llmbrick"
 Issues = "https://github.com/JiHungLin/llmbrick/issues"
 

@@ -20,7 +20,7 @@ from llmbrick.protocols.models.bricks.retrieval_types import (
     RetrievalResponse,
 )
 from llmbrick.servers.grpc.server import GrpcServer
-
+from llmbrick.core.error_codes import ErrorCodes
 
 class _TestRetrievalBrick(RetrievalBrick):
     """測試用的 Retrieval Brick"""
@@ -33,7 +33,7 @@ class _TestRetrievalBrick(RetrievalBrick):
 
         doc = Document(doc_id="doc1", title="標題", snippet="片段", score=0.95)
         return RetrievalResponse(
-            documents=[doc], error=ErrorDetail(code=0, message="No error", detail="")
+            documents=[doc], error=ErrorDetail(code=ErrorCodes.SUCCESS, message="No error", detail="")
         )
 
     @get_service_info_handler
@@ -51,7 +51,7 @@ class _TestRetrievalBrick(RetrievalBrick):
                     description="test",
                 )
             ],
-            error=ErrorDetail(code=0, message="No error"),
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="No error"),
         )
 
 
@@ -61,7 +61,7 @@ async def test_async_grpc_server_startup() -> None:
     retrieval_brick = _TestRetrievalBrick()
     server = GrpcServer(port=50140)
     server.register_service(retrieval_brick)
-    assert server.server is not None
+    assert len(server._pending_bricks) > 0
     assert server.port == 50140
 
 
@@ -87,7 +87,6 @@ async def grpc_client(
 ) -> AsyncIterator[_TestRetrievalBrick]:
     client_brick = _TestRetrievalBrick.toGrpcClient(remote_address="127.0.0.1:50141")
     yield client_brick
-    await client_brick._grpc_channel.close()
 
 
 @pytest.mark.asyncio

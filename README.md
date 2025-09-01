@@ -3,7 +3,7 @@
 [![Python Version](https://img.shields.io/pypi/pyversions/llmbrick)](https://www.python.org/downloads/)
 [![PyPI Version](https://img.shields.io/pypi/v/llmbrick)](https://pypi.org/project/llmbrick/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/JiHungLin/llmbrick/blob/main/LICENSE)
-[![Documentation](https://img.shields.io/badge/docs-latest-brightgreen)](https://llmbrick.readthedocs.io)
+[![Documentation](https://img.shields.io/badge/docs-latest-brightgreen)](https://jihunglin.github.io/llmbrick/)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/JiHungLin/llmbrick)
 
 一個強調「模組化設計」、「明確協定定義」、「靈活組裝」與「易於擴展」的 LLM 應用開發框架。
@@ -93,7 +93,7 @@ class SimpleBrick(CommonBrick):
     async def process(self, request: CommonRequest) -> CommonResponse:
         return CommonResponse(
             data={"message": f"Hello, {request.data.get('name', 'World')}!"},
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
 
     @get_service_info_handler
@@ -102,7 +102,7 @@ class SimpleBrick(CommonBrick):
             service_name="SimpleBrick",
             version="1.0.0",
             models=[],
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
 ```
 
@@ -121,7 +121,7 @@ class SimpleLLMBrick(LLMBrick):
             text=f"Echo: {request.prompt}",
             tokens=["echo"],
             is_final=True,
-            error=ErrorDetail(code=0, message="Success"),
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"),
         )
 
     @get_service_info_handler
@@ -130,7 +130,7 @@ class SimpleLLMBrick(LLMBrick):
             service_name="SimpleLLMBrick",
             version="1.0.0",
             models=[],
-            error=ErrorDetail(code=0, message="Success"),
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"),
         )
 ```
 
@@ -147,7 +147,7 @@ class SimpleCompose(ComposeBrick):
     async def process(self, request: ComposeRequest) -> ComposeResponse:
         return ComposeResponse(
             output={"message": f"文件數量: {len(request.input_documents)}"},
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
 
     @get_service_info_handler
@@ -156,7 +156,7 @@ class SimpleCompose(ComposeBrick):
             service_name="SimpleCompose",
             version="1.0.0",
             models=[],
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
 ```
 
@@ -179,7 +179,7 @@ class SimpleGuard(GuardBrick):
         )
         return GuardResponse(
             results=[result],
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
 
     @get_service_info_handler
@@ -188,7 +188,7 @@ class SimpleGuard(GuardBrick):
             service_name="SimpleGuard",
             version="1.0.0",
             models=[],
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
 ```
 
@@ -205,7 +205,7 @@ class SimpleIntentionBrick(IntentionBrick):
     async def process(self, request: IntentionRequest) -> IntentionResponse:
         return IntentionResponse(
             results=[IntentionResult(intent_category="greet", confidence=1.0)],
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
 
     @get_service_info_handler
@@ -214,7 +214,7 @@ class SimpleIntentionBrick(IntentionBrick):
             service_name="SimpleIntentionBrick",
             version="1.0.0",
             models=[],
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
 ```
 
@@ -231,7 +231,7 @@ class SimpleRectifyBrick(RectifyBrick):
     async def rectify_handler(self, request: RectifyRequest) -> RectifyResponse:
         return RectifyResponse(
             corrected_text=request.text.upper(),
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
 
     @get_service_info_handler
@@ -240,7 +240,7 @@ class SimpleRectifyBrick(RectifyBrick):
             service_name="SimpleRectifyBrick",
             version="1.0.0",
             models=[],
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
 ```
 
@@ -257,7 +257,7 @@ class SimpleRetrievalBrick(RetrievalBrick):
     async def search(self, request: RetrievalRequest) -> RetrievalResponse:
         return RetrievalResponse(
             documents=[],
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
 
     @get_service_info_handler
@@ -266,7 +266,7 @@ class SimpleRetrievalBrick(RetrievalBrick):
             service_name="SimpleRetrievalBrick",
             version="1.0.0",
             models=[],
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )
 ```
 
@@ -286,7 +286,7 @@ class SimpleTranslator(TranslateBrick):
             tokens=[1, 2, 3],
             language_code=request.target_language,
             is_final=True,
-            error=ErrorDetail(code=0, message="Success"),
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"),
         )
 
     @get_service_info_handler
@@ -295,7 +295,7 @@ class SimpleTranslator(TranslateBrick):
             service_name="SimpleTranslator",
             version="1.0.0",
             models=[],
-            error=ErrorDetail(code=0, message="Success"),
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success"),
         )
 ```
 
@@ -304,16 +304,14 @@ class SimpleTranslator(TranslateBrick):
 ```python
 # 服務端
 from llmbrick.servers.grpc.server import GrpcServer
+from llmbrick.bricks.llm.base_llm import LLMBrick
 import asyncio
 
-async def start_grpc_server():
-    from llmbrick.bricks.llm.base_llm import LLMBrick
-    brick = LLMBrick(default_prompt="你好")
-    server = GrpcServer(port=50051)
-    server.register_service(brick)
-    await server.start()
+brick = LLMBrick(default_prompt="你好")
+server = GrpcServer(port=50051)
+server.register_service(brick)
+server.run()
 
-asyncio.run(start_grpc_server())
 
 # 客戶端
 from llmbrick.bricks.llm.base_llm import LLMBrick
@@ -325,7 +323,6 @@ async def use_grpc_client():
     req = LLMRequest(prompt="Test", context=[])
     resp = await client_brick.run_unary(req)
     print(resp)
-    await client_brick._grpc_channel.close()
 
 asyncio.run(use_grpc_client())
 ```
@@ -359,15 +356,15 @@ if __name__ == "__main__":
 
 ## 📚 文檔
 
-- [完整線上文檔（ReadTheDocs）](https://llmbrick.readthedocs.io/)
+- [完整線上文檔（Docusaurus）](https://jihunglin.github.io/llmbrick/)
   包含所有指南、API 參考、教學與部署說明，建議優先查閱。
-- [快速開始](https://llmbrick.readthedocs.io/zh-tw/latest/quickstart/)
+- [快速開始](https://jihunglin.github.io/llmbrick/docs/quickstart)
   最精簡的安裝與第一個 Brick 實作步驟。
-- [API 參考](https://llmbrick.readthedocs.io/zh-tw/latest/api_reference/)
+- [API 參考](https://jihunglin.github.io/llmbrick/docs/documents/api)
   各類 Brick 與核心方法的 API 文件。
-- [教學範例](https://llmbrick.readthedocs.io/zh-tw/latest/tutorials/)
+- [教學範例](https://jihunglin.github.io/llmbrick/docs/quickstart/examples)
   Step-by-step 教學與開發實例。
-- [元件指南（Brick Guides）](https://llmbrick.readthedocs.io/zh-tw/latest/guides/)
+- [元件指南（Brick Guides）](https://jihunglin.github.io/llmbrick/docs/category/bricks)
   詳細說明各類 Brick（如 CommonBrick、LLMBrick、GuardBrick 等）的設計理念、實作範例與最佳實踐。
 
 > 文檔結構說明：
@@ -375,7 +372,7 @@ if __name__ == "__main__":
 > - **API 參考**：查詢各元件方法與型別
 > - **教學範例**：實戰案例、進階應用
 > - **元件指南**：每種 Brick 的設計與最佳實踐
-> - **完整文檔**：建議直接瀏覽 ReadTheDocs 以獲得最佳閱讀體驗
+> - **完整文檔**：建議直接瀏覽 Docusaurus 以獲得最佳閱讀體驗
 
 ## 授權
 

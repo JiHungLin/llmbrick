@@ -12,6 +12,7 @@ from llmbrick.bricks.llm.base_llm import LLMBrick
 from llmbrick.core.brick import unary_handler, output_streaming_handler, get_service_info_handler
 from llmbrick.protocols.models.bricks.common_types import ErrorDetail, ServiceInfoResponse
 from llmbrick.protocols.models.bricks.llm_types import LLMRequest, LLMResponse, Context
+from llmbrick.core.error_codes import ErrorCodes
 
 class OpenAIGPTBrick(LLMBrick):
     """OpenAI GPT implementation of LLMBrick.
@@ -96,7 +97,7 @@ class OpenAIGPTBrick(LLMBrick):
 
     @unary_handler
     @log_function(service_name="OpenAIGPTBrick", level="info")
-    async def unary(self, request: LLMRequest) -> LLMResponse:
+    async def unary_method(self, request: LLMRequest) -> LLMResponse:
         """Handle a single request-response interaction.
         
         Args:
@@ -111,7 +112,7 @@ class OpenAIGPTBrick(LLMBrick):
                 text=completion.choices[0].message.content,
                 tokens=[],  # OpenAI doesn't provide token-by-token breakdown
                 is_final=True,
-                error=ErrorDetail(code=0, message="Success")
+                error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
             )
         except Exception as e:
             return LLMResponse(
@@ -123,7 +124,7 @@ class OpenAIGPTBrick(LLMBrick):
 
     @output_streaming_handler
     @log_function(service_name="OpenAIGPTBrick", level="info")
-    async def output_streaming(self, request: LLMRequest) -> AsyncGenerator[LLMResponse, None]:
+    async def output_streaming_method(self, request: LLMRequest) -> AsyncGenerator[LLMResponse, None]:
         """Handle a streaming response interaction.
         
         Args:
@@ -141,7 +142,7 @@ class OpenAIGPTBrick(LLMBrick):
                     text=chunk.choices[0].delta.content,
                     tokens=[],  # OpenAI doesn't provide token-by-token breakdown
                     is_final=False,
-                    error=ErrorDetail(code=0, message="Success")
+                    error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
                 )
                 
             # Send final chunk
@@ -149,7 +150,7 @@ class OpenAIGPTBrick(LLMBrick):
                 text="",
                 tokens=[],
                 is_final=True,
-                error=ErrorDetail(code=0, message="Success")
+                error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
             )
             
         except Exception as e:
@@ -162,7 +163,7 @@ class OpenAIGPTBrick(LLMBrick):
 
     @get_service_info_handler
     @log_function(service_name="OpenAIGPTBrick", level="info")
-    async def get_service_info(self) -> ServiceInfoResponse:
+    async def get_service_info_method(self) -> ServiceInfoResponse:
         """Get information about this service.
         
         Returns:
@@ -172,5 +173,5 @@ class OpenAIGPTBrick(LLMBrick):
             service_name="OpenAI GPT Brick",
             version="1.0.0",
             models=self.supported_models,
-            error=ErrorDetail(code=0, message="Success")
+            error=ErrorDetail(code=ErrorCodes.SUCCESS, message="Success")
         )

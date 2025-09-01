@@ -187,6 +187,8 @@
       height: 400px;
       display: flex;
       flex-direction: column;
+      min-width: 0;
+      width: 100%;
     }
     .output-header {
       padding: 1rem;
@@ -202,16 +204,19 @@
     }
     #output {
       flex: 1;
-      white-space: pre-wrap;
       overflow-y: auto;
       padding: 1rem;
       margin: 0;
       scroll-behavior: smooth;
+      width: 100%;
+      box-sizing: border-box;
+      min-width: 0;
     }
     .message-timestamp {
       color: var(--secondary-color);
       padding-right: 0.5rem;
       user-select: none;
+      flex-shrink: 0;
     }
     .message-line {
       display: flex;
@@ -219,10 +224,28 @@
       padding: 0.25rem 0.5rem;
       margin: 0.25rem 0;
       border-radius: 4px;
+      width: 100%;
+      box-sizing: border-box;
+      min-width: 0;
     }
     .message-content {
-      flex: 1;
+      flex: 1 1 0%;
       color: var(--message-color);
+      overflow-x: hidden;
+      width: 100%;
+    }
+    .message-content pre {
+      margin: 0;
+      white-space: pre-wrap;
+      width: 100%;
+      display: block;
+      box-sizing: border-box;
+      word-break: break-all;
+    }
+    task {
+      display: block;
+      width: 100%;
+      overflow-wrap: break-word;
     }
     /* Event type styles */
     .event-error {
@@ -437,7 +460,7 @@
         <button type="submit">Send Request</button>
       </form>
 
-      <div style="display: flex; gap: 1rem;">
+      <div style="display: flex; gap: 1rem; min-width: 0;">
         <div class="output-container" style="flex: 1;">
           <div class="output-header">
             <h2 style="margin: 0">Stream Output</h2>

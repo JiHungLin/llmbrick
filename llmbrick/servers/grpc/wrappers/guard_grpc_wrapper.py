@@ -6,6 +6,7 @@ from llmbrick.protocols.grpc.common import common_pb2
 from llmbrick.protocols.grpc.guard import guard_pb2, guard_pb2_grpc
 from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse
 from llmbrick.protocols.models.bricks.guard_types import GuardRequest, GuardResponse
+from llmbrick.core.error_codes import ErrorCodes
 
 # /protocols/grpc/guard/guard.proto
 # guard_pb2
@@ -30,7 +31,7 @@ class GuardGrpcWrapper(guard_pb2_grpc.GuardServiceServicer):
         self.brick = brick
 
     async def GetServiceInfo(self, request, context):
-        error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
+        error_data = common_pb2.ErrorDetail(code=ErrorCodes.SUCCESS, message="", detail="")
         try:
             result = await self.brick.run_get_service_info()
             if result is None:
@@ -51,7 +52,7 @@ class GuardGrpcWrapper(guard_pb2_grpc.GuardServiceServicer):
                 )
                 response = common_pb2.ServiceInfoResponse(error=error_data)
                 return response
-            if result.error and result.error.code != 0:
+            if result.error and result.error.code != ErrorCodes.SUCCESS:
                 # context.set_code(grpc.StatusCode.INTERNAL)
                 # context.set_details(result.error.message)
                 error_data.code = result.error.code
@@ -82,7 +83,7 @@ class GuardGrpcWrapper(guard_pb2_grpc.GuardServiceServicer):
             return common_pb2.ServiceInfoResponse(error=error_data)
 
     async def Unary(self, request: guard_pb2.GuardRequest, context):
-        error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
+        error_data = common_pb2.ErrorDetail(code=ErrorCodes.SUCCESS, message="", detail="")
         try:
             request = GuardRequest.from_pb2_model(request)
             result: GuardResponse = await self.brick.run_unary(request)
@@ -95,7 +96,7 @@ class GuardGrpcWrapper(guard_pb2_grpc.GuardServiceServicer):
                     "The response from the brick is not of type GuardResponse."
                 )
                 return guard_pb2.GuardResponse(error=error_data)
-            if result.error and result.error.code != 0:
+            if result.error and result.error.code != ErrorCodes.SUCCESS:
                 # context.set_code(grpc.StatusCode.INTERNAL)
                 # context.set_details(result.error.message)
                 error_data.code = result.error.code

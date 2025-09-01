@@ -6,7 +6,7 @@ from llmbrick.protocols.grpc.common import common_pb2
 from llmbrick.protocols.grpc.llm import llm_pb2, llm_pb2_grpc
 from llmbrick.protocols.models.bricks.common_types import ServiceInfoResponse
 from llmbrick.protocols.models.bricks.llm_types import LLMRequest, LLMResponse
-
+from llmbrick.core.error_codes import ErrorCodes
 
 # /protocols/grpc/llm/llm.proto
 # llm_pb2
@@ -37,7 +37,7 @@ class LLMGrpcWrapper(llm_pb2_grpc.LLMServiceServicer):
         self.brick = brick
 
     async def GetServiceInfo(self, request, context):
-        error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
+        error_data = common_pb2.ErrorDetail(code=ErrorCodes.SUCCESS, message="", detail="")
         try:
             result = await self.brick.run_get_service_info()
             if result is None:
@@ -58,7 +58,7 @@ class LLMGrpcWrapper(llm_pb2_grpc.LLMServiceServicer):
                 )
                 response = common_pb2.ServiceInfoResponse(error=error_data)
                 return response
-            if result.error and result.error.code != 0:
+            if result.error and result.error.code != ErrorCodes.SUCCESS:
                 # context.set_code(grpc.StatusCode.INTERNAL)
                 # context.set_details(result.error.message)
                 error_data.code = result.error.code
@@ -89,7 +89,7 @@ class LLMGrpcWrapper(llm_pb2_grpc.LLMServiceServicer):
             return common_pb2.ServiceInfoResponse(error=error_data)
 
     async def Unary(self, request: llm_pb2.LLMRequest, context):
-        error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
+        error_data = common_pb2.ErrorDetail(code=ErrorCodes.SUCCESS, message="", detail="")
         try:
             request = LLMRequest.from_pb2_model(request)
             result: LLMResponse = await self.brick.run_unary(request)
@@ -102,7 +102,7 @@ class LLMGrpcWrapper(llm_pb2_grpc.LLMServiceServicer):
                     "The response from the brick is not of type LLMResponse."
                 )
                 return llm_pb2.LLMResponse(error=error_data)
-            if result.error and result.error.code != 0:
+            if result.error and result.error.code != ErrorCodes.SUCCESS:
                 # context.set_code(grpc.StatusCode.INTERNAL)
                 # context.set_details(result.error.message)
                 error_data.code = result.error.code
@@ -139,7 +139,7 @@ class LLMGrpcWrapper(llm_pb2_grpc.LLMServiceServicer):
         request = LLMRequest.from_pb2_model(request)
         try:
             async for response in self.brick.run_output_streaming(request):
-                error_data = common_pb2.ErrorDetail(code=0, message="", detail="")
+                error_data = common_pb2.ErrorDetail(code=ErrorCodes.SUCCESS, message="", detail="")
                 if not isinstance(response, LLMResponse):
                     # context.set_code(grpc.StatusCode.INTERNAL)
                     # context.set_details('Invalid output streaming response type!')
@@ -150,7 +150,7 @@ class LLMGrpcWrapper(llm_pb2_grpc.LLMServiceServicer):
                     )
                     yield llm_pb2.LLMResponse(error=error_data)
                     break
-                if response.error and response.error.code != 0:
+                if response.error and response.error.code != ErrorCodes.SUCCESS:
                     # context.set_code(grpc.StatusCode.INTERNAL)
                     # context.set_details(response.error.message)
                     error_data.code = response.error.code
