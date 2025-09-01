@@ -27,6 +27,15 @@ This release delivers significant improvements to the gRPC protocol implementati
 ## Improvements
 - Refactored error handling in various bricks to use ErrorCodes for success status
 - Enhanced local usage examples for gRPC bricks
+- Refactored gRPC retrieval and translation protocols, updated protobuf definitions, and improved service implementations
+- Unified error handling across components and bricks using standardized ErrorCodes for consistent success/failure status
+- Improved async handling in gRPC client and server implementations
+- Added new brick definitions and expanded documentation
+
+## Improvements
+- Refactored error handling in various bricks to use ErrorCodes for success status
+- Enhanced local usage examples for gRPC bricks
 
 ## Documentation
+- Added and updated documentation for new brick definitions and usage patterns
 - Added and updated documentation for new brick definitions and usage patterns

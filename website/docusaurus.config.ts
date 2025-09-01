@@ -46,7 +46,7 @@ const config: Config = {
   ],
 
   themeConfig: {
-    image: 'img/docusaurus-social-card.jpg',
+    image: 'img/social-card.svg',
     colorMode: {
       defaultMode: 'dark',
       respectPrefersColorScheme: false,
@@ -55,7 +55,7 @@ const config: Config = {
       title: 'llmbrick',
       logo: {
         alt: 'llmbrick Logo',
-        src: 'img/logo.svg',
+        src: 'img/logo.png',
       },
       items: [
         {
@@ -71,6 +71,11 @@ const config: Config = {
         {
           label: '完整手冊',
           to: '/docs/documents',
+          position: 'left',
+        },
+        {
+          label: 'Prompt',
+          to: '/prompt',
           position: 'left',
         },
         {

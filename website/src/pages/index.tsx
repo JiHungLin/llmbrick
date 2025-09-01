@@ -58,6 +58,12 @@ function HomepageHeader() {
   return (
     <header className={clsx('hero hero--primary', styles.heroBanner)}>
       <div className="container">
+        <img
+          src="img/logo.svg"
+          alt="llmbrick Logo"
+          className={styles.heroLogo}
+          style={{ maxWidth: '100px' }}
+        />
         <Heading as="h1" className="hero__title">
           llmbrick
         </Heading>
@@ -100,8 +106,8 @@ export default function Home() {
 
   return (
     <Layout
-      title={`Hello from ${siteConfig.title}`}
-      description="Description will go into a meta tag in <head />"
+      title="LLMBrick - 模組化 LLM 應用框架"
+      description="強調模組化、協定導向、靈活組裝的 LLM 應用開發框架"
     >
       <HomepageHeader />
       <main>
