@@ -141,6 +141,37 @@ def log_function(
 # Decorator 使用範例
 # =========================
 
+import logging
+
+def enable_standard_logging_bridge():
+    """
+    將 pretty-loguru/loguru 的 log 轉發到標準 logging，
+    使 pytest 的 caplog 能夠捕捉 loguru 輸出的訊息。
+    測試時可在 setup 階段呼叫此函式。
+    """
+    global logger
+
+    class PropagateHandler:
+        def write(self, message):
+            if message.strip():
+                logging.getLogger().handle(logging.LogRecord(
+                    name="loguru",
+                    level=logging.INFO,
+                    pathname="",
+                    lineno=0,
+                    msg=message,
+                    args=(),
+                    exc_info=None
+                ))
+        def flush(self):
+            pass
+
+    # 移除所有現有的 loguru handler，避免重複
+    logger.remove()
+    # 新增一個 handler，將 loguru log 轉發到標準 logging
+    logger.add(PropagateHandler(), format="{message}")
+
+
 # 同步函式範例
 # from llmbrick.utils.logging import log_function
 #

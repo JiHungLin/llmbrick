@@ -1,12 +1,17 @@
 import logging
 
 import pytest
+from llmbrick.utils.logging import enable_standard_logging_bridge
 
 from llmbrick.utils.metrics import measure_memory, measure_peak_memory, measure_time
 
 # 設定 logging 輸出到 console
 logging.basicConfig(level=logging.INFO)
 
+
+@pytest.fixture(autouse=True, scope="session")
+def _enable_loguru_bridge():
+    enable_standard_logging_bridge()
 
 def test_measure_time_sync(caplog):
     @measure_time
