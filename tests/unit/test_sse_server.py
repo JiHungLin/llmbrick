@@ -2,7 +2,7 @@ import pytest
 from fastapi.testclient import TestClient
 from http import HTTPStatus
 from llmbrick.servers.sse.server import SSEServer
-from llmbrick.protocols.models.http.conversation import ConversationSSEResponse
+from llmbrick.protocols.models.http.conversation import ConversationSSEResponse, ConversationResponseProgressEnum
 
 @pytest.fixture
 def sse_server():
@@ -13,12 +13,12 @@ def sse_server():
             id="test-1",
             type="text",
             text="Hello World",
-            progress="IN_PROGRESS"
+            progress=ConversationResponseProgressEnum.IN_PROGRESS
         )
         yield ConversationSSEResponse(
             id="test-2",
             type="done",
-            progress="DONE"
+            progress=ConversationResponseProgressEnum.DONE
         )
     return server
 
@@ -159,7 +159,7 @@ def test_custom_validator():
             id="test-1",
             type="text",
             text="Custom validation passed",
-            progress="DONE"
+            progress=ConversationResponseProgressEnum.DONE
         )
     
     client = TestClient(server.fastapi_app)

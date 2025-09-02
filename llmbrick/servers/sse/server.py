@@ -14,6 +14,7 @@ from llmbrick.core.exceptions import LLMBrickException, ValidationException
 from llmbrick.protocols.models.http.conversation import (
     ConversationSSERequest,
     ConversationSSEResponse,
+    ConversationResponseProgressEnum
 )
 from llmbrick.servers.sse.config import SSEServerConfig
 from llmbrick.utils.logging import logger
@@ -189,8 +190,11 @@ class SSEServer:
             return False, "Event.type is required"
         if not getattr(event, "progress", None):
             return False, "Event.progress is required"
-        if event.progress not in ["IN_PROGRESS", "DONE"]:
-            return False, f"Invalid progress value: {event.progress}"
+        if not isinstance(event.progress, ConversationResponseProgressEnum):
+            try:
+                event.progress = ConversationResponseProgressEnum(event.progress)
+            except Exception:
+                return False, f"Invalid progress value: {event.progress}"
         return True, ""
 
     def setup_routes(self) -> None:

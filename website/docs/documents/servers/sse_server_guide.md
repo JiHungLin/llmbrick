@@ -15,6 +15,17 @@ LLMBrick SSE Server 是一個基於 FastAPI 的 Server-Sent Events (SSE) 服務�
 
 ## 快速開始
 
+### 預設 SSE URL
+
+SSE Server 預設的 SSE API 路徑為：
+
+- `POST /chat/completions`
+  - 這個路徑可透過 `SSEServerConfig.chat_completions_path` 或建構子參數自訂，未指定時預設為 `/chat/completions`。
+  - 若有設定 `prefix`，則完整路徑為 `/{prefix}/{chat_completions_path}`，例如 `/api/v1/chat/completions`。
+  - 測試頁面預設於 `/` 路徑（需啟用 `enable_test_page`）。
+
+請確保前端與測試工具請求的路徑與伺服器設定一致，否則會出現 404 錯誤。
+
 ### 基本使用
 
 ```python
@@ -312,9 +323,21 @@ SSE Server 接受符合 `ConversationSSERequest` 格式的請求：
 | `type`      | str                 | ✔    | 資料類型，如 `"text"`、`"meta"`、`"done"` |
 | `model`     | str                 |      | 回應的模型名稱（選填） |
 | `text`      | str                 |      | 本次串流新文本（選填，通常 type 為 `"text"` 時有值） |
-| `progress`  | str                 | ✔    | 進度狀態，`"IN_PROGRESS"` 或 `"DONE"` |
+| `progress`  | str                 | ✔    | 進度狀態，`"IN_PROGRESS"` 、 `ERROR` 或 `"DONE"` |
 | `context`   | SSEContext          |      | 上下文資訊（選填，包含 conversationId、cursor 等） |
 | `metadata`  | SSEResponseMetadata |      | 輔助資訊（選填，包含 searchResults、attachments 等） |
+
+> **型別安全建議：**
+> `progress` 欄位建議以 Enum 型式定義於後端程式碼中，避免硬編字串。
+> 例如：
+> ```python
+> from enum import Enum
+> class ProgressEnum(str, Enum):
+>     IN_PROGRESS = "IN_PROGRESS"
+>     DONE = "DONE"
+>     ERROR = "ERROR"
+> ```
+> 回傳時請使用 `ProgressEnum.IN_PROGRESS`、`ProgressEnum.ERROR` 或 `ProgressEnum.DONE`，以提升型別安全與可維護性。
 
 #### SSEContext 欄位說明
 
@@ -334,6 +357,48 @@ SSE Server 接受符合 `ConversationSSERequest` 格式的請求：
 > - 所有欄位預設禁止額外欄位（extra="forbid"），多餘欄位會驗證失敗。
 > - 欄位名稱支援駝峰式（如 `conversationId`、`searchResults`）。
 > - `progress` 必須為 `"IN_PROGRESS"` 或 `"DONE"`，否則會驗證失敗。
+
+---
+
+### ConversationSSEResponse 靈活運用
+
+雖然 `ConversationSSEResponse` 欄位已明確定義，但開發者可根據需求靈活運用各欄位，實現多樣化的串流互動體驗：
+
+- **進度通知**：可多次回傳 `IN_PROGRESS`，每次帶不同 `text` 或 `metadata`，用於分段訊息、進度條、分批資料等。
+- **警告/提示**：可於 `metadata` 增加自訂欄位（如 `warnings`），或於 `type` 設為 `"meta"`，前端可根據 type/metadata 顯示提示。
+- **異常/例外**：非致命錯誤（如部分資料缺失、外部 API timeout）可用一則 `type="meta"` 或 `type="text"`，於 `text` 或 `metadata` 說明，並將 `progress` 設為 `"IN_PROGRESS"` 或 `"DONE"`，不會中斷 SSE 流。
+- **Meta 資訊**：如搜尋結果、附件、上下文等，皆可放於 `metadata`，前端可依需求解析。
+- **分段訊息**：長訊息可拆分多則 `ConversationSSEResponse`，每則帶不同 `id`/`text`，前端可組合顯示。
+- **自訂 context**：如需追蹤串流進度、游標、conversationId，可於 `context` 傳遞，前端可用於續傳、定位等進階應用。
+
+#### 靈活運用範例
+
+```python
+# 進度條與警告訊息
+yield ConversationSSEResponse(
+    id="msg-1",
+    type="text",
+    text="正在處理第 1 步...",
+    progress="IN_PROGRESS",
+    metadata={"progressPercent": 20}
+)
+yield ConversationSSEResponse(
+    id="msg-2",
+    type="meta",
+    text="外部 API 回應較慢，請稍候。",
+    progress="IN_PROGRESS",
+    metadata={"warnings": ["API timeout, fallback to cache"]}
+)
+yield ConversationSSEResponse(
+    id="msg-3",
+    type="text",
+    text="處理完成！",
+    progress="DONE"
+)
+```
+
+> **建議：**
+> 除嚴重錯誤（event: error）外，所有狀態、警告、異常、進度等皆可透過 `ConversationSSEResponse` 彈性通知 client，前端可根據 type/metadata/context 實現多元互動。
 
 #### 範例 JSON
 
@@ -370,6 +435,26 @@ SSE Server 接受符合 `ConversationSSERequest` 格式的請求：
 2. **必要欄位檢查** - 驗證 `id`、`type`、`progress` 等必要欄位
 3. **進度狀態檢查** - 確保 `progress` 為有效值 (`IN_PROGRESS` 或 `DONE`)
 
+## SSE 回應 event/data 行為說明
+
+SSE 回應格式為：
+
+```
+event: message
+data: {...ConversationSSEResponse...}
+```
+
+- **event** 欄位預設為 `message`，僅當發生嚴重錯誤（如 schema 驗證失敗、未註冊 handler 等）時才會為 `error`，此時連線將被中斷。
+- **一般錯誤/例外**（如業務驗證失敗、外部 API 部分失敗等）建議以 `event: message`，並用 `ConversationSSEResponse` 的 `type`、`text`、`metadata` 等欄位通知 client，讓前端可彈性處理顯示、重試、提示等。
+- 嚴重錯誤（如 422 schema error、404 handler not set）才會回傳 `event: error`，格式如下：
+
+```
+event: error
+data: {"error": "Business validation failed", "details": "..."}
+```
+
+- 其他所有狀態、警告、異常、進度等，皆建議以 `event: message` + `ConversationSSEResponse` 回傳，避免中斷 SSE 連線。
+
 ## 錯誤處理
 
 ### HTTP 錯誤碼
@@ -384,6 +469,23 @@ SSE Server 接受符合 `ConversationSSERequest` 格式的請求：
 ```
 event: error
 data: {"error": "Business validation failed", "details": "Unsupported model: invalid-model"}
+```
+
+#### 錯誤回報建議
+
+- 嚴重錯誤（如 schema 驗證失敗、handler 缺失）才會以 `event: error` 回傳，並中斷 SSE 連線。
+- 其他業務錯誤、例外、警告等，建議以 `event: message`，並用 `ConversationSSEResponse` 的 `type="meta"` 或 `type="text"`，於 `text` 或 `metadata` 說明錯誤細節，讓前端可彈性顯示、提示或重試。
+- 例如：
+
+```python
+# 非致命錯誤，通知 client
+yield ConversationSSEResponse(
+    id="warn-1",
+    type="meta",
+    text="部分資料取得失敗，已使用預設值。",
+    progress="IN_PROGRESS",
+    metadata={"warnings": ["fallback to default"]}
+)
 ```
 
 ### 自定義異常
