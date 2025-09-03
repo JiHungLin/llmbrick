@@ -149,8 +149,6 @@ def enable_standard_logging_bridge():
     使 pytest 的 caplog 能夠捕捉 loguru 輸出的訊息。
     測試時可在 setup 階段呼叫此函式。
     """
-    global logger
-
     class PropagateHandler:
         def write(self, message):
             if message.strip():

@@ -716,6 +716,138 @@ fetch('/chat/completions', {
 });
 ```
 
+---
+
+### TypeScript 串接範例
+
+#### 型別定義
+
+```typescript
+// llmbrick_sse_types.ts
+
+export interface Message {
+  role: 'system' | 'user' | 'assistant' | string;
+  content: string;
+}
+
+export interface SSEContext {
+  conversationId?: string;
+  cursor?: string;
+}
+
+export interface SSEResponseMetadata {
+  searchResults?: any;
+  attachments?: any;
+}
+
+export enum ConversationResponseProgressEnum {
+  IN_PROGRESS = "IN_PROGRESS",
+  DONE = "DONE",
+  ERROR = "ERROR"
+}
+
+export interface ConversationSSEResponse {
+  id: string;
+  type: "text" | "meta" | "done" | string;
+  model?: string;
+  text?: string;
+  progress: ConversationResponseProgressEnum;
+  context?: SSEContext;
+  metadata?: SSEResponseMetadata;
+}
+```
+
+#### 串流請求與處理範例
+
+```typescript
+// TypeScript: LLMBrick SSE Streaming Example
+
+import type { ConversationSSEResponse, Message, ConversationResponseProgressEnum } from './llmbrick_sse_types';
+
+async function streamLLMBrickSSE(
+  apiUrl: string,
+  requestBody: {
+    model: string;
+    messages: Message[];
+    stream: true;
+    sessionId: string;
+    clientId?: string;
+    temperature?: number;
+    maxTokens?: number;
+    sourceLanguage?: string;
+  },
+  onMessage: (data: ConversationSSEResponse) => void,
+  onError?: (err: Error) => void
+) {
+  const resp = await fetch(apiUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Accept": "text/event-stream"
+    },
+    body: JSON.stringify(requestBody)
+  });
+
+  if (!resp.body) throw new Error("No response body (SSE not supported?)");
+  const reader = resp.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  try {
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const parts = buffer.split("\n\n");
+      buffer = parts.pop() || "";
+      for (const part of parts) {
+        const lines = part.split("\n");
+        const dataLine = lines.find(line => line.startsWith("data: "));
+        if (dataLine) {
+          try {
+            const json = JSON.parse(dataLine.slice(6));
+            onMessage(json as ConversationSSEResponse);
+          } catch (e) {
+            if (onError) onError(e as Error);
+          }
+        }
+      }
+    }
+  } catch (err) {
+    if (onError) onError(err as Error);
+  }
+}
+
+// Example usage:
+const apiUrl = "/chat/completions";
+const requestBody = {
+  model: "gpt-4o",
+  messages: [
+    { role: "system", content: "You are a helpful assistant." },
+    { role: "user", content: "What is the weather like today?" }
+  ],
+  stream: true,
+  sessionId: "test-session-123"
+};
+
+streamLLMBrickSSE(
+  apiUrl,
+  requestBody,
+  (data) => {
+    if (data.type === "text" && data.text) {
+      // Append data.text to your UI
+      console.log("Streamed text:", data.text);
+    }
+    if (data.progress === ConversationResponseProgressEnum.DONE) {
+      console.log("Stream finished.");
+    }
+  },
+  (err) => {
+    console.error("SSE error:", err);
+  }
+);
+```
+
 ## 故障排除
 
 ### 常見問題
