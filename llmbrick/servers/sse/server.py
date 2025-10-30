@@ -271,7 +271,8 @@ class SSEServer:
 
             return StreamingResponse(event_stream(), media_type="text/event-stream")
 
-    def run(self, host: Optional[str] = None, port: Optional[int] = None) -> None:
+    def run(self, host: Optional[str] = None, port: Optional[int] = None,
+            ssl_keyfile: Optional[str] = None, ssl_certfile: Optional[str] = None) -> None:
         """
         啟動 FastAPI SSE 服務
         """
@@ -294,5 +295,7 @@ class SSEServer:
             self.app,
             host=actual_host,
             port=actual_port,
+            ssl_keyfile=ssl_keyfile,
+            ssl_certfile=ssl_certfile,
             log_level="debug" if self.config.debug_mode else "info"
         )
