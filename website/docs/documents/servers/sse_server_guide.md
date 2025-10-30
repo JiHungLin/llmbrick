@@ -182,6 +182,24 @@ class MyValidator:
 server = SSEServer(custom_validator=MyValidator())
 ```
 
+#### 5. 啟用 HTTPS (TLS)
+
+若需以 HTTPS 提供 SSE 服務，可在啟動時傳入 SSL 私鑰與憑證檔案：
+
+```python
+server = SSEServer()
+server.run(
+    host="0.0.0.0",
+    port=8443,
+    ssl_keyfile="/etc/ssl/private/server.key",
+    ssl_certfile="/etc/ssl/certs/server.pem"
+)
+```
+
+- `ssl_keyfile` 指向伺服器私鑰檔案 (`.key` 或 `.pem`)。
+- `ssl_certfile` 指向公開憑證或憑證鏈檔案。
+- 兩個參數需同時提供，路徑需對執行程序可讀；若憑證有誤，`uvicorn` 會在啟動時拋出例外。
+
 ---
 
 ### 操作流程與常見問題
@@ -210,7 +228,7 @@ server = SSEServer(custom_validator=MyValidator())
 
 - `set_handler(func)`：直接設定主 handler，會自動重設路由。
 - `handler(func)`：裝飾器用法，註冊主 handler。
-- `run(host=None, port=None)`：啟動伺服器，host/port 可覆蓋 config 設定。
+- `run(host=None, port=None, ssl_keyfile=None, ssl_certfile=None)`：啟動伺服器，host/port 可覆蓋 config 設定，可選擇傳入 SSL 憑證檔案以啟用 HTTPS。
 - `fastapi_app`：取得底層 FastAPI app，可用於註冊中間件或自訂路由。
 
 ---
