@@ -1,3 +1,19 @@
+# Release 0.2.9: SSL Support for SSE Server and Enhanced TypeScript Documentation
+
+This release adds SSL/HTTPS support to the SSE Server and expands the documentation with comprehensive TypeScript integration examples.
+
+## Major Changes
+- Added SSL/HTTPS support to SSE Server with `ssl_keyfile` and `ssl_certfile` parameters in the `run()` method
+- Enhanced TypeScript documentation with complete type definitions and streaming examples
+
+## Improvements
+- Minor code cleanup in logging utilities
+
+## Documentation
+- Added comprehensive TypeScript type definitions for SSE interfaces
+- Provided TypeScript streaming examples with proper error handling
+- Enhanced frontend integration guidance
+
 # Release v0.2.5: Comprehensive Documentation Overhaul and Guide Enhancements
 
 This release focuses on a major overhaul of the documentation system, including migration to Docusaurus, comprehensive new guides for all bricks, enhanced gRPC and SSE server documentation, and updated visual assets. No core code changes are included in this release.
