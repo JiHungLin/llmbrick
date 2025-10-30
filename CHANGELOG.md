@@ -1,4 +1,4 @@
-# Release 0.2.9: SSL Support for SSE Server and Enhanced TypeScript Documentation
+# Release 0.2.10: SSL Support for SSE Server and Enhanced TypeScript Documentation
 
 This release adds SSL/HTTPS support to the SSE Server and expands the documentation with comprehensive TypeScript integration examples.
 
