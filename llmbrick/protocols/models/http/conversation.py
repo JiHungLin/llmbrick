@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import Any, List, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -129,6 +130,11 @@ class SSEResponseMetadata(BaseModel):
     )
 
 
+class ConversationResponseProgressEnum(str, Enum):
+    IN_PROGRESS = "IN_PROGRESS"
+    DONE = "DONE"
+    ERROR = "ERROR"
+
 class ConversationSSEResponse(BaseModel):
     """
     SSE 專用對話回應模型，對應主流 LLM SSE Response 格式
@@ -146,7 +152,7 @@ class ConversationSSEResponse(BaseModel):
     text: Optional[str] = Field(
         None, description="本次串流新文本 (Streamed text chunk, optional)"
     )
-    progress: str = Field(
+    progress: ConversationResponseProgressEnum = Field(
         ...,
         description="進度狀態，如 'IN_PROGRESS', 'DONE' (Progress: 'IN_PROGRESS', 'DONE')",
     )
@@ -160,6 +166,7 @@ class ConversationSSEResponse(BaseModel):
     model_config = ConfigDict(
         extra="forbid",  # 禁止額外欄位
         populate_by_name=True,  # 允許使用欄位名稱進行填充
+        use_enum_values=True,
         json_schema_extra={
             "example": {
                 "id": "1",
