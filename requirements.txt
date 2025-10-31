@@ -21,13 +21,12 @@ grpcio-tools>=1.60.0
 sse-starlette>=1.6.5
 
 # Vector database and embeddings
-chromadb>=0.4.15
+# chromadb>=0.4.15
 
 # Utilities
 httpx>=0.25.0
 python-multipart>=0.0.6
 psutil>=5.9.0
-pretty-loguru>=1.1.2
 
 # Documentation build dependencies
 sphinx>=7.0.0

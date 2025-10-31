@@ -35,7 +35,6 @@ dependencies = [
     "grpcio>=1.59.0",
     "grpcio-tools>=1.59.0",
     "sse-starlette>=1.6.5",
-    "chromadb>=0.4.15",
     "httpx>=0.25.0",
     "python-multipart>=0.0.6",
     "pretty-loguru>=1.1.2",
